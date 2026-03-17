@@ -26,7 +26,7 @@
         <!-- course_details::start  -->
     <div class="position-relative">
         <div class="course__details_head"
-             style="background-image: url({{assetPath($frontendContent->breadcrumb_page_banner ?? 'public/frontend/infixlmstheme/img/new_bread_crumb_bg.png')}})">
+             style="background-image: url({{assetPath($frontendContent->thumbnail ?? 'public/frontend/infixlmstheme/img/new_bread_crumb_bg.png')}})">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-8">

@@ -95,6 +95,7 @@
 
 
         <script>
+            /*
             setTimeout(function () {
                 $("#popupContentDiv").removeClass('d-none');
             }, 3000);
@@ -102,6 +103,7 @@
             function closePopUpModel() {
                 $("#popupContentDiv").addClass('d-none');
             }
+                */
         </script>
     @endif
 

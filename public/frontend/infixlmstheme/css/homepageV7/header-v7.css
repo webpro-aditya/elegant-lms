@@ -221,8 +221,8 @@ html[dir=rtl] .heading-profile-dropdown a:hover {
 }
 
 .heading-logo {
-    max-width: 196px;
-    width: auto;
+    max-width: 200px;
+    width: 200px;
     object-fit: contain;
     height: 30px;
 }
