@@ -306,7 +306,30 @@
             flex-grow: 1;
         }
 
+        .header_iner {
+            display: none !important;
+        }
 
+        @media (max-width: 767px) {
+
+            .header_iner {
+                background: #fff !important;
+                box-shadow: 0px 1px 10px rgb(0 0 0 / 10%);
+                display: flex !important;
+            }
+
+            .notification_wrapper {
+                background: #000000 !important;
+            }
+
+            .header__wrapper {
+                padding: 10px 0 0 0 !important;
+            }
+
+            .header__left {
+                display: none !important;
+            }
+        }
     </style>
 @endsection
 
@@ -350,8 +373,10 @@
         @endif
         @endif
     </script>
+    
     <header>
         <div id="sticky-header" class="header_area">
+            @include(theme('partials._dashboard_menu'))
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">

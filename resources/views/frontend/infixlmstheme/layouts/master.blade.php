@@ -10,5 +10,5 @@
 <input type="hidden" name="app_debug" class="app_debug" value="{{env('APP_DEBUG') }}">
 @include('preloader')
 @yield('mainContent')
-
 @include(theme('partials._footer'))
+
