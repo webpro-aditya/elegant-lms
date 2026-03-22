@@ -7,6 +7,7 @@
 
     @include(theme('partials.footer.'.$footer_style))
 
+    @include(theme('snippets.floating-icons'))
 
     <div class="shoping_wrapper">
         <div class="dark_overlay"></div>

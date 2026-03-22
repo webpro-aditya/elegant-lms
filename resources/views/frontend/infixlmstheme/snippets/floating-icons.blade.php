@@ -1,8 +1,8 @@
 <style>
     .floating-contact {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 160px;
+        left: 20px;
         z-index: 999;
     }
 
@@ -98,15 +98,15 @@
     </div>
 
     <div class="fab-options">
-        <a href="tel:+919999999999" class="fab-item call">
+        <a href="tel:+971566835512" class="fab-item call">
             📞 <span>Call</span>
         </a>
 
-        <a href="mailto:info@example.com" class="fab-item email">
+        <a href="mailto:sales@elegant-training.ae" class="fab-item email">
             ✉️ <span>Email</span>
         </a>
 
-        <a href="https://wa.me/919999999999" target="_blank" class="fab-item whatsapp">
+        <a href="https://wa.me/971566835512" target="_blank" class="fab-item whatsapp">
             🟢 <span>WhatsApp</span>
         </a>
     </div>
