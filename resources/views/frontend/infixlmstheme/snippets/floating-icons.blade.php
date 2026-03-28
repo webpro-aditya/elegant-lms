@@ -142,7 +142,7 @@
 @keyframes fc-scatter{0%{opacity:1;transform:translate(-50%,-50%) translate(0,0) scale(1)}70%{opacity:.8}100%{opacity:0;transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) scale(0)}}
 
 @media(max-width:600px){
-  .fc-widget{bottom:65px;right:320px}
+  .fc-widget{bottom:165px;right:18px}
   .fc-trigger{width:54px;height:54px;border-radius:17px}
   .fc-info{display:none}
   .fc-card{padding:9px}
