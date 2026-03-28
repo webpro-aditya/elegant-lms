@@ -646,7 +646,7 @@ class LoginController extends Controller
         if ($device_limit != 0) {
             if (count($logins) >= $device_limit && $request->get('force', 0) != 1) {
                 Auth::logout();
-                return false;
+                return true;
             } elseif ($request->get('force') == 1) {
                 $this->logoutFromOtherDevice(Auth::user());
                 DB::table('user_logins')
