@@ -192,14 +192,14 @@ class LoginController extends Controller
         // login the user
         Auth::login($user, true);
 
-        if (!$newCreated && Auth::user()->role_id == 3 && !$this->multipleLogin(\request())) {
-            if (Settings('allow_force_logout') == 1) {
-                Toastr::error(trans('auth.multiple_device_login_error_msg'), trans('common.Failed'));
-            } else {
-                Toastr::error(trans('frontend.Your Account is already logged in, into').' ' . Settings('device_limit') . ' '.trans('frontend.devices'), trans('common.Error'));
-            }
-            return redirect()->route('login');
-        }
+        // if (!$newCreated && Auth::user()->role_id == 3 && !$this->multipleLogin(\request())) {
+        //     if (Settings('allow_force_logout') == 1) {
+        //         Toastr::error(trans('auth.multiple_device_login_error_msg'), trans('common.Failed'));
+        //     } else {
+        //         Toastr::error(trans('frontend.Your Account is already logged in, into').' ' . Settings('device_limit') . ' '.trans('frontend.devices'), trans('common.Error'));
+        //     }
+        //     return redirect()->route('login');
+        // }
 
         return $this->sendSuccessResponse();
     }
@@ -300,14 +300,14 @@ class LoginController extends Controller
 
                 $this->classAttendance($user); /* this for MyClass Module*/
 
-                if (Auth::user()->role_id == 3 && !$this->multipleLogin($request)) {
-                    if (Settings('allow_force_logout') == 1) {
-                        Toastr::error(trans('auth.multiple_device_login_error_msg'), trans('common.Failed'));
-                    } else {
-                        Toastr::error(trans('frontend.Your Account is already logged in, into').' ' . Settings('device_limit') . ' '.trans('frontend.devices'), trans('common.Error'));
-                    }
-                    return back();
-                }
+                // if (Auth::user()->role_id == 3 && !$this->multipleLogin($request)) {
+                //     if (Settings('allow_force_logout') == 1) {
+                //         Toastr::error(trans('auth.multiple_device_login_error_msg'), trans('common.Failed'));
+                //     } else {
+                //         Toastr::error(trans('frontend.Your Account is already logged in, into').' ' . Settings('device_limit') . ' '.trans('frontend.devices'), trans('common.Error'));
+                //     }
+                //     return back();
+                // }
 
                 if (session()->get('cart') != null && count(session()->get('cart')) > 0) {
 
@@ -646,7 +646,7 @@ class LoginController extends Controller
         if ($device_limit != 0) {
             if (count($logins) >= $device_limit && $request->get('force', 0) != 1) {
                 Auth::logout();
-                return true;
+                return false;
             } elseif ($request->get('force') == 1) {
                 $this->logoutFromOtherDevice(Auth::user());
                 DB::table('user_logins')
