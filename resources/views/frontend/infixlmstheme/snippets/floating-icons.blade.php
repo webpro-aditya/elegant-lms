@@ -16,7 +16,8 @@
 
 .fc-widget {
   position: fixed;
-  bottom: 30px; right: 28px;
+  bottom: 100px;
+  right: 28px;
   z-index: 9999;
   display: flex; flex-direction: column; align-items: flex-end;
   font-family: 'Outfit', sans-serif;
@@ -169,7 +170,7 @@
         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
       </div>
       <div class="fc-info">
-        <span class="fc-label">Drop us a line</span>
+        <span class="fc-label">Drop us an Email</span>
         <span class="fc-value">Send Email</span>
       </div>
       <div class="fc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></div>
