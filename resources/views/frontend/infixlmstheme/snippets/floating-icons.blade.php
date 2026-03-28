@@ -1,7 +1,3 @@
-{{-- ════════════════════════════════════════════
-     Floating Contact Widget  ·  Universal
-     Works on any background — paste before </body>
-════════════════════════════════════════════ --}}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
 
@@ -14,6 +10,8 @@
   --fc-purple:   #7c3aed;
 }
 
+body { margin: 0; min-height: 200px; background: #f0f4ff; }
+
 .fc-widget {
   position: fixed;
   bottom: 100px;
@@ -23,7 +21,6 @@
   font-family: 'Outfit', sans-serif;
 }
 
-/* Cards */
 .fc-cards { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; align-items:flex-end; }
 
 .fc-card {
@@ -74,7 +71,6 @@
 .fc-arrow svg{width:14px;height:14px}
 .fc-card:hover .fc-arrow{opacity:1;transform:translateX(0)}
 
-/* Main button */
 .fc-trigger {
   position:relative; width:60px; height:60px; border-radius:20px;
   background:linear-gradient(145deg,#1e3c72 0%,#2a5298 55%,#3464c0 100%);
@@ -90,7 +86,6 @@
 }
 .fc-trigger::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,rgba(255,255,255,.22) 0%,transparent 52%);pointer-events:none}
 
-/* Spinning ring — no background dependency */
 .fc-ring{
   position:absolute; inset:-6px; border-radius:26px;
   border:2px solid transparent;
@@ -150,6 +145,8 @@
   .fc-arrow{display:none}
 }
 </style>
+</head>
+<body>
 
 <div class="fc-widget" id="fcWidget">
   <div class="fc-cards">
@@ -211,20 +208,28 @@
   const fcWidget  = document.getElementById('fcWidget');
   const fcTrigger = document.getElementById('fcTrigger');
 
-  fcTrigger.addEventListener('click', () => {
-    fcWidget.classList.toggle('open');
-    if (fcWidget.classList.contains('open')) {
+  let closeTimer = null;
+
+  function openWidget() {
+    clearTimeout(closeTimer);
+    if (!fcWidget.classList.contains('open')) {
+      fcWidget.classList.add('open');
       fcWidget.querySelectorAll('.fc-particle').forEach(p => {
         p.style.animation = 'none';
         void p.offsetWidth;
         p.style.animation = '';
       });
     }
-  });
+  }
 
-  document.addEventListener('click', e => {
-    if (!fcWidget.contains(e.target)) fcWidget.classList.remove('open');
-  });
+  function scheduleClose() {
+    closeTimer = setTimeout(() => {
+      fcWidget.classList.remove('open');
+    }, 200);
+  }
+
+  fcWidget.addEventListener('mouseenter', openWidget);
+  fcWidget.addEventListener('mouseleave', scheduleClose);
 
   fcTrigger.addEventListener('mousemove', e => {
     const r  = fcTrigger.getBoundingClientRect();
