@@ -668,7 +668,7 @@
                     @endif
                 </div>
             @else
-                <div class="quiz_questions_wrapper w-100 mt_70 ms-5 me-5">
+                <div class="quiz_questions_wrapper w-100 ms-5 me-5">
                     <!-- quiz_test_header  -->
 
                     @if ($alreadyJoin != 0 && $lesson->lessonQuiz->multiple_attend == 0)
