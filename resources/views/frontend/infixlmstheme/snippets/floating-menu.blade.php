@@ -486,25 +486,27 @@
     closeBtn.addEventListener('click', closeMenu);
     overlay.addEventListener('click', closeMenu);
 })();
-/* ── FIX: Chapter accordion toggle ── */
-document.querySelectorAll('.chapter-header').forEach(header => {
-    header.addEventListener('click', () => {
+/* ── HOVER BASED CHAPTER ACCORDION ── */
+document.querySelectorAll('.chapter-item').forEach(item => {
 
-        const ch = header.dataset.ch;
-        const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
+    const header = item.querySelector('.chapter-header');
+    const links  = item.querySelector('.chapter-links');
 
-        const isOpen = links.classList.contains('open');
+    item.addEventListener('mouseenter', () => {
 
-        // Close all first
+        // Close all
         document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
         document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
 
-        // Toggle logic
-        if (!isOpen) {
-            header.classList.add('active');
-            links.classList.add('open');
-        }
-        // if already open → stays closed (this is the fix)
+        // Open current
+        header.classList.add('active');
+        links.classList.add('open');
     });
+
+    item.addEventListener('mouseleave', () => {
+        header.classList.remove('active');
+        links.classList.remove('open');
+    });
+
 });
 </script>
