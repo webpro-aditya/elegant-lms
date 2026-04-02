@@ -1,310 +1,296 @@
 <style>
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+/* RESET */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-    /* ── Page content (your existing course page) ── */
-    .page-content {
-        padding: 24px 20px;
-        max-width: 100%;
-    }
+/* ══════════════════════════════════════════
+   FLOATING NAV SYSTEM (UPDATED DESIGN)
+══════════════════════════════════════════ */
 
-    .page-content h2 {
-        font-size: 17px;
-        font-weight: 700;
-        color: #1a1a2e;
-        margin-bottom: 16px;
-    }
+/* FAB ROOT */
+#fab-root {
+    position: fixed;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    z-index: 500;
+}
 
-    .page-content ul {
-        list-style: none;
-    }
+/* SUB BUTTON CONTAINER */
+#sub-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    opacity: 0;
+    transform: translateX(-10px);
+    pointer-events: none;
+    transition: all 0.25s ease;
+}
 
-    .page-content ul li {
-        font-size: 13px;
-        color: #333;
-        line-height: 2;
-    }
+#sub-icons.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
 
-    .page-content ul li a {
-        color: #2563eb;
-        font-size: 12px;
-        text-decoration: none;
-    }
+/* ───────────── CARD STYLE BUTTON ───────────── */
+.sub-btn {
+    width: 220px;
+    padding: 12px;
+    border-radius: 18px;
 
-    /* ══════════════════════════════════════════
-     FLOATING NAV SYSTEM
-  ══════════════════════════════════════════ */
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
-    /* Main FAB wrapper — anchored left center */
-    #fab-root {
-        position: fixed;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        z-index: 500;
-    }
+    background: #f3f4f6;
+    color: #1f2937;
 
-    /* Sub-icon buttons container */
-    #sub-icons {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-        opacity: 0;
-        transform: translateX(-10px);
-        pointer-events: none;
-        transition: opacity 0.22s ease, transform 0.22s ease;
-    }
+    box-shadow:
+        6px 6px 16px rgba(0,0,0,0.12),
+        -4px -4px 10px rgba(255,255,255,0.8);
 
-    #sub-icons.visible {
-        opacity: 1;
-        transform: translateX(0);
-        pointer-events: auto;
-    }
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
 
-    /* Individual sub-button */
-    .sub-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
-        transition: transform 0.18s ease, box-shadow 0.18s ease;
-        position: relative;
-        text-decoration: none;
-    }
+/* HOVER */
+.sub-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        8px 8px 18px rgba(0,0,0,0.15),
+        -4px -4px 10px rgba(255,255,255,0.9);
+}
 
-    .sub-btn:hover {
-        transform: scale(1.12);
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3);
-    }
+/* ACTIVE */
+.sub-btn:active {
+    transform: scale(0.97);
+}
 
-    .sub-btn:active {
-        transform: scale(0.96);
-    }
+/* ICON BOX */
+.sub-btn .icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
 
-    #btn-dashboard {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    #btn-chapters {
-        background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    }
+    color: #fff;
+    font-size: 18px;
 
-    /* Tooltip labels */
-    .sub-btn .tooltip {
-        position: absolute;
-        left: 50px;
-        white-space: nowrap;
-        background: #1a1a2e;
-        color: #fff;
-        font-size: 11px;
-        font-weight: 500;
-        padding: 4px 10px;
-        border-radius: 5px;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.15s ease;
-    }
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
 
-    .sub-btn .tooltip::before {
-        content: '';
-        position: absolute;
-        left: -5px;
-        top: 50%;
-        transform: translateY(-50%);
-        border: 5px solid transparent;
-        border-right-color: #1a1a2e;
-        border-left: none;
-    }
+/* ICON COLORS */
+.icon-dashboard {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
 
-    .sub-btn:hover .tooltip {
-        opacity: 1;
-    }
+.icon-chapters {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+}
 
-    /* Main FAB button */
-    #fab-main {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 2.5px solid rgba(255, 255, 255, 0.25);
-        background: linear-gradient(135deg, #1e3a8a, #1e40af);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 16px rgba(30, 58, 138, 0.4);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+/* TEXT */
+.sub-btn .text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
 
-    #fab-main:hover {
-        transform: scale(1.08);
-        box-shadow: 0 6px 22px rgba(30, 58, 138, 0.5);
-    }
+.sub-btn .label {
+    font-size: 10px;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+}
 
-    #fab-main:active {
-        transform: scale(0.96);
-    }
+.sub-btn .title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #111827;
+}
 
-    #fab-main svg {
-        transition: transform 0.3s ease;
-    }
+/* FAB BUTTON */
+/* PREMIUM FAB BUTTON */
+#fab-main {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px; /* rounded square */
 
-    #fab-main.open svg {
-        transform: rotate(45deg);
-    }
+    position: relative;
+    overflow: hidden;
 
-    /* ── Overlay ── */
-    #menu-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0);
-        pointer-events: none;
-        z-index: 590;
-        transition: background 0.28s ease;
-    }
+    background: linear-gradient(135deg, #1e293b, #1e40af);
 
-    #menu-overlay.active {
-        background: rgba(0, 0, 0, 0.4);
-        pointer-events: auto;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    /* ── Chapters slide-in panel ── */
-    #chapters-menu {
-        position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 260px;
-        background: #fff;
-        z-index: 600;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(.4, 0, .2, 1);
-        display: flex;
-        flex-direction: column;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
-    }
+    cursor: pointer;
 
-    #chapters-menu.open {
-        transform: translateX(0);
-    }
+    /* soft shadow */
+    box-shadow:
+        8px 8px 20px rgba(0,0,0,0.35),
+        -4px -4px 12px rgba(255,255,255,0.08);
 
-    /* Panel header */
+    transition: all 0.25s ease;
+}
+
+/* GLOW EFFECT */
+#fab-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 60%);
+    opacity: 0.6;
+}
+
+/* HOVER */
+#fab-main:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow:
+        10px 10px 24px rgba(0,0,0,0.4),
+        -4px -4px 12px rgba(255,255,255,0.1);
+}
+
+/* CLICK */
+#fab-main:active {
+    transform: scale(0.95);
+}
+
+#fab-main::after {
+    content: '';
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(59,130,246,0.35), transparent 70%);
+    top: -20%;
+    left: -20%;
+    z-index: 0;
+}
+
+#fab-main svg {
+    position: relative;
+    z-index: 1;
+}
+
+/* ICON STYLE */
+#fab-main svg {
+    width: 24px;
+    height: 24px;
+    stroke: #fff;
+    transition: transform 0.3s ease;
+}
+
+/* ROTATION WHEN OPEN */
+#fab-main.open svg {
+    transform: rotate(45deg);
+}
+/* OVERLAY */
+#menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    pointer-events: none;
+    z-index: 590;
+    transition: background 0.3s ease;
+}
+
+#menu-overlay.active {
+    background: rgba(0,0,0,0.4);
+    pointer-events: auto;
+}
+
+/* ───────────── CHAPTER PANEL (UNCHANGED) ───────────── */
+ /* HEADER */
+ /* FIX: CHAPTER MENU VISIBILITY */
+#chapters-menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    background: #fff;
+    z-index: 1000;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+}
+
+#chapters-menu.open {
+    transform: translateX(0);
+}
     .panel-header {
         background: #1a1a2e;
+        color: #fff;
         padding: 18px 16px 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-shrink: 0;
     }
 
     .panel-header h3 {
         color: #fff;
         font-size: 14px;
         font-weight: 600;
-        letter-spacing: 0.3px;
     }
 
     .panel-close {
         background: rgba(255, 255, 255, 0.1);
         border: none;
-        color: rgba(255, 255, 255, 0.8);
+        color: #fff;
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        font-size: 14px;
-        line-height: 1;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.15s;
     }
 
-    .panel-close:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Panel scroll area */
+    /* SCROLL AREA */
     .panel-body {
         overflow-y: auto;
         flex: 1;
         padding: 8px 0;
     }
 
-    .panel-body::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .panel-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .panel-body::-webkit-scrollbar-thumb {
-        background: #c5c5d0;
-        border-radius: 2px;
-    }
-
-    /* Chapter accordion item */
+    /* CHAPTER ITEM */
     .chapter-item {
         border-bottom: 1px solid #f0f0f5;
     }
 
+    /* CHAPTER HEADER */
     .chapter-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
         padding: 11px 16px;
         cursor: pointer;
-        border-left: 3px solid transparent;
-        transition: background 0.15s, border-left-color 0.15s;
-        user-select: none;
-    }
-
-    .chapter-header:hover {
-        background: #f5f5fb;
     }
 
     .chapter-header.active {
-        border-left-color: #1e40af;
         background: #eef2ff;
+        border-left: 3px solid #1e40af;
     }
 
-    .chapter-header .ch-title {
-        font-size: 12px;
-        font-weight: 600;
-        color: #1a1a2e;
-    }
-
-    .chapter-header .ch-arrow {
-        font-size: 9px;
-        color: #888;
-        transition: transform 0.22s ease;
-    }
-
-    .chapter-header.active .ch-arrow {
-        transform: rotate(90deg);
-    }
-
-    /* Sub-links */
+    /* LESSON LINKS */
     .chapter-links {
         display: none;
-        background: #f8f8fc;
-        padding: 4px 0;
     }
 
     .chapter-links.open {
@@ -313,33 +299,22 @@
 
     .chapter-links a {
         display: block;
-        padding: 8px 16px 8px 28px;
-        font-size: 11.5px;
-        color: #374151;
+        padding: 8px 16px 8px 24px;
+        font-size: 12px;
         text-decoration: none;
-        border-left: 2px solid transparent;
-        transition: background 0.12s, color 0.12s, border-left-color 0.12s;
-    }
-
-    .chapter-links a:hover {
-        background: #e8ecff;
-        color: #1e40af;
-        border-left-color: #7c3aed;
+        color: #374151;
     }
 
     .chapter-links a.current {
         color: #1e40af;
         font-weight: 600;
-        border-left-color: #1e40af;
-        background: #eef2ff;
     }
 
-    /* Progress badge */
+    /* BADGES */
     .ch-badge {
         font-size: 9px;
         padding: 2px 6px;
         border-radius: 10px;
-        font-weight: 600;
         margin-left: 6px;
     }
 
@@ -353,6 +328,24 @@
         color: #3730a3;
     }
 
+    /* ANIMATION */
+    #sub-icons.visible .sub-btn {
+        animation: slideIn 0.25s ease forwards;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* HIDE ON DESKTOP */
     @media only screen and (min-width: 767px) {
         #fab-root {
             display: none;
@@ -360,21 +353,17 @@
     }
 </style>
 
-
-<!-- ══════════════════════════════
-     FLOATING NAV SYSTEM
-══════════════════════════════ -->
-
-<!-- Backdrop overlay -->
+<!-- OVERLAY -->
 <div id="menu-overlay"></div>
 
-<!-- Chapters slide-in panel -->
-<div id="chapters-menu" role="dialog" aria-label="Chapters">
+<!-- CHAPTER MENU -->
+<div id="chapters-menu">
     <div class="panel-header">
-        <h3>📚 Chapters</h3>
-        <button class="panel-close" id="close-menu" aria-label="Close">✕</button>
+        <span>📚 Chapters</span>
+        <button class="panel-close" id="close-menu">✕</button>
     </div>
-    <div class="panel-body">
+
+   <div class="panel-body">
 
         @php $i = 1; @endphp
 
@@ -432,122 +421,90 @@
     </div>
 </div>
 
-<!-- FAB system -->
+<!-- FAB SYSTEM -->
 <div id="fab-root">
 
-    <!-- Sub-icons (revealed on FAB click) -->
     <div id="sub-icons">
 
-        <!-- Dashboard -->
-        <a href="{{ route('studentDashboard') }}" class="sub-btn" id="btn-dashboard" title="Dashboard" aria-label="Go to Dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" />
-            </svg>
-            <span class="tooltip">Dashboard</span>
+        <!-- HOME -->
+        <a href="{{ route('studentDashboard') }}" class="sub-btn">
+            <div class="icon-box icon-dashboard">🏠</div>
+            <div class="text">
+                <span class="label">GO TO</span>
+                <span class="title">Home</span>
+            </div>
         </a>
 
-        <!-- Chapters -->
-        <button class="sub-btn" id="btn-chapters" aria-label="Open Chapters">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                <line x1="9" y1="9" x2="15" y2="9" />
-                <line x1="9" y1="13" x2="13" y2="13" />
-            </svg>
-            <span class="tooltip">Chapters</span>
+        <!-- CHAPTERS -->
+        <button class="sub-btn" id="btn-chapters">
+            <div class="icon-box icon-chapters">📚</div>
+            <div class="text">
+                <span class="label">OPEN</span>
+                <span class="title">Chapters</span>
+            </div>
         </button>
 
     </div>
 
-    <!-- Main FAB trigger -->
-    <button id="fab-main" aria-label="Toggle navigation" aria-expanded="false">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- plus / menu icon -->
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
+    <!-- FAB BUTTON -->
+    <button id="fab-main">
+        <svg width="22" height="22" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
     </button>
 
 </div>
 
 <script>
-    (function() {
-        const fab = document.getElementById('fab-main');
-        const subIcons = document.getElementById('sub-icons');
-        const chapMenu = document.getElementById('chapters-menu');
-        const overlay = document.getElementById('menu-overlay');
-        const closeBtn = document.getElementById('close-menu');
-        const btnCh = document.getElementById('btn-chapters');
+(function () {
+    const fab = document.getElementById('fab-main');
+    const subIcons = document.getElementById('sub-icons');
+    const chapMenu = document.getElementById('chapters-menu');
+    const overlay = document.getElementById('menu-overlay');
+    const btnCh = document.getElementById('btn-chapters');
+    const closeBtn = document.getElementById('close-menu');
 
-        let fabOpen = false;
-        let menuOpen = false;
+    let fabOpen = false;
 
-        /* ── FAB toggle ── */
-        fab.addEventListener('click', () => {
-            fabOpen = !fabOpen;
-            subIcons.classList.toggle('visible', fabOpen);
-            fab.classList.toggle('open', fabOpen);
-            fab.setAttribute('aria-expanded', fabOpen);
-            if (!fabOpen && menuOpen) closeChapters();
-        });
+    fab.addEventListener('click', () => {
+        fabOpen = !fabOpen;
+        subIcons.classList.toggle('visible', fabOpen);
+        fab.classList.toggle('open', fabOpen);
+    });
 
-        /* ── Open chapters ── */
-        btnCh.addEventListener('click', () => {
-            openChapters();
-        });
+    btnCh.addEventListener('click', () => {
+        chapMenu.classList.add('open');
+        overlay.classList.add('active');
+    });
 
-        function openChapters() {
-            menuOpen = true;
-            chapMenu.classList.add('open');
-            overlay.classList.add('active');
+    function closeMenu() {
+        chapMenu.classList.remove('open');
+        overlay.classList.remove('active');
+    }
+
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+})();
+/* ── FIX: Chapter accordion toggle ── */
+document.querySelectorAll('.chapter-header').forEach(header => {
+    header.addEventListener('click', () => {
+
+        const ch = header.dataset.ch;
+        const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
+
+        const isOpen = links.classList.contains('open');
+
+        // Close all first
+        document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
+        document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
+
+        // Toggle logic
+        if (!isOpen) {
+            header.classList.add('active');
+            links.classList.add('open');
         }
-
-        function closeChapters() {
-            menuOpen = false;
-            chapMenu.classList.remove('open');
-            overlay.classList.remove('active');
-        }
-
-        closeBtn.addEventListener('click', closeChapters);
-        overlay.addEventListener('click', () => {
-            closeChapters();
-            fabOpen = false;
-            subIcons.classList.remove('visible');
-            fab.classList.remove('open');
-            fab.setAttribute('aria-expanded', 'false');
-        });
-
-        /* Escape key */
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeChapters();
-                fabOpen = false;
-                subIcons.classList.remove('visible');
-                fab.classList.remove('open');
-                fab.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        /* ── Chapter accordion ── */
-        document.querySelectorAll('.chapter-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const ch = header.dataset.ch;
-                const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
-                const isOpen = links.classList.contains('open');
-
-                /* Close all */
-                document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
-                document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
-
-                /* Open clicked (toggle) */
-                if (!isOpen) {
-                    header.classList.add('active');
-                    links.classList.add('open');
-                }
-            });
-        });
-    })();
+        // if already open → stays closed (this is the fix)
+    });
+});
 </script>
