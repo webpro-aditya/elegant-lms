@@ -1387,7 +1387,7 @@ if ($assign->questionBank->shuffle==1){
 
                 <script>
                     let pdfViewer = new PDFjsViewer($('.pdfjs-viewer'), {
-                        setZoom: -1,
+                        setZoom: 0.6666, // 66.66%
                         maxImageSize: -1,
                         onZoomChange: function (zoom) {
                             zoom = parseInt(zoom * 10000) / 100;
@@ -1396,10 +1396,9 @@ if ($assign->questionBank->shuffle==1){
                         onActivePageChanged: function (page, pageno) {
                             $(".pageno").text(pageno + "/" + this.getPageCount());
                         }
-
                     });
                     pdfViewer.loadDocument("{{assetPath($lesson->video_url) }}").then(function () {
-                        // pdfViewer.setZoom('width');
+                        pdfViewer.setZoom(0.6666); // enforce 66.66% after load
                     });
                     enablePinchZoom(pdfViewer)
                 </script>
