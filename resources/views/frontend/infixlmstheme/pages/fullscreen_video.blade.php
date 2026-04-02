@@ -373,10 +373,8 @@
         @endif
         @endif
     </script>
-    
     <header>
         <div id="sticky-header" class="header_area">
-            @include(theme('partials._dashboard_menu'))
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
@@ -496,6 +494,8 @@
             </div>
         </div>
     </header>
+
+    @include(theme('snippets.floating-menu'))
 
     <div class="course_fullview_wrapper {{$lesson->is_quiz == 1 ? '' : 'video'}} {{$lesson->host == 'Editor' ? 'flex-column justify-content-start p-4' : ''}}">
         @if ($lesson->is_quiz == 1)
