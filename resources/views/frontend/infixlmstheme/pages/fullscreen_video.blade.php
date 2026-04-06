@@ -1961,6 +1961,27 @@ if ($assign->questionBank->shuffle==1){
                 });
             });
         });
+
+        let lastScrollTop = 0;
+        const toolbar = document.querySelector('.pdftoolbar');
+
+        window.addEventListener('scroll', function () {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Only apply for mobile devices
+            if (window.innerWidth <= 768) {
+
+                if (scrollTop > lastScrollTop) {
+                    // Scrolling DOWN → hide toolbar
+                    toolbar.style.transform = "translateY(100%)";
+                } else {
+                    // Scrolling UP → show toolbar
+                    toolbar.style.transform = "translateY(0)";
+                }
+
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            }
+        });
     </script>
 
     @if ($lesson->host == 'Self' || $lesson->host == 'AmazonS3' || $lesson->host == 'URL' || $lesson->host == 'Youtube' || $lesson->host == 'Iframe'|| $lesson->host == 'Vimeo')

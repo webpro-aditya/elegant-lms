@@ -27,6 +27,9 @@
 
 /* SUB BUTTON CONTAINER */
 #sub-icons {
+    position: relative;
+    top: 50px;
+    left: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -47,6 +50,7 @@
 .sub-btn {
     width: 220px;
     padding: 12px;
+    border: 2px solid #000;
     border-radius: 18px;
 
     display: flex;
@@ -126,10 +130,10 @@
 #fab-main {
     width: 60px;
     height: 60px;
-    border-radius: 18px; /* rounded square */
+    border-radius: 18px;
 
-    position: relative;
-    overflow: hidden;
+    position: absolute;
+    left: -40px; /* 👈 partially hidden */
 
     background: linear-gradient(135deg, #1e293b, #1e40af);
 
@@ -139,12 +143,11 @@
 
     cursor: pointer;
 
-    /* soft shadow */
     box-shadow:
         8px 8px 20px rgba(0,0,0,0.35),
         -4px -4px 12px rgba(255,255,255,0.08);
 
-    transition: all 0.25s ease;
+    transition: left 0.3s ease, transform 0.25s ease;
 }
 
 /* GLOW EFFECT */
@@ -164,6 +167,18 @@
     box-shadow:
         10px 10px 24px rgba(0,0,0,0.4),
         -4px -4px 12px rgba(255,255,255,0.1);
+}
+
+#fab-root:hover #fab-main {
+    left: 0;
+}
+
+#fab-root.active #fab-main {
+    left: 0;
+}
+
+#sub-icons {
+    order: -1; /* 👈 keeps icons above button */
 }
 
 /* CLICK */
@@ -506,5 +521,14 @@ document.querySelectorAll('.chapter-header').forEach(header => {
         }
         // if already open → stays closed (this is the fix)
     });
+});
+
+fab.addEventListener('click', () => {
+    fabOpen = !fabOpen;
+
+    document.getElementById('fab-root').classList.toggle('active', fabOpen);
+
+    subIcons.classList.toggle('visible', fabOpen);
+    fab.classList.toggle('open', fabOpen);
 });
 </script>
