@@ -287,6 +287,9 @@
                 labelFileTypeNotAllowed: '{{__('common.Invalid File Format')}}',
 
                 chunkUploads: true,
+                chunkSize: 5 * 1024 * 1024,
+                maxParallelUploads: 3,     
+                chunkRetryDelays: [500, 1000, 3000],
                 'allowMultiple': $('#multipleForm').length ? true : false,
                 server: {
                     url: '{{url('/filepond/api/process')}}',

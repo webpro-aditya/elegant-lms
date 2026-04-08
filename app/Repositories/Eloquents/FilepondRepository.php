@@ -18,91 +18,96 @@ class FilepondRepository implements FilepondRepositoryInterface
     public function upload(object $request): array|string
     {
         $file = $request->file('file');
-        if(!isset($file)){
-            throw ValidationException::withMessages(['file' => trans('validation.file.required')]);
+
+        if (!isset($file)) {
+            throw ValidationException::withMessages([
+                'file' => trans('validation.file.required')
+            ]);
         }
+
+        // Base upload directory
+        $basePath = $this->getBasePath() . '/upload/' . saasDomain();
+
+        // Create base directory only once
+        if (!File::isDirectory($basePath)) {
+            File::makeDirectory($basePath, 0777, true, true);
+        }
+
+        // Handle multiple files
         if (is_array($file)) {
-            $path = [];
+
+            $paths = [];
+
             foreach ($file as $item) {
-                $filePath = $this->getBasePath() . '/' . 'upload' . '/' . saasDomain() . '/' . uniqid();
+
+                if (!$item) continue;
+
+                // Create unique folder per file
+                $filePath = $basePath . '/' . uniqid();
+
                 if (!File::isDirectory($filePath)) {
                     File::makeDirectory($filePath, 0777, true, true);
                 }
-                if ($item) {
-                    $name = $item->getClientOriginalName();
-                    if ($item->move($filePath, $name)) {
-                        $path[] = $this->getServerIdFromPath($filePath);
-                    }
-                }
+
+                $name = $item->getClientOriginalName();
+                $destination = $filePath . '/' . $name;
+
+                // 🔥 STREAM COPY (FASTER THAN move)
+                $input = fopen($item->getRealPath(), 'rb');
+                $output = fopen($destination, 'wb');
+
+                stream_copy_to_stream($input, $output);
+
+                fclose($input);
+                fclose($output);
+
+                $paths[] = $this->getServerIdFromPath($filePath);
             }
-            return $path;
+
+            return $paths;
         } else {
-            $filePath = $this->getBasePath() . '/' . 'upload' . '/' . saasDomain() . '/' . uniqid();
+
+            // Single file
+            $filePath = $basePath . '/' . uniqid();
+
             if (!File::isDirectory($filePath)) {
                 File::makeDirectory($filePath, 0777, true, true);
             }
-            if ($file) {
-                $name = $file->getClientOriginalName();
-                if (!$file->move($filePath, $name)) {
-                    return response()->json('Could not save file', 500);
-                }
-            }
+
+            $name = $file->getClientOriginalName();
+            $destination = $filePath . '/' . $name;
+
+            // 🔥 STREAM COPY (FASTER)
+            $input = fopen($file->getRealPath(), 'rb');
+            $output = fopen($destination, 'wb');
+
+            stream_copy_to_stream($input, $output);
+
+            fclose($input);
+            fclose($output);
+
             return $this->getServerIdFromPath($filePath);
         }
     }
-
     public function chunk(object $request): bool
     {
-        error_reporting(E_ERROR);
         $id = $request->get('patch');
-
-        // location of patch files
         $filePath = $this->getPathFromServerId($id);
 
         $fileName = $_SERVER['HTTP_UPLOAD_NAME'];
-        $dir = $filePath . '/' . $fileName;
+        $file = $filePath . '/' . $fileName;
 
-        // get patch data
         $offset = $_SERVER['HTTP_UPLOAD_OFFSET'];
-        $length = $_SERVER['HTTP_UPLOAD_LENGTH'];
-        // should be numeric values, else exit
-        if (!is_numeric($offset) || !is_numeric($length)) {
-            return false;
-        }
-        // get sanitized name
 
-        // write patch file for this request
-        file_put_contents($dir . '.patch.' . $offset, fopen('php://input', 'rb'));
-        // calculate total size of patches
-        $size = 0;
-        $patch = glob($dir . '.patch.*');
-        foreach ($patch as $filename) {
-            $size += filesize($filename);
-        }
-        // if total size equals length of file we have gathered all patch files
-        if ($size == $length) {
-            // create output file
-            $file_handle = fopen($dir, 'wb');
-            // write patches to file
-            foreach ($patch as $filename) {
-                // get offset from filename
-                list($dir, $offset) = explode('.patch.', $filename, 2);
-                // read patch and close
-                $patch_handle = fopen($filename, 'rb');
-                $patch_contents = fread($patch_handle, filesize($filename));
-                fclose($patch_handle);
+        $input = fopen('php://input', 'rb');
+        $output = fopen($file, 'c'); // create if not exists
 
-                // apply patch
-                fseek($file_handle, $offset);
-                fwrite($file_handle, $patch_contents);
-            }
-            // remove patches
-            foreach ($patch as $filename) {
-                unlink($filename);
-            }
-            // done with file
-            fclose($file_handle);
-        }
+        fseek($output, $offset);
+        stream_copy_to_stream($input, $output);
+
+        fclose($input);
+        fclose($output);
+
         return true;
     }
 
