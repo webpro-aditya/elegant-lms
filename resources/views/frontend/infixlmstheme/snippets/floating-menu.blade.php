@@ -1,258 +1,262 @@
 <style>
-/* RESET */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    /* RESET */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-/* ══════════════════════════════════════════
+    /* ══════════════════════════════════════════
    FLOATING NAV SYSTEM (UPDATED DESIGN)
 ══════════════════════════════════════════ */
 
-/* FAB ROOT */
-#fab-root {
-    position: fixed;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    z-index: 500;
-}
+    /* FAB ROOT */
+    #fab-root {
+        position: fixed;
+        left: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        z-index: 500;
+    }
 
-/* SUB BUTTON CONTAINER */
-#sub-icons {
-    position: relative;
-    top: 50px;
-    left: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-    opacity: 0;
-    transform: translateX(-10px);
-    pointer-events: none;
-    transition: all 0.25s ease;
-}
+    /* SUB BUTTON CONTAINER */
+    #sub-icons {
+        position: relative;
+        top: 50px;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        opacity: 0;
+        transform: translateX(-10px);
+        pointer-events: none;
+        transition: all 0.25s ease;
+    }
 
-#sub-icons.visible {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
-}
+    #sub-icons.visible {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+    }
 
-/* ───────────── CARD STYLE BUTTON ───────────── */
-.sub-btn {
-    width: 220px;
-    padding: 12px;
-    border: 2px solid #000;
-    border-radius: 18px;
+    /* ───────────── CARD STYLE BUTTON ───────────── */
+    .sub-btn {
+        width: 220px;
+        padding: 12px;
+        border: 2px solid #000;
+        border-radius: 18px;
 
-    display: flex;
-    align-items: center;
-    gap: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
 
-    background: #f3f4f6;
-    color: #1f2937;
+        background: #f3f4f6;
+        color: #1f2937;
 
-    box-shadow:
-        6px 6px 16px rgba(0,0,0,0.12),
-        -4px -4px 10px rgba(255,255,255,0.8);
+        box-shadow:
+            6px 6px 16px rgba(0, 0, 0, 0.12),
+            -4px -4px 10px rgba(255, 255, 255, 0.8);
 
-    transition: all 0.25s ease;
-    text-decoration: none;
-}
+        transition: all 0.25s ease;
+        text-decoration: none;
+    }
 
-/* HOVER */
-.sub-btn:hover {
-    transform: translateY(-2px);
-    box-shadow:
-        8px 8px 18px rgba(0,0,0,0.15),
-        -4px -4px 10px rgba(255,255,255,0.9);
-}
+    /* HOVER */
+    .sub-btn:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            8px 8px 18px rgba(0, 0, 0, 0.15),
+            -4px -4px 10px rgba(255, 255, 255, 0.9);
+    }
 
-/* ACTIVE */
-.sub-btn:active {
-    transform: scale(0.97);
-}
+    /* ACTIVE */
+    .sub-btn:active {
+        transform: scale(0.97);
+    }
 
-/* ICON BOX */
-.sub-btn .icon-box {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    /* ICON BOX */
+    .sub-btn .icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-    color: #fff;
-    font-size: 18px;
+        color: #fff;
+        font-size: 18px;
 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
 
-/* ICON COLORS */
-.icon-dashboard {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-}
+    /* ICON COLORS */
+    .icon-dashboard {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
 
-.icon-chapters {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-}
+    .icon-chapters {
+        background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    }
 
-/* TEXT */
-.sub-btn .text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
+    /* TEXT */
+    .sub-btn .text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
 
-.sub-btn .label {
-    font-size: 10px;
-    color: #6b7280;
-    letter-spacing: 0.5px;
-}
+    .sub-btn .label {
+        font-size: 10px;
+        color: #6b7280;
+        letter-spacing: 0.5px;
+    }
 
-.sub-btn .title {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: #111827;
-}
+    .sub-btn .title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #111827;
+    }
 
-/* FAB BUTTON */
-/* PREMIUM FAB BUTTON */
-#fab-main {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
+    /* FAB BUTTON */
+    /* PREMIUM FAB BUTTON */
+    #fab-main {
+        width: 50px;
+        height: 60px;
+        padding: 5px;
+        border-radius: 18px;
+        position: absolute;
+        left: -33px;
 
-    position: absolute;
-    left: -40px; /* 👈 partially hidden */
 
-    background: linear-gradient(135deg, #1e293b, #1e40af);
+        background: linear-gradient(135deg, #1e293b, #1e40af);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-    cursor: pointer;
+        cursor: pointer;
 
-    box-shadow:
-        8px 8px 20px rgba(0,0,0,0.35),
-        -4px -4px 12px rgba(255,255,255,0.08);
+        box-shadow:
+            8px 8px 20px rgba(0, 0, 0, 0.35),
+            -4px -4px 12px rgba(255, 255, 255, 0.08);
 
-    transition: left 0.3s ease, transform 0.25s ease;
-}
+        transition: left 0.3s ease, transform 0.25s ease;
+    }
 
-/* GLOW EFFECT */
-#fab-main::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
+    /* GLOW EFFECT */
+    #fab-main::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
 
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 60%);
-    opacity: 0.6;
-}
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), transparent 60%);
+        opacity: 0.6;
+    }
 
-/* HOVER */
-#fab-main:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow:
-        10px 10px 24px rgba(0,0,0,0.4),
-        -4px -4px 12px rgba(255,255,255,0.1);
-}
+    /* HOVER */
+    #fab-main:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow:
+            10px 10px 24px rgba(0, 0, 0, 0.4),
+            -4px -4px 12px rgba(255, 255, 255, 0.1);
+    }
 
-#fab-root:hover #fab-main {
-    left: 0;
-}
+    #fab-root:hover #fab-main {
+        left: 0;
+    }
 
-#fab-root.active #fab-main {
-    left: 0;
-}
+    #fab-root.active #fab-main {
+        left: 0;
+    }
 
-#sub-icons {
-    order: -1; /* 👈 keeps icons above button */
-}
+    #sub-icons {
+        order: -1;
+        /* 👈 keeps icons above button */
+    }
 
-/* CLICK */
-#fab-main:active {
-    transform: scale(0.95);
-}
+    /* CLICK */
+    #fab-main:active {
+        transform: scale(0.95);
+    }
 
-#fab-main::after {
-    content: '';
-    position: absolute;
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(59,130,246,0.35), transparent 70%);
-    top: -20%;
-    left: -20%;
-    z-index: 0;
-}
+    #fab-main::after {
+        content: '';
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.35), transparent 70%);
+        top: -20%;
+        left: -20%;
+        z-index: 0;
+    }
 
-#fab-main svg {
-    position: relative;
-    z-index: 1;
-}
+    #fab-main svg {
+        position: relative;
+        z-index: 1;
+    }
 
-/* ICON STYLE */
-#fab-main svg {
-    width: 24px;
-    height: 24px;
-    stroke: #fff;
-    transition: transform 0.3s ease;
-}
+    /* ICON STYLE */
+    #fab-main svg {
+        width: 24px;
+        height: 24px;
+        stroke: #fff;
+        transition: transform 0.3s ease;
+    }
 
-/* ROTATION WHEN OPEN */
-#fab-main.open svg {
-    transform: rotate(45deg);
-}
-/* OVERLAY */
-#menu-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0);
-    pointer-events: none;
-    z-index: 590;
-    transition: background 0.3s ease;
-}
+    /* ROTATION WHEN OPEN */
+    #fab-main.open svg {
+        transform: rotate(45deg);
+    }
 
-#menu-overlay.active {
-    background: rgba(0,0,0,0.4);
-    pointer-events: auto;
-}
+    /* OVERLAY */
+    #menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0);
+        pointer-events: none;
+        z-index: 590;
+        transition: background 0.3s ease;
+    }
 
-/* ───────────── CHAPTER PANEL (UNCHANGED) ───────────── */
- /* HEADER */
- /* FIX: CHAPTER MENU VISIBILITY */
-#chapters-menu {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 260px;
-    background: #fff;
-    z-index: 1000;
+    #menu-overlay.active {
+        background: rgba(0, 0, 0, 0.4);
+        pointer-events: auto;
+    }
 
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    /* ───────────── CHAPTER PANEL (UNCHANGED) ───────────── */
+    /* HEADER */
+    /* FIX: CHAPTER MENU VISIBILITY */
+    #chapters-menu {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        background: #fff;
+        z-index: 1000;
 
-    display: flex;
-    flex-direction: column;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
 
-    box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-}
+        display: flex;
+        flex-direction: column;
 
-#chapters-menu.open {
-    transform: translateX(0);
-}
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+    }
+
+    #chapters-menu.open {
+        transform: translateX(0);
+    }
+
     .panel-header {
         background: #1a1a2e;
         color: #fff;
@@ -269,11 +273,12 @@
     }
 
     .panel-close {
-        background: rgba(255, 255, 255, 0.1);
+        background: red;
         border: none;
         color: #fff;
         width: 28px;
         height: 28px;
+        font-weight: bold;
         border-radius: 50%;
         cursor: pointer;
     }
@@ -378,61 +383,74 @@
         <button class="panel-close" id="close-menu">✕</button>
     </div>
 
-   <div class="panel-body">
-
+    <div class="panel-body">
         @php $i = 1; @endphp
 
         @foreach ($chapters as $k => $chapter)
+            <div class="chapter-item">
+                <div class="chapter-header {{ $k == 0 ? 'active' : '' }}" data-ch="{{ $k }}">
+                    <span class="ch-title">
+                        {{ $k+1 }}. {{ $chapter->name }}
 
-        <div class="chapter-item">
+                        @php
+                            $completedLessons = $chapter->lessons->where('completed.status', 1)->count();
+                            $totalLessons = $chapter->lessons->count();
+                        @endphp
 
-            <!-- Chapter Header -->
-            <div class="chapter-header {{ $k == 0 ? 'active' : '' }}" data-ch="{{ $k }}">
-                <span class="ch-title">
-                    {{ $k+1 }}. {{ $chapter->name }}
+                        @if($completedLessons > 0 && $completedLessons == $totalLessons)
+                            <span class="ch-badge done">Done</span>
+                        @elseif($completedLessons > 0)
+                            <span class="ch-badge active">Active</span>
+                        @endif
+                    </span>
 
-                    @php
-                    $completedLessons = $chapter->lessons->where('completed.status', 1)->count();
-                    $totalLessons = $chapter->lessons->count();
-                    @endphp
+                    <span class="ch-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                            <polyline points="9 5 16 12 9 19"></polyline>
+                        </svg>
+                    </span>
+                </div>
 
-                    @if($completedLessons == $totalLessons)
-                    <span class="ch-badge done">Done</span>
-                    @elseif($completedLessons > 0)
-                    <span class="ch-badge active">Active</span>
-                    @endif
+                <div class="chapter-links {{ $k == 0 ? 'open' : '' }}" data-ch="{{ $k }}">
+                    @foreach ($lessons as $lesson)
+                        @if ($lesson->chapter_id == $chapter->id)
+                            @php
+                                // Skip Quizzes with no data or Assignments if module inactive
+                                if ($lesson->is_quiz == 1 && (!isset($lesson->quiz) || $lesson->quiz->count() == 0)) continue;
+                                if ($lesson->is_assignment == 1 && !isModuleActive('Assignment')) continue;
+                                
+                                $isCurrent = request()->route('lesson_id') == $lesson->id;
+                                $isDone = $lesson->completed && $lesson->completed->status == 1;
+                            @endphp
 
-                </span>
-                <span class="ch-arrow">▶</span>
+                            <div class="lesson-row d-flex align-items-center px-3 py-2">
+                                {{--<div class="lesson-status me-2">
+                                    <input type="checkbox" {{ $isDone ? 'checked' : '' }} disabled>
+                                </div>--}}
+
+                                @if ($lesson->is_quiz == 1)
+                                    @foreach ($lesson->quiz as $quiz)
+                                        <a href="javascript:void(0)" 
+                                           onclick="goFullScreen({{ $course->id }}, {{ $lesson->id }})"
+                                           class="quiz-link {{ $isCurrent ? 'current' : '' }}">
+                                            {{ $i }}. {{ $quiz->title }}
+                                        </a>
+                                    @endforeach
+                                @else
+                                    <a href="javascript:void(0)" 
+                                       onclick="goFullScreen({{ $course->id }}, {{ $lesson->id }})"
+                                       class="lesson-link {{ $isCurrent ? 'current' : '' }}">
+                                        {{ $i }}. {{ $lesson->name }}
+                                    </a>
+                                @endif
+                            </div>
+
+                            @php $i++; @endphp
+                        @endif
+                    @endforeach
+                </div>
             </div>
-
-            <!-- Lessons -->
-            <div class="chapter-links {{ $k == 0 ? 'open' : '' }}" data-ch="{{ $k }}">
-
-                @foreach ($lessons as $lesson)
-
-                @if ($lesson->chapter_id == $chapter->id)
-
-                <a href="javascript:void(0)"
-                    onclick="goFullScreen({{ $course->id }}, {{ $lesson->id }})"
-                    class="{{ request()->route('lesson_id') == $lesson->id ? 'current' : '' }}">
-
-                    {{ $i }}. {{ $lesson->name }}
-
-                </a>
-
-                @php $i++; @endphp
-
-                @endif
-
-                @endforeach
-
-            </div>
-
-        </div>
-
         @endforeach
-
     </div>
 </div>
 
@@ -463,72 +481,72 @@
 
     <!-- FAB BUTTON -->
     <button id="fab-main">
-        <svg width="22" height="22" viewBox="0 0 24 24" stroke="white" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
         </svg>
     </button>
 
 </div>
 
 <script>
-(function () {
-    const fab = document.getElementById('fab-main');
-    const subIcons = document.getElementById('sub-icons');
-    const chapMenu = document.getElementById('chapters-menu');
-    const overlay = document.getElementById('menu-overlay');
-    const btnCh = document.getElementById('btn-chapters');
-    const closeBtn = document.getElementById('close-menu');
+    (function() {
+        const fab = document.getElementById('fab-main');
+        const subIcons = document.getElementById('sub-icons');
+        const chapMenu = document.getElementById('chapters-menu');
+        const overlay = document.getElementById('menu-overlay');
+        const btnCh = document.getElementById('btn-chapters');
+        const closeBtn = document.getElementById('close-menu');
 
-    let fabOpen = false;
+        let fabOpen = false;
+
+        fab.addEventListener('click', () => {
+            fabOpen = !fabOpen;
+            subIcons.classList.toggle('visible', fabOpen);
+            fab.classList.toggle('open', fabOpen);
+        });
+
+        btnCh.addEventListener('click', () => {
+            chapMenu.classList.add('open');
+            overlay.classList.add('active');
+        });
+
+        function closeMenu() {
+            chapMenu.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        closeBtn.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
+    })();
+    /* ── FIX: Chapter accordion toggle ── */
+    document.querySelectorAll('.chapter-header').forEach(header => {
+        header.addEventListener('click', () => {
+
+            const ch = header.dataset.ch;
+            const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
+
+            const isOpen = links.classList.contains('open');
+
+            // Close all first
+            document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
+            document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
+
+            // Toggle logic
+            if (!isOpen) {
+                header.classList.add('active');
+                links.classList.add('open');
+            }
+            // if already open → stays closed (this is the fix)
+        });
+    });
 
     fab.addEventListener('click', () => {
         fabOpen = !fabOpen;
+
+        document.getElementById('fab-root').classList.toggle('active', fabOpen);
+
         subIcons.classList.toggle('visible', fabOpen);
         fab.classList.toggle('open', fabOpen);
     });
-
-    btnCh.addEventListener('click', () => {
-        chapMenu.classList.add('open');
-        overlay.classList.add('active');
-    });
-
-    function closeMenu() {
-        chapMenu.classList.remove('open');
-        overlay.classList.remove('active');
-    }
-
-    closeBtn.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-})();
-/* ── FIX: Chapter accordion toggle ── */
-document.querySelectorAll('.chapter-header').forEach(header => {
-    header.addEventListener('click', () => {
-
-        const ch = header.dataset.ch;
-        const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
-
-        const isOpen = links.classList.contains('open');
-
-        // Close all first
-        document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
-        document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
-
-        // Toggle logic
-        if (!isOpen) {
-            header.classList.add('active');
-            links.classList.add('open');
-        }
-        // if already open → stays closed (this is the fix)
-    });
-});
-
-fab.addEventListener('click', () => {
-    fabOpen = !fabOpen;
-
-    document.getElementById('fab-root').classList.toggle('active', fabOpen);
-
-    subIcons.classList.toggle('visible', fabOpen);
-    fab.classList.toggle('open', fabOpen);
-});
 </script>
