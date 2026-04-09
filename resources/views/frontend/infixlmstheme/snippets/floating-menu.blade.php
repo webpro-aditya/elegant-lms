@@ -492,6 +492,7 @@
 <script>
     (function() {
         const fab = document.getElementById('fab-main');
+        const fabRoot = document.getElementById('fab-root');
         const subIcons = document.getElementById('sub-icons');
         const chapMenu = document.getElementById('chapters-menu');
         const overlay = document.getElementById('menu-overlay');
@@ -500,53 +501,64 @@
 
         let fabOpen = false;
 
-        fab.addEventListener('click', () => {
-            fabOpen = !fabOpen;
-            subIcons.classList.toggle('visible', fabOpen);
+        // --- FAB TOGGLE LOGIC ---
+        function toggleFab(forceClose = false) {
+            if (forceClose) fabOpen = false;
+            else fabOpen = !fabOpen;
+
             fab.classList.toggle('open', fabOpen);
+            subIcons.classList.toggle('visible', fabOpen);
+            fabRoot.classList.toggle('active', fabOpen);
+        }
+
+        fab.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents immediate closing by the document listener
+            toggleFab();
         });
 
+        // --- CHAPTER MENU LOGIC ---
         btnCh.addEventListener('click', () => {
             chapMenu.classList.add('open');
             overlay.classList.add('active');
+            toggleFab(true); // Hide sub-icons when side menu opens
         });
 
-        function closeMenu() {
+        function closeAllMenus() {
             chapMenu.classList.remove('open');
             overlay.classList.remove('active');
+            toggleFab(true); // Ensure FAB is closed
         }
 
-        closeBtn.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
-    })();
-    /* ── FIX: Chapter accordion toggle ── */
-    document.querySelectorAll('.chapter-header').forEach(header => {
-        header.addEventListener('click', () => {
+        closeBtn.addEventListener('click', closeAllMenus);
+        overlay.addEventListener('click', closeAllMenus);
 
-            const ch = header.dataset.ch;
-            const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
-
-            const isOpen = links.classList.contains('open');
-
-            // Close all first
-            document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
-            document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
-
-            // Toggle logic
-            if (!isOpen) {
-                header.classList.add('active');
-                links.classList.add('open');
+        // --- CLICK OUTSIDE LOGIC ---
+        // Closes FAB sub-icons if you click anywhere else on the screen
+        document.addEventListener('click', (event) => {
+            const isClickInsideFab = fabRoot.contains(event.target);
+            
+            if (!isClickInsideFab && fabOpen) {
+                toggleFab(true);
             }
-            // if already open → stays closed (this is the fix)
         });
-    });
 
-    fab.addEventListener('click', () => {
-        fabOpen = !fabOpen;
+        // --- CHAPTER ACCORDION LOGIC ---
+        document.querySelectorAll('.chapter-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const ch = header.dataset.ch;
+                const links = document.querySelector(`.chapter-links[data-ch="${ch}"]`);
+                const isOpen = links.classList.contains('open');
 
-        document.getElementById('fab-root').classList.toggle('active', fabOpen);
+                // Close all other chapters
+                document.querySelectorAll('.chapter-header').forEach(h => h.classList.remove('active'));
+                document.querySelectorAll('.chapter-links').forEach(l => l.classList.remove('open'));
 
-        subIcons.classList.toggle('visible', fabOpen);
-        fab.classList.toggle('open', fabOpen);
-    });
+                // Open this one if it wasn't already open
+                if (!isOpen) {
+                    header.classList.add('active');
+                    links.classList.add('open');
+                }
+            });
+        });
+    })();
 </script>
