@@ -728,7 +728,7 @@
                                                 $count2 = 1;
                                             @endphp
 
-                                            <div class="question_list_header">
+                                            {{--<div class="question_list_header">
                                                 <div class="question_list_top">
                                                     <p>{{ __('quiz.Question') }} <span
                                                             id="currentNumber">{{ $count2 }}</span>
@@ -748,7 +748,9 @@
                                                         @endphp
                                                     @endforeach
                                                 @endif
-                                            </div>
+                                            </div>--}}
+
+                                            @include(theme('partials._quiz_navigation'),compact('questions'))
 
                                         </div>
 
