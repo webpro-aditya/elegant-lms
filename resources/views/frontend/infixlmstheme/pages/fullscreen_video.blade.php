@@ -26,6 +26,10 @@
             z-index: 99;
         }
 
+        #fab-root {
+            max-width: 50px;
+        }
+
         @media (max-width: 767.98px) {
             .contact_btn {
                 margin: 0 !important;

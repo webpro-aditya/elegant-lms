@@ -1,9 +1,13 @@
 <style>
+
+/* =========================
+   PROGRESS BAR
+========================= */
 .quiz-progress-bar {
     height: 6px;
     background: #e5e5e5;
     border-radius: 10px;
-    margin-top: 8px;
+    margin-top: 10px;
     overflow: hidden;
 }
 
@@ -14,45 +18,86 @@
     transition: 0.3s ease;
 }
 
-/* Popover */
+/* =========================
+   HEADER
+========================= */
+.question-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.q-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+#questionToggleBtn {
+    background: linear-gradient(90deg, #ff3c3c, #3c7cff);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* =========================
+   POPOVER WRAPPER
+========================= */
+.jump-wrapper {
+    position: relative;
+}
+
+/* =========================
+   POPOVER
+========================= */
 .question-popover {
     position: absolute;
-    top: 45px;
-    left: 0;
-    width: 420px;
+    top: 110%;
+    right: 0;
+    width: 300px;
+    max-width: 90vw;
     background: #fff;
     border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    z-index: 1050;
+    padding: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    z-index: 9999;
 }
 
-.floating-title {
-    z-index: 1000;
-}
-
+/* ARROW */
 .question-popover::before {
     content: '';
     position: absolute;
-    top: -8px;
-    left: 20px;
-    border-width: 8px;
+    top: -6px;
+    right: 20px;
+    border-width: 6px;
     border-style: solid;
     border-color: transparent transparent #fff transparent;
 }
 
+/* =========================
+   GRID
+========================= */
 .question-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
 }
 
+/* BOX */
 .q-box {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
     border-radius: 6px;
-    background: #e5e5e5;
+    background: #eee;
     cursor: pointer;
+    font-size: 13px;
     font-weight: 600;
     transition: 0.2s;
 }
@@ -61,37 +106,77 @@
     background: #dbeafe;
 }
 
-/* Active (current question) */
+/* STATES */
 .q-box.active {
     background: #3c7cff;
     color: #fff;
 }
 
-/* Answered */
 .q-box.answered {
     background: #22c55e;
     color: #fff;
 }
 
+/* =========================
+   MOBILE
+========================= */
 @media (max-width: 768px) {
-    .question-popover {
-        left: 50% !important;
-        transform: translateX(-20%);
-        width: 90vw;
-        max-width: 350px;
+
+    .question-header-flex {
+        flex-direction: row;
     }
-    .theme_btn.small_btn {
-        padding: 10px;
-        line-height: 0;
-    } 
-    .question-popover {
-        top: 55px !important;
+
+    .q-title {
+        font-size: 14px;
     }
+
+    #questionToggleBtn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .question-popover {
+        width: 260px;
+        right: 0;
+    }
+
     #fab-root {
         right: 0;
-        top: 70%;
+        top: 25%;
+        z-index: 10000;
+    }
+
+    .quiz_questions_wrapper .quiz_test_header {
+        padding: 10px;
+        font-size: 10px;
+    }
+
+    .quiz_questions_wrapper .quiz_test_header .quiz_header_right {
+        text-align: center;
+    }
+
+    .multypol_qustion p, .multypol_qustion h4 {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .quiz_questions_wrapper .quiz_test_body .question_list_header{
+        margin-bottom: 10px;
+    }
+
+    .quiz_questions_wrapper .quiz_test_body .quiz_select{
+        margin-bottom: 10px;
+    }
+
+    .quiz_questions_wrapper .quiz_test_body .quiz_select li{
+        margin-bottom: 25px;
+    }
+
+    .theme_btn.small_btn{
+        padding: 1px 20px 28px;
     }
 }
+
 </style>
 
 @php
@@ -100,36 +185,40 @@
 
 <div class="question_list_header">
 
-    <div class="question_list_top">
-        <p>
+    <!-- HEADER -->
+    <div class="question-header-flex">
+
+        <div class="q-title">
             {{ __('quiz.Question') }}
             <span id="currentNumber">1</span>
             {{ __('common.out of') }} {{ $totalQuestions }}
-        </p>
-    </div>
+        </div>
 
-    <div class="quiz-progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
+        <div class="jump-wrapper">
+            <button type="button" id="questionToggleBtn">
+                Jump ▾
+            </button>
 
-    <div class="position-relative d-inline-block mt-3">
-        <button type="button" class="btn btn-light" id="questionToggleBtn">
-            Jump to Question
-        </button>
-
-        <div id="questionPopover" class="question-popover d-none">
-            <div class="question-grid">
-                @foreach ($questions as $index => $assign)
-                    <div 
-                        class="q-box qbox_{{ $assign->id }}"
-                        data-id="{{ $assign->id }}"
-                        data-index="{{ $index }}"
-                    >
-                        {{ $index + 1 }}
-                    </div>
-                @endforeach
+            <div id="questionPopover" class="question-popover d-none">
+                <div class="question-grid">
+                    @foreach ($questions as $index => $assign)
+                        <div 
+                            class="q-box qbox_{{ $assign->id }}"
+                            data-id="{{ $assign->id }}"
+                            data-index="{{ $index }}"
+                        >
+                            {{ $index + 1 }}
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
+
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="quiz-progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
     </div>
 
 </div>
@@ -168,14 +257,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // =========================
-    // SWITCH QUESTION (FIXED)
+    // SWITCH QUESTION
     // =========================
     function switchQuestion(id) {
         let tabEl = document.querySelector('.link_' + id);
         if (!tabEl) return;
 
         let tab = new bootstrap.Tab(tabEl);
-        tab.show(); // ✅ proper Bootstrap trigger
+        tab.show();
     }
 
     // Click grid
@@ -195,38 +284,35 @@ document.addEventListener('DOMContentLoaded', function () {
         let links = Array.from(document.querySelectorAll('.questionLink'));
         let index = links.findIndex(l => l.getAttribute('data-qus') == id);
 
-        // Fix count
         document.getElementById('currentNumber').innerText = index + 1;
 
-        // Progress
         let percent = ((index + 1) / total) * 100;
         document.getElementById('progressFill').style.width = percent + '%';
 
-        // Active
         document.querySelectorAll('.q-box').forEach(b => b.classList.remove('active'));
+
         let activeBox = document.querySelector('.qbox_' + id);
         if (activeBox) activeBox.classList.add('active');
     }
 
     // =========================
-    // TAB CHANGE SYNC (FIXED)
+    // TAB SYNC
     // =========================
     document.querySelectorAll('.questionLink').forEach(link => {
-        link.addEventListener('shown.bs.tab', function (e) {
+        link.addEventListener('shown.bs.tab', function () {
             let id = this.getAttribute('data-qus');
             updateUI(id);
         });
     });
 
     // =========================
-    // MARK ANSWERED (FIXED FOR ALL TYPES)
+    // MARK ANSWERED
     // =========================
     function markAnswered(qid) {
         let box = document.querySelector('.qbox_' + qid);
         if (box) box.classList.add('answered');
     }
 
-    // Detect ALL inputs
     document.addEventListener('change', function (e) {
 
         let el = e.target;
@@ -247,11 +333,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // =========================
-    // FIX CONTINUE BUTTON
+    // NEXT / SKIP
     // =========================
     document.addEventListener('click', function (e) {
 
-        if (e.target.classList.contains('next')) {
+        if (e.target.classList.contains('next') || e.target.classList.contains('skip')) {
 
             let pane = e.target.closest('.tab-pane');
             if (!pane) return;
@@ -266,31 +352,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 let tab = new bootstrap.Tab(next);
                 tab.show();
             }
-
-        }
-
-        if (e.target.classList.contains('skip')) {
-
-            let pane = e.target.closest('.tab-pane');
-            if (!pane) return;
-
-            let currentId = pane.getAttribute('data-qus-id');
-
-            let links = Array.from(document.querySelectorAll('.questionLink'));
-            let index = links.findIndex(l => l.getAttribute('data-qus') == currentId);
-
-            let next = links[index + 1];
-            if (next) {
-                let tab = new bootstrap.Tab(next);
-                tab.show();
-            }
-
         }
 
     });
 
     // =========================
-    // INITIAL LOAD FIX
+    // INITIAL LOAD
     // =========================
     setTimeout(() => {
 
@@ -300,7 +367,6 @@ document.addEventListener('DOMContentLoaded', function () {
             let id = activePane.getAttribute('data-qus-id');
             updateUI(id);
 
-            // Restore answered
             activePane.closest('#pills-tabContent')
                 .querySelectorAll('.tab-pane')
                 .forEach(pane => {
