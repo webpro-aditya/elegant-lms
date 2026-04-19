@@ -342,7 +342,7 @@
 }
 
 .pdftoolbar-toggle-btn {
-    background: #c0392b;
+    background: linear-gradient(90deg, #ff3c3c, #3c7cff);
     border: none;
     cursor: pointer;
     width: 44px;
