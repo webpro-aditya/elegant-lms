@@ -334,6 +334,57 @@
                 display: none !important;
             }
         }
+/* PDF Toolbar Toggle */
+.pdftoolbar-toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.pdftoolbar-toggle-btn {
+    background: #c0392b;
+    border: none;
+    cursor: pointer;
+    width: 44px;
+    height: 20px;
+    border-radius: 6px 6px 0 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    padding: 0;
+    transition: opacity 0.2s ease;
+}
+
+.pdftoolbar-toggle-btn:hover {
+    opacity: 0.85;
+}
+
+.pdftoolbar-toggle-btn .pdftoolbar-arrow {
+    display: inline-block;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: rotate(0deg);
+}
+
+/* Arrow flips UP when toolbar is hidden */
+.pdftoolbar-toggle-btn.collapsed .pdftoolbar-arrow {
+    transform: rotate(180deg);
+}
+
+.pdftoolbar-slide-container {
+    width: 100%;
+    overflow: hidden;
+    max-height: 120px;  /* ← was 80px, increase to fit both rows */
+    transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.3s ease;
+    opacity: 1;
+}
+
+.pdftoolbar-slide-container.pdftoolbar-hidden {
+    max-height: 0 !important;
+    opacity: 0;
+}
     </style>
 @endsection
 
@@ -1362,7 +1413,13 @@ if ($assign->questionBank->shuffle==1){
                     var pdfjsLib = window['pdfjs-dist/build/pdf'];
                     pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ assetPath('frontend/infixlmstheme/js/pdf.worker.min.js') }}';
                 </script>
-                <div style="border: none;min-height: 400px" class="pdfviewer w-100  h-100">
+                <div class="pdftoolbar-toggle-wrapper">
+                    <button class="pdftoolbar-toggle-btn collapsed" id="pdftoolbarToggleBtn"
+                            aria-label="Show PDF Toolbar" title="Toggle Toolbar">
+                        <i class="fa fa-chevron-down pdftoolbar-arrow"></i>
+                    </button>
+                </div>
+                <div class="pdftoolbar-slide-container pdftoolbar-hidden" id="pdftoolbarSlideContainer">
                     <div class="pdftoolbar text-center row m-0 p-0">
                         <div class="col-12 col-lg-12 my-1">
                             <button class="theme_btn small_btn_icon btn-first" onclick="pdfViewer.first()"><i
@@ -1387,8 +1444,10 @@ if ($assign->questionBank->shuffle==1){
                                     class="fa fa-expand"></i></button>
                         </div>
                     </div>
-                    <div class="pdfjs-viewer h-100">
-                    </div>
+                </div>
+
+                <div style="border: none; min-height: 400px" class="pdfviewer w-100 h-100">
+                    <div class="pdfjs-viewer h-100"></div>
                 </div>
 
                 <script>
@@ -1900,6 +1959,48 @@ if ($assign->questionBank->shuffle==1){
     @if(isModuleActive("WhatsappSupport"))
         <script src="{{assetPath('whatsapp-support/scripts.js')}}{{assetVersion()}}"></script>
     @endif
+
+    <script>
+        // =========================================
+        // PDF TOOLBAR TOGGLE
+        // =========================================
+        (function () {
+            var toggleBtn = document.getElementById('pdftoolbarToggleBtn');
+            var slideContainer = document.getElementById('pdftoolbarSlideContainer');
+            if (toggleBtn && slideContainer) {
+                toggleBtn.addEventListener('click', function () {
+                    var isHidden = slideContainer.classList.toggle('pdftoolbar-hidden');
+                    toggleBtn.classList.toggle('collapsed', isHidden);
+                    toggleBtn.setAttribute(
+                        'aria-label',
+                        isHidden ? 'Show PDF Toolbar' : 'Hide PDF Toolbar'
+                    );
+                });
+            }
+        })();
+
+        // =========================================
+        // SCROLL HIDE/SHOW TOOLBAR (MOBILE ONLY)
+        // =========================================
+        let lastScrollTop = 0;
+        const toolbar = document.querySelector('.pdftoolbar');
+
+        window.addEventListener('scroll', function () {
+            if (!toolbar) return; // safety — only runs on PDF lesson pages
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const slideContainer = document.getElementById('pdftoolbarSlideContainer');
+
+            // Only apply scroll-hide on mobile AND only when toolbar is visible
+            if (window.innerWidth < 768 && slideContainer && !slideContainer.classList.contains('pdftoolbar-hidden')) {
+                if (scrollTop > lastScrollTop) {
+                    toolbar.style.transform = 'translateY(100%)';
+                } else {
+                    toolbar.style.transform = 'translateY(0)';
+                }
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    </script>
 
     <script>
         $(document).ready(function () {
