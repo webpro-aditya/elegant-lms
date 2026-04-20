@@ -42,7 +42,7 @@
     border: none;
     padding: 8px 14px;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: bold;
     font-size: 13px;
     cursor: pointer;
 }
