@@ -334,57 +334,85 @@
                 display: none !important;
             }
         }
-/* PDF Toolbar Toggle */
-.pdftoolbar-toggle-wrapper {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
+    /* PDF Toolbar Toggle */
+    .pdftoolbar-toggle-wrapper {
+        display: none;
+        justify-content: center;
+        width: 100%;
+    }
 
-.pdftoolbar-toggle-btn {
-    background: linear-gradient(90deg, #ff3c3c, #3c7cff);
-    border: none;
-    cursor: pointer;
-    width: 44px;
-    height: 20px;
-    border-radius: 6px 6px 0 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 12px;
-    padding: 0;
-    transition: opacity 0.2s ease;
-}
+    .pdftoolbar-toggle-btn {
+        background: linear-gradient(90deg, #ff3c3c, #3c7cff);
+        border: none;
+        cursor: pointer;
+        width: 44px;
+        height: 20px;
+        border-radius: 6px 6px 0 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        padding: 0;
+        transition: opacity 0.2s ease;
+    }
 
-.pdftoolbar-toggle-btn:hover {
-    opacity: 0.85;
-}
+    .pdftoolbar-toggle-btn:hover {
+        opacity: 0.85;
+    }
 
-.pdftoolbar-toggle-btn .pdftoolbar-arrow {
-    display: inline-block;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    transform: rotate(0deg);
-}
+    .pdftoolbar-toggle-btn .pdftoolbar-arrow {
+        display: inline-block;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: rotate(0deg);
+    }
 
-/* Arrow flips UP when toolbar is hidden */
-.pdftoolbar-toggle-btn.collapsed .pdftoolbar-arrow {
-    transform: rotate(180deg);
-}
+    /* Arrow flips UP when toolbar is hidden */
+    .pdftoolbar-toggle-btn.collapsed .pdftoolbar-arrow {
+        transform: rotate(180deg);
+    }
 
-.pdftoolbar-slide-container {
-    width: 100%;
-    overflow: hidden;
-    max-height: 120px;  /* ← was 80px, increase to fit both rows */
-    transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.3s ease;
-    opacity: 1;
-}
+    .pdftoolbar-slide-container {
+        width: 100%;
+        overflow: hidden;
+        max-height: 120px;  /* ← was 80px, increase to fit both rows */
+        transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity 0.3s ease;
+        opacity: 1;
+    }
 
-.pdftoolbar-slide-container.pdftoolbar-hidden {
-    max-height: 0 !important;
-    opacity: 0;
-}
+    .pdftoolbar-slide-container.pdftoolbar-hidden {
+        /* max-height: 0 !important; */
+        opacity: 0;
+    }
+    @media (max-width: 767px) {
+        .pdftoolbar-toggle-wrapper {
+            display: flex;
+        }
+        .pdftoolbar-slide-container.pdftoolbar-hidden {
+            max-height: 0 !important;
+        }
+    }
+    /* DESKTOP FIX */
+    @media (min-width: 768px) {
+        .course_fullview_wrapper {
+            flex-direction: column;
+        }
+
+        .pdftoolbar-toggle-wrapper {
+            display: none !important;
+        }
+
+        .pdftoolbar-slide-container {
+            max-height: none !important;
+            opacity: 1 !important;
+            overflow: visible !important;
+        }
+
+        .pdftoolbar {
+            display: block !important;
+        }
+    }
     </style>
 @endsection
 
@@ -1452,7 +1480,7 @@ if ($assign->questionBank->shuffle==1){
 
                 <script>
                     let pdfViewer = new PDFjsViewer($('.pdfjs-viewer'), {
-                        setZoom: 0.6666, // 66.66%
+                        setZoom: 'width', // ✅ auto full width
                         maxImageSize: -1,
                         onZoomChange: function (zoom) {
                             zoom = parseInt(zoom * 10000) / 100;
@@ -1462,10 +1490,10 @@ if ($assign->questionBank->shuffle==1){
                             $(".pageno").text(pageno + "/" + this.getPageCount());
                         }
                     });
+
                     pdfViewer.loadDocument("{{assetPath($lesson->video_url) }}").then(function () {
-                        pdfViewer.setZoom(0.6666); // enforce 66.66% after load
+                        pdfViewer.setZoom('width'); // ✅ enforce full width
                     });
-                    enablePinchZoom(pdfViewer)
                 </script>
             @endif
             @if ($lesson->host == 'Word')
@@ -1967,7 +1995,7 @@ if ($assign->questionBank->shuffle==1){
         (function () {
             var toggleBtn = document.getElementById('pdftoolbarToggleBtn');
             var slideContainer = document.getElementById('pdftoolbarSlideContainer');
-            if (toggleBtn && slideContainer) {
+            if (toggleBtn && slideContainer && window.innerWidth < 768) {
                 toggleBtn.addEventListener('click', function () {
                     var isHidden = slideContainer.classList.toggle('pdftoolbar-hidden');
                     toggleBtn.classList.toggle('collapsed', isHidden);
