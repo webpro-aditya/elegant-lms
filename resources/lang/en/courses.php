@@ -261,5 +261,7 @@ return ["All" => "All",
     'Badge' => 'Badge',
     'Price Text'=>'Price Text',
     'Custom URL' => 'Custom URL',
-
+    'Enroll Student' => 'Enroll Student',
+    'Search by name or email...' => 'Search by name or email...',
+    'No students found' => 'No students found'
 ];

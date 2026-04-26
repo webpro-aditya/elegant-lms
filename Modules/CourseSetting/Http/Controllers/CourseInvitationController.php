@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\CourseSetting\Entities\Category;
 use Modules\CourseSetting\Entities\Course;
+use Modules\CourseSetting\Entities\CourseEnrolled;
 use Modules\Org\Entities\OrgBranch;
 use Modules\Org\Entities\OrgPosition;
 use Throwable;
@@ -24,28 +25,28 @@ use Yajra\DataTables\Facades\DataTables;
 class CourseInvitationController extends Controller
 {
 
-//    public function courseInvitation($course_id)
-//    {
-//
-//        $course = Course::findOrFail($course_id);
-//        try {
-//            $enrollUsers = [];
-//            foreach ($course->enrollUsers as $key => $user) {
-//                $enrollUsers[] = $user->id;
-//            }
-//            $other_students = User::whereIn('role_id', [2, 3])->whereNotIn('id', $enrollUsers)->where('status', 1)->get();
-//
-//            foreach ($other_students as $key => $student) {
-//                SendInvitation::dispatch($course, $student);
-//            }
-//            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
-//            return redirect()->back();
-//        } catch (\Throwable $th) {
-//            Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
-//            return redirect()->back();
-//        }
-//
-//    }
+    //    public function courseInvitation($course_id)
+    //    {
+    //
+    //        $course = Course::findOrFail($course_id);
+    //        try {
+    //            $enrollUsers = [];
+    //            foreach ($course->enrollUsers as $key => $user) {
+    //                $enrollUsers[] = $user->id;
+    //            }
+    //            $other_students = User::whereIn('role_id', [2, 3])->whereNotIn('id', $enrollUsers)->where('status', 1)->get();
+    //
+    //            foreach ($other_students as $key => $student) {
+    //                SendInvitation::dispatch($course, $student);
+    //            }
+    //            Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+    //            return redirect()->back();
+    //        } catch (\Throwable $th) {
+    //            Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
+    //            return redirect()->back();
+    //        }
+    //
+    //    }
 
     public function courseStatistics()
     {
@@ -84,7 +85,6 @@ class CourseInvitationController extends Controller
                     $data['overviewStatus']['in_process'] = $data['overviewStatus']['in_process'] + $status['in_process'];
                     $data['overviewStatus']['finished'] = $data['overviewStatus']['finished'] + $status['finished'];
                     $data['overviewStatus']['total_enrolled'] = $data['overviewStatus']['total_enrolled'] + $status['total_enroll'];
-
                 }
             } elseif (request('type') == 3) {
                 $statistics = $this->courseStatisticFilterQuery()->get();
@@ -96,7 +96,6 @@ class CourseInvitationController extends Controller
                     $data['overviewStatus']['in_process'] = $data['overviewStatus']['in_process'] + $status['in_process'];
                     $data['overviewStatus']['finished'] = $data['overviewStatus']['finished'] + $status['finished'];
                     $data['overviewStatus']['total_enrolled'] = $data['overviewStatus']['total_enrolled'] + $status['total_enroll'];
-
                 }
             } else {
                 $quizStatistics = $this->courseStatisticFilterQuery()->get();
@@ -137,7 +136,6 @@ class CourseInvitationController extends Controller
                         $q->whereIn('category_id', $ids);
                         $q->orWhereIn('subcategory_id', $ids);
                     });
-
                 } elseif (request('type') == 2) {
                     $query->whereHas('quiz', function ($q) use ($ids) {
                         $q->where(function ($q2) use ($ids) {
@@ -145,7 +143,7 @@ class CourseInvitationController extends Controller
                             $q2->orWhereIn('subcategory_id', $ids);
                         });
                     });
-                } elseif(\request('type') == 3) {
+                } elseif (\request('type') == 3) {
                     $query->whereHas('class', function ($q) use ($ids) {
                         $q->where(function ($q2) use ($ids) {
                             $q2->whereIn('category_id', $ids);
@@ -153,7 +151,6 @@ class CourseInvitationController extends Controller
                         });
                     });
                 }
-
             }
         }
         if (isModuleActive('Org')) {
@@ -171,7 +168,6 @@ class CourseInvitationController extends Controller
                 $q->whereHas('user', function ($query) {
                     if (request('org_branch_code_search')) {
                         $query->where('org_chart_code', request('org_branch_code_search'));
-
                     }
                     if (request('job_position')) {
                         $query->where('org_position_code', request('job_position'));
@@ -182,7 +178,7 @@ class CourseInvitationController extends Controller
 
         $query->whereHas('enrolls', function ($q) {
             $q->whereHas('user', function ($q2) {
-                if (request('student_status', 0)){
+                if (request('student_status', 0)) {
                     $q2->where('status', (int)request('student_status', 0) == 1 ? 1 : 0);
                 }
             });
@@ -201,7 +197,6 @@ class CourseInvitationController extends Controller
             $course = Course::find($course_id);
             $students = [];
             return view('coursesetting::student_list', compact('students', 'course'));
-
         } catch (Exception $e) {
             Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
             return redirect()->back();
@@ -220,14 +215,11 @@ class CourseInvitationController extends Controller
                 return " <div class=\"profile_info\"><img src='" . getProfileImage($query->image, $query->name) . "'   alt='" . $query->name . " image'></div>";
             })->addColumn('student_name', function ($query) {
                 return '<a class="dropdown-item" target="_blank" href="' . route('student.courses', $query->id) . '" data-id="' . $query->id . '" type="button">' . $query->name . '</a>';
-
             })->editColumn('email', function ($query) {
                 return $query->email;
-
             })
             ->editColumn('phone', function ($query) {
                 return translatedNumber($query->phone);
-
             })
             ->addColumn('progressbar', function ($query) use ($course) {
                 return "  <div class='progress_percent flex-fill text-end'>
@@ -237,13 +229,11 @@ class CourseInvitationController extends Controller
                                                              aria-valuenow='25'
                                                              aria-valuemin='0' aria-valuemax='100'></div>
                                                     </div>
-                                                    <p class='font_14 f_w_400'>" . translatedNumber(round($course->userTotalPercentage($query->id, $course->id))) . "% ".trans('courses.Completed')."</p>
+                                                    <p class='font_14 f_w_400'>" . translatedNumber(round($course->userTotalPercentage($query->id, $course->id))) . "% " . trans('courses.Completed') . "</p>
                                                 </div>";
-
             })
             ->editColumn('dob', function ($query) {
                 return showDate($query->dob);
-
             })
             ->addColumn('start_working_date', function ($query) {
                 if (isModuleActive('Org')) {
@@ -251,11 +241,9 @@ class CourseInvitationController extends Controller
                 } else {
                     return '';
                 }
-
             })
             ->editColumn('country', function ($query) {
                 return $query->userCountry->name;
-
             })
             ->addColumn('status', function ($query) {
 
@@ -268,14 +256,11 @@ class CourseInvitationController extends Controller
                 return $view;
             })->addColumn('notify_user', function ($query) use ($course) {
                 if (round($course->userTotalPercentage($query->id, $course->id)) < 100) {
-                    $link = '<a class="" href="' . route('course.courseStudentNotify', [$course->id, $query->id]) . '" data-id="' . $query->id . '" type="button">'.trans('courses.Notify').'</a>';
+                    $link = '<a class="" href="' . route('course.courseStudentNotify', [$course->id, $query->id]) . '" data-id="' . $query->id . '" type="button">' . trans('courses.Notify') . '</a>';
                 } else {
                     $link = '';
-
                 }
                 return $link;
-
-
             })->rawColumns(['status', 'progressbar', 'image', 'notify_user', 'action', 'student_name'])
             ->make(true);
     }
@@ -300,7 +285,6 @@ class CourseInvitationController extends Controller
             Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
             return redirect()->back();
         }
-
     }
 
     public function courseStatisticsCourseData()
@@ -314,7 +298,6 @@ class CourseInvitationController extends Controller
             })->editColumn('mode_of_delivery', function ($query) {
                 if ($query->mode_of_delivery == 1) {
                     $title = trans('courses.Online');
-
                 } elseif ($query->mode_of_delivery == 2) {
                     $title = trans('courses.Distance Learning');
                 } else {
@@ -328,7 +311,6 @@ class CourseInvitationController extends Controller
             })
             ->addColumn('type', function ($query) {
                 return $query->type == 1 ? trans('courses.Course') : trans('quiz.Quiz');
-
             })
             ->editColumn('total_enrolled', function ($query) {
                 return translatedNumber($query->totalStatistic([
@@ -383,7 +365,6 @@ class CourseInvitationController extends Controller
             })->editColumn('mode_of_delivery', function ($query) {
                 if ($query->mode_of_delivery == 1) {
                     $title = trans('courses.Online');
-
                 } elseif ($query->mode_of_delivery == 2) {
                     $title = trans('courses.Distance Learning');
                 } else {
@@ -397,7 +378,6 @@ class CourseInvitationController extends Controller
             })
             ->addColumn('type', function ($query) {
                 return $query->type == 1 ? trans('courses.Course') : trans('quiz.Quiz');
-
             })
             ->editColumn('total_enrolled', function ($query) {
                 return translatedNumber($query->totalQuizStatistic([
@@ -445,7 +425,6 @@ class CourseInvitationController extends Controller
             })->editColumn('mode_of_delivery', function ($query) {
                 if ($query->mode_of_delivery == 1) {
                     $title = trans('courses.Online');
-
                 } elseif ($query->mode_of_delivery == 2) {
                     $title = trans('courses.Distance Learning');
                 } else {
@@ -459,7 +438,6 @@ class CourseInvitationController extends Controller
             })
             ->addColumn('type', function ($query) {
                 return $query->type == 1 ? trans('courses.Course') : trans('quiz.Quiz');
-
             })
             ->editColumn('total_enrolled', function ($query) {
                 return translatedNumber($query->totalClassStatistic([
@@ -511,5 +489,97 @@ class CourseInvitationController extends Controller
         return Excel::download(new QuizStatisticsReport(), 'quiz-statistic-report.xlsx');
     }
 
-}
+    // -----------------------------------------------------------
+    // 1. SEARCH: Return users NOT yet enrolled in the course
+    // -----------------------------------------------------------
+    public function searchUsersForEnroll(Request $request, $course_id)
+    {
+        $search = $request->get('q', '');
 
+        // Fetch already enrolled user IDs via the pivot table
+        $enrolledIds = CourseEnrolled::where('course_id', $course_id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $users = User::where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+        })
+            ->whereNotIn('id', $enrolledIds)
+            ->where('status', 1)           // only active users
+            ->limit(20)
+            ->get(['id', 'name', 'email']);
+
+        return response()->json($users);
+    }
+
+
+    // -----------------------------------------------------------
+    // 2. ENROLL: Insert a user into course_enrolleds
+    // -----------------------------------------------------------
+    public function enrollStudent(Request $request, $course_id)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $course = Course::findOrFail($course_id);
+
+        // Check if already enrolled (avoid duplicates)
+        $alreadyEnrolled = CourseEnrolled::where('course_id', $course_id)
+            ->where('user_id', $request->user_id)
+            ->exists();
+
+        if ($alreadyEnrolled) {
+            return response()->json([
+                'success' => false,
+                'message' => trans('courses.Already enrolled'),
+            ], 409);
+        }
+
+        CourseEnrolled::insert([
+            'course_id'   => $course_id,
+            'user_id'     => $request->user_id,
+            'status'      => 1,
+            'created_at'  => now(),
+            'updated_at'  => now(),
+            // Set subscription validity if the course has a subscription
+            'subscription_validity_date' => $course->subscription
+                ? now()->addDays((int) $course->subscription)->toDateString()
+                : null,
+            'lms_id'      => $course->lms_id ?? 1,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => trans('courses.Student enrolled successfully'),
+        ]);
+    }
+
+
+    // -----------------------------------------------------------
+    // 3. UNENROLL: Remove a user from course_enrolleds
+    // -----------------------------------------------------------
+    public function unenrollStudent(Request $request, $course_id)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $deleted = CourseEnrolled::where('course_id', $course_id)
+            ->where('user_id', $request->user_id)
+            ->delete();
+
+        if (!$deleted) {
+            return response()->json([
+                'success' => false,
+                'message' => trans('courses.Enrollment not found'),
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => trans('courses.Student unenrolled successfully'),
+        ]);
+    }
+}

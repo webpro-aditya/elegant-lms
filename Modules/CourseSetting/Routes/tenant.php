@@ -58,6 +58,19 @@ Route::group(['prefix' => 'admin/course', 'middleware' => ['auth', 'admin']], fu
     Route::get('/course-students-list/{course_id}', 'CourseInvitationController@getAllStudentData')->name('course.getAllStudentData');
     Route::get('/course-student-notify/{course_id}/{student_id}', 'CourseInvitationController@courseStudentNotify')->name('course.courseStudentNotify')->middleware('RoutePermissionCheck:course.courseStudentNotify');
 
+    // New Added------------
+        Route::get('/course/{course_id}/enroll/search', 'CourseInvitationController@searchUsersForEnroll')
+        ->name('course.enroll.search');
+
+        // Enroll a student
+        Route::post('/course/{course_id}/enroll', 'CourseInvitationController@enrollStudent')
+            ->name('course.enroll.store');
+
+        // Unenroll a student
+        Route::delete('/course/{course_id}/enroll', 'CourseInvitationController@unenrollStudent')
+            ->name('course.enroll.destroy');
+    // New Added------------
+
     Route::get('/course-modal/{course_id}/{type}', 'CourseSettingController@courseModal')->name('courseModal')->middleware('RoutePermissionCheck:course.edit');
     Route::get('/course-details/{id}', 'CourseSettingController@courseDetails')->name('courseDetails')->middleware('RoutePermissionCheck:course.edit');
     Route::get('/course-feature/{id}/{type}', 'CourseSettingController@courseMakeAsFeature')->name('courseMakeAsFeature');
