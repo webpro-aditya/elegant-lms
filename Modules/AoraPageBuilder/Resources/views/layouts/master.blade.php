@@ -128,12 +128,6 @@
 
     <x-analytics-tool/>
 
-    <style>
-        [data-type='component-text'] {
-            padding: 0 40px;
-        }
-    </style>
-
 </head>
 
 <body>
