@@ -129,7 +129,7 @@
     <x-analytics-tool/>
 
     <style>
-        .content-text {
+        [data-type='component-text'] {
             padding: 0 40px;
         }
     </style>
