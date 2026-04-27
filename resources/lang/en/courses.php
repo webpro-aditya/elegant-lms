@@ -263,5 +263,6 @@ return ["All" => "All",
     'Custom URL' => 'Custom URL',
     'Enroll Student' => 'Enroll Student',
     'Search by name or email...' => 'Search by name or email...',
-    'No students found' => 'No students found'
+    'No students found' => 'No students found',
+    'Already enrolled' => 'Already enrolled'
 ];

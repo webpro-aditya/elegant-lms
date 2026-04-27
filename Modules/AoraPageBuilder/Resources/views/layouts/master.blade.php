@@ -128,6 +128,11 @@
 
     <x-analytics-tool/>
 
+    <style>
+        .content-area {
+            padding: 0 40px;
+        }
+    </style>
 
 </head>
 

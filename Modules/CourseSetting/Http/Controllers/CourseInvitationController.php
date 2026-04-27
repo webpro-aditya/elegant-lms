@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\CourseSetting\Entities\Category;
 use Modules\CourseSetting\Entities\Course;
@@ -525,7 +526,7 @@ class CourseInvitationController extends Controller
 
         $course = Course::findOrFail($course_id);
 
-        // Check if already enrolled (avoid duplicates)
+        // Prevent duplicate enrollment
         $alreadyEnrolled = CourseEnrolled::where('course_id', $course_id)
             ->where('user_id', $request->user_id)
             ->exists();
@@ -537,17 +538,45 @@ class CourseInvitationController extends Controller
             ], 409);
         }
 
+        // ── Price calculation (mirrors how the system stores purchases) ──
+        $purchasePrice   = (float) ($course->price ?? 0);
+        $discountAmount  = (float) ($course->discount_price ?? 0);
+        // revenue = price actually charged to student after discount
+        $revenue         = max(0, $purchasePrice - $discountAmount);
+
+        // ── Unique tracking token (same pattern as existing rows) ──
+        // Generate a short uppercase alphanumeric token; retry until unique
+        do {
+            $tracking = strtoupper(Str::random(12));
+            $exists   = CourseEnrolled::where('tracking', $tracking)
+                ->exists();
+        } while ($exists);
+
+        // ── Subscription validity ──
+        $subscriptionValidityDate = null;
+        if (!empty($course->subscription) && (int) $course->subscription > 0) {
+            $subscriptionValidityDate = now()
+                ->addDays((int) $course->subscription)
+                ->toDateString();
+        }
+
         CourseEnrolled::insert([
-            'course_id'   => $course_id,
-            'user_id'     => $request->user_id,
-            'status'      => 1,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-            // Set subscription validity if the course has a subscription
-            'subscription_validity_date' => $course->subscription
-                ? now()->addDays((int) $course->subscription)->toDateString()
-                : null,
-            'lms_id'      => $course->lms_id ?? 1,
+            'tracking'                  => $tracking,
+            'user_id'                   => $request->user_id,
+            'course_id'                 => (int) $course_id,
+            'purchase_price'            => $purchasePrice,
+            'coupon'                    => null,          // admin enroll — no coupon
+            'discount_amount'           => $discountAmount,
+            'status'                    => 1,
+            'reveune'                   => $revenue,      // note: column is 'reveune' (typo in schema)
+            'reason'                    => null,
+            'created_at'                => now(),
+            'updated_at'                => now(),
+            'subscription'              => $course->subscription ?? 0,
+            'subscription_validity_date' => $subscriptionValidityDate,
+            'last_view_at'              => null,
+            'lms_id'                    => $course->lms_id ?? 1,
+            'send_expire_notification'  => 0,
         ]);
 
         return response()->json([
