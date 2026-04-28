@@ -205,66 +205,121 @@ class CourseInvitationController extends Controller
     }
 
     public function getAllStudentData(Request $request, $course_id)
-    {
+{
+    $course = Course::find($course_id);
 
-        $course = Course::find($course_id);
-        $query = $course->enrollUsers;
+    // Join course_enrolleds so start/end date columns are available directly on each User row
+    $query = User::join('course_enrolleds', function ($join) use ($course_id) {
+            $join->on('course_enrolleds.user_id', '=', 'users.id')
+                 ->where('course_enrolleds.course_id', '=', $course_id);
+        })
+        ->select(
+            'users.*',
+            'course_enrolleds.start_date as enroll_date',
+            'course_enrolleds.end_date as expiry_date'
+        );
 
-        return Datatables::of($query)
-            ->addIndexColumn()
-            ->addColumn('image', function ($query) {
-                return " <div class=\"profile_info\"><img src='" . getProfileImage($query->image, $query->name) . "'   alt='" . $query->name . " image'></div>";
-            })->addColumn('student_name', function ($query) {
-                return '<a class="dropdown-item" target="_blank" href="' . route('student.courses', $query->id) . '" data-id="' . $query->id . '" type="button">' . $query->name . '</a>';
-            })->editColumn('email', function ($query) {
-                return $query->email;
-            })
-            ->editColumn('phone', function ($query) {
-                return translatedNumber($query->phone);
-            })
-            ->addColumn('progressbar', function ($query) use ($course) {
-                return "  <div class='progress_percent flex-fill text-end'>
-                                                    <div class='progress theme_progressBar '>
-                                                        <div class='progress-bar' role='progressbar'
-                                                             style='width:" . round($course->userTotalPercentage($query->id, $course->id)) . "%'
-                                                             aria-valuenow='25'
-                                                             aria-valuemin='0' aria-valuemax='100'></div>
-                                                    </div>
-                                                    <p class='font_14 f_w_400'>" . translatedNumber(round($course->userTotalPercentage($query->id, $course->id))) . "% " . trans('courses.Completed') . "</p>
-                                                </div>";
-            })
-            ->editColumn('dob', function ($query) {
-                return showDate($query->dob);
-            })
-            ->addColumn('start_working_date', function ($query) {
-                if (isModuleActive('Org')) {
-                    return showDate($query->start_working_date);
+    return Datatables::of($query)
+        ->addIndexColumn()
+        ->addColumn('image', function ($row) {
+            return "<div class=\"profile_info\"><img src='" . getProfileImage($row->image, $row->name) . "' alt='" . $row->name . " image'></div>";
+        })
+        ->addColumn('student_name', function ($row) {
+            return '<a class="dropdown-item" target="_blank" href="' . route('student.courses', $row->id) . '" data-id="' . $row->id . '" type="button">' . $row->name . '</a>';
+        })
+        ->editColumn('email', function ($row) {
+            return $row->email;
+        })
+        ->editColumn('phone', function ($row) {
+            return translatedNumber($row->phone);
+        })
+        ->addColumn('progressbar', function ($row) use ($course) {
+            $pct = round($course->userTotalPercentage($row->id, $course->id));
+            return "<div class='progress_percent flex-fill text-end'>
+                        <div class='progress theme_progressBar'>
+                            <div class='progress-bar' role='progressbar'
+                                 style='width:{$pct}%'
+                                 aria-valuenow='{$pct}' aria-valuemin='0' aria-valuemax='100'></div>
+                        </div>
+                        <p class='font_14 f_w_400'>" . translatedNumber($pct) . "% " . trans('courses.Completed') . "</p>
+                    </div>";
+        })
+        ->addColumn('enroll_start_date', function ($row) {
+            if (empty($row->enroll_date)) {
+                return '<span class="text-muted em-date-dash">—</span>';
+            }
+            try {
+                $d = \Carbon\Carbon::parse($row->enroll_date);
+                return '<span class="em-date-badge em-date-start">
+                            <i class="ti-calendar"></i> ' . $d->format('d M Y') . '
+                        </span>';
+            } catch (\Exception $e) {
+                return '<span class="text-muted em-date-dash">—</span>';
+            }
+        })
+        ->addColumn('enroll_end_date', function ($row) {
+            if (empty($row->expiry_date)) {
+                return '<span class="em-date-badge em-date-lifetime">
+                            <i class="ti-infinite"></i> Lifetime
+                        </span>';
+            }
+            try {
+                $d    = \Carbon\Carbon::parse($row->expiry_date);
+                $now  = \Carbon\Carbon::now();
+                $diff = $now->diffInDays($d, false); // negative = past
+
+                if ($diff < 0) {
+                    $cls   = 'em-date-expired';
+                    $icon  = 'ti-close';
+                    $label = $d->format('d M Y');
+                    $badge = '<span class="em-date-sub">Expired ' . abs((int)$diff) . 'd ago</span>';
+                } elseif ($diff <= 7) {
+                    $cls   = 'em-date-soon';
+                    $icon  = 'ti-alert';
+                    $label = $d->format('d M Y');
+                    $badge = '<span class="em-date-sub">Expires in ' . ceil($diff) . 'd</span>';
                 } else {
-                    return '';
+                    $cls   = 'em-date-active';
+                    $icon  = 'ti-check';
+                    $label = $d->format('d M Y');
+                    $badge = '';
                 }
-            })
-            ->editColumn('country', function ($query) {
-                return $query->userCountry->name;
-            })
-            ->addColumn('status', function ($query) {
 
-                $checked = $query->status == 1 ? "checked" : "";
-                $view = '<label class="switch_toggle">
-                                                    <input type="checkbox" class="status_enable_disable"
-                                                          value="' . $query->id . '"
-                                                             ' . $checked . '><i class="slider round"></i></label>';
-
-                return $view;
-            })->addColumn('notify_user', function ($query) use ($course) {
-                if (round($course->userTotalPercentage($query->id, $course->id)) < 100) {
-                    $link = '<a class="" href="' . route('course.courseStudentNotify', [$course->id, $query->id]) . '" data-id="' . $query->id . '" type="button">' . trans('courses.Notify') . '</a>';
-                } else {
-                    $link = '';
-                }
-                return $link;
-            })->rawColumns(['status', 'progressbar', 'image', 'notify_user', 'action', 'student_name'])
-            ->make(true);
-    }
+                return '<span class="em-date-badge ' . $cls . '">
+                            <i class="' . $icon . '"></i> ' . $label . '
+                        </span>' . $badge;
+            } catch (\Exception $e) {
+                return '<span class="text-muted em-date-dash">—</span>';
+            }
+        })
+        ->editColumn('dob', function ($row) {
+            return showDate($row->dob);
+        })
+        ->addColumn('start_working_date', function ($row) {
+            if (isModuleActive('Org')) {
+                return showDate($row->start_working_date);
+            }
+            return '';
+        })
+        ->editColumn('country', function ($row) {
+            return $row->userCountry->name;
+        })
+        ->addColumn('status', function ($row) {
+            $checked = $row->status == 1 ? 'checked' : '';
+            return '<label class="switch_toggle">
+                        <input type="checkbox" class="status_enable_disable" value="' . $row->id . '" ' . $checked . '>
+                        <i class="slider round"></i>
+                    </label>';
+        })
+        ->addColumn('notify_user', function ($row) use ($course) {
+            if (round($course->userTotalPercentage($row->id, $course->id)) < 100) {
+                return '<a href="' . route('course.courseStudentNotify', [$course->id, $row->id]) . '" data-id="' . $row->id . '" type="button">' . trans('courses.Notify') . '</a>';
+            }
+            return '';
+        })
+        ->rawColumns(['status', 'progressbar', 'image', 'notify_user', 'action', 'student_name', 'enroll_start_date', 'enroll_end_date'])
+        ->make(true);
+}
 
     public function courseStudentNotify($course_id, $student_id)
     {
@@ -497,7 +552,6 @@ class CourseInvitationController extends Controller
     {
         $search = $request->get('q', '');
 
-        // Fetch already enrolled user IDs via the pivot table
         $enrolledIds = CourseEnrolled::where('course_id', $course_id)
             ->pluck('user_id')
             ->toArray();
@@ -507,7 +561,7 @@ class CourseInvitationController extends Controller
                 ->orWhere('email', 'LIKE', "%{$search}%");
         })
             ->whereNotIn('id', $enrolledIds)
-            ->where('status', 1)           // only active users
+            ->where('status', 1)
             ->limit(20)
             ->get(['id', 'name', 'email']);
 
@@ -521,12 +575,14 @@ class CourseInvitationController extends Controller
     public function enrollStudent(Request $request, $course_id)
     {
         $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id'    => 'required|integer|exists:users,id',
+            'start_date' => 'nullable|date',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
+            'duration'   => 'nullable|integer|min:1',
         ]);
 
         $course = Course::findOrFail($course_id);
 
-        // Prevent duplicate enrollment
         $alreadyEnrolled = CourseEnrolled::where('course_id', $course_id)
             ->where('user_id', $request->user_id)
             ->exists();
@@ -538,21 +594,32 @@ class CourseInvitationController extends Controller
             ], 409);
         }
 
-        // ── Price calculation (mirrors how the system stores purchases) ──
-        $purchasePrice   = (float) ($course->price ?? 0);
-        $discountAmount  = (float) ($course->discount_price ?? 0);
-        // revenue = price actually charged to student after discount
-        $revenue         = max(0, $purchasePrice - $discountAmount);
+        $startDate = null;
+        $endDate   = null;
 
-        // ── Unique tracking token (same pattern as existing rows) ──
-        // Generate a short uppercase alphanumeric token; retry until unique
+        if ($request->filled('start_date')) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->toDateString();
+
+            if ($request->filled('end_date')) {
+                $endDate = \Carbon\Carbon::parse($request->end_date)->toDateString();
+            } elseif ($request->filled('duration')) {
+                $endDate = \Carbon\Carbon::parse($request->start_date)
+                    ->addDays((int) $request->duration)
+                    ->toDateString();
+            }
+        } elseif ($request->filled('duration')) {
+            $startDate = now()->toDateString();
+            $endDate   = now()->addDays((int) $request->duration)->toDateString();
+        }
+
+        $purchasePrice  = (float) ($course->price ?? 0);
+        $discountAmount = (float) ($course->discount_price ?? 0);
+        $revenue        = max(0, $purchasePrice - $discountAmount);
+
         do {
             $tracking = strtoupper(Str::random(12));
-            $exists   = CourseEnrolled::where('tracking', $tracking)
-                ->exists();
-        } while ($exists);
+        } while (CourseEnrolled::where('tracking', $tracking)->exists());
 
-        // ── Subscription validity ──
         $subscriptionValidityDate = null;
         if (!empty($course->subscription) && (int) $course->subscription > 0) {
             $subscriptionValidityDate = now()
@@ -561,22 +628,24 @@ class CourseInvitationController extends Controller
         }
 
         CourseEnrolled::insert([
-            'tracking'                  => $tracking,
-            'user_id'                   => $request->user_id,
-            'course_id'                 => (int) $course_id,
-            'purchase_price'            => $purchasePrice,
-            'coupon'                    => null,          // admin enroll — no coupon
-            'discount_amount'           => $discountAmount,
-            'status'                    => 1,
-            'reveune'                   => $revenue,      // note: column is 'reveune' (typo in schema)
-            'reason'                    => null,
-            'created_at'                => now(),
-            'updated_at'                => now(),
-            'subscription'              => $course->subscription ?? 0,
+            'tracking'                   => $tracking,
+            'user_id'                    => $request->user_id,
+            'course_id'                  => (int) $course_id,
+            'purchase_price'             => $purchasePrice,
+            'coupon'                     => null,
+            'discount_amount'            => $discountAmount,
+            'status'                     => 1,
+            'reveune'                    => $revenue,
+            'reason'                     => null,
+            'created_at'                 => now(),
+            'updated_at'                 => now(),
+            'subscription'               => $course->subscription ?? 0,
             'subscription_validity_date' => $subscriptionValidityDate,
-            'last_view_at'              => null,
-            'lms_id'                    => $course->lms_id ?? 1,
-            'send_expire_notification'  => 0,
+            'last_view_at'               => null,
+            'lms_id'                     => $course->lms_id ?? 1,
+            'send_expire_notification'   => 0,
+            'start_date'                 => $startDate,
+            'end_date'                   => $endDate,
         ]);
 
         return response()->json([

@@ -264,5 +264,16 @@ return ["All" => "All",
     'Enroll Student' => 'Enroll Student',
     'Search by name or email...' => 'Search by name or email...',
     'No students found' => 'No students found',
-    'Already enrolled' => 'Already enrolled'
+    'Already enrolled' => 'Already enrolled',
+    'Search Student' => 'Search Student',
+    'Leave blank to enroll without a fixed end date.' => 'Leave blank to enroll without a fixed end date.',
+    'Enrollment Duration' => 'Enrollment Duration',
+    'Optional' => 'Optional',
+    'Date Range' => 'Date Range',
+    'Duration (Days)' => 'Duration (Days)',
+    'Start Date' => 'Start Date',
+    'End Date' => 'End Date',
+    'Defaults to today if blank' => 'Defaults to today if blank',
+    'Calculated End Date' => 'Calculated End Date',
+    'Student enrolled successfully' => 'Student enrolled successfully'
 ];
