@@ -250,19 +250,27 @@
             vertical-align: middle;
         }
 
-        /* Floating edit panel */
+        /* ── MODIFIED: Floating edit panel — scrollable & always on top ── */
         #inline-edit-panel {
             display: none;
             position: fixed;
-            z-index: 9999;
+            z-index: 99999;                      /* above Bootstrap modals, backdrops, everything */
             background: #fff;
             border: 1.5px solid #ede8ff;
             border-radius: 16px;
             box-shadow: 0 16px 48px rgba(123,47,247,.22);
             width: 560px;
             max-width: calc(100vw - 16px);
-            overflow: visible !important;
+            max-height: calc(100vh - 32px);      /* never taller than the viewport */
+            overflow: hidden;                    /* clip panel; body scrolls instead */
+            flex-direction: column;              /* children stack vertically */
         }
+
+        /* Header & footer stay pinned — only body scrolls */
+        .iep-header  { flex-shrink: 0; }
+        .iep-actions { flex-shrink: 0; }
+        .iep-feedback { flex-shrink: 0; }
+
         .iep-header {
             background: linear-gradient(135deg, #6d22e8, #9b4dff);
             padding: 14px 18px;
@@ -281,7 +289,14 @@
             transition: background .2s;
         }
         .iep-close:hover { background: rgba(255,255,255,.3); }
-        .iep-body { padding: 18px; }
+
+        /* ── MODIFIED: Scrollable body ── */
+        .iep-body {
+            padding: 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
         .iep-row {
             display: grid;
             grid-template-columns: minmax(0,1fr) minmax(0,1fr);
@@ -547,7 +562,6 @@
 @endsection
 
 @push('scripts')
-
     @if ($errors->any())
         <script>
             @if(Session::has('type'))
@@ -933,25 +947,16 @@
         iepContext.userId   = userId;
         iepContext.enrollId = enrollId;
 
-        /* FIX #2 — removed the two .getElementById('iep-user-id') /
-           .getElementById('iep-enroll-id') lines that referenced
-           non-existent hidden inputs and threw a TypeError             */
-
         iepStudentName.textContent = '— ' + studentName;
 
-        /* FIX #3 + FIX #4 — use the proper setDate() API instead of
-           manually mutating .selected / .viewYear / .viewMonth and
-           calling getElementById('iep-start') / getElementById('iep-end')
-           which do not exist in the DOM (correct IDs are iep-start-date
-           and iep-end-date, but setDate() handles those internally)     */
         calIepStart.clear();
         calIepEnd.clear();
         if (startDate) calIepStart.setDate(startDate);
         if (endDate)   calIepEnd.setDate(endDate);
 
-        /* Smart positioning — flip UP if not enough room below */
+        /* ── MODIFIED: Smart positioning using 'flex' for layout ── */
         iepPanel.style.visibility = 'hidden';
-        iepPanel.style.display    = 'block';
+        iepPanel.style.display    = 'flex';   /* <-- changed from 'block' to 'flex' */
         var panelH = iepPanel.offsetHeight;
         var panelW = iepPanel.offsetWidth || 560;
         iepPanel.style.display    = 'none';
@@ -962,17 +967,17 @@
         var vh     = window.innerHeight;
         var margin = 8;
 
-        var top  = rect.bottom + margin;
+        var top  = rect.bottom + margin - 300;
         if (top + panelH > vh - margin) top = rect.top - panelH - margin;
         if (top < margin) top = margin;
 
-        var left = rect.left;
+        var left = rect.left - 350;
         if (left + panelW > vw - margin) left = vw - panelW - margin;
         if (left < margin) left = margin;
 
         iepPanel.style.top     = top  + 'px';
         iepPanel.style.left    = left + 'px';
-        iepPanel.style.display = 'block';
+        iepPanel.style.display = 'flex';   /* <-- changed from 'block' to 'flex' */
     }
 
     function closeInlineEdit(){
@@ -989,9 +994,9 @@
     iepCancelBtn.addEventListener('click', closeInlineEdit);
     iepCloseBtn.addEventListener('click',  closeInlineEdit);
 
-    /* Close when clicking outside */
+    /* ── MODIFIED: Close when clicking outside — check for 'flex' ── */
     document.addEventListener('click', function(e){
-        if (iepPanel.style.display === 'block'
+        if (iepPanel.style.display === 'flex'   /* <-- changed from 'block' to 'flex' */
             && !iepPanel.contains(e.target)
             && !e.target.closest('.edit-date-cell'))
         {
