@@ -69,6 +69,9 @@ Route::group(['prefix' => 'admin/course', 'middleware' => ['auth', 'admin']], fu
         // Unenroll a student
         Route::delete('/course/{course_id}/enroll', 'CourseInvitationController@unenrollStudent')
             ->name('course.enroll.destroy');
+
+        Route::put('/course/{course_id}/enroll', 'CourseInvitationController@updateEnrollment')
+            ->name('course.enroll.update');
     // New Added------------
 
     Route::get('/course-modal/{course_id}/{type}', 'CourseSettingController@courseModal')->name('courseModal')->middleware('RoutePermissionCheck:course.edit');
