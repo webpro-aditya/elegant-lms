@@ -267,6 +267,7 @@
             caret-color: transparent;
             box-sizing: border-box;
             transition: border-color .2s, box-shadow .2s, background .2s;
+            user-select: none;
         }
         .date-display-input:hover   { border-color: #c4a8ff; }
         .date-display-input.has-value,
@@ -385,6 +386,55 @@
             margin-top: 2px;
             opacity: .8;
         }
+
+        /* ── DateTime picker ── */
+        .cal-time-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 10px 8px;
+            border-top: 1px solid #f5f3ff;
+            background: #faf8ff;
+        }
+        .cal-time-row .time-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #9b4dff;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-right: 2px;
+        }
+        .cal-time-select {
+            height: 30px;
+            padding: 0 4px;
+            border: 1.5px solid #e8e0ff;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            background: #fff;
+            outline: none;
+            cursor: pointer;
+            transition: border-color .2s;
+            -webkit-appearance: none;
+            text-align: center;
+        }
+        .cal-time-select:focus { border-color: #9b4dff; }
+        .cal-time-sep { font-size: 16px; font-weight: 700; color: #9b4dff; line-height: 1; }
+        .cal-time-confirm {
+            margin-left: 6px;
+            background: linear-gradient(135deg, #7b2ff7, #9b4dff);
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+        .cal-time-confirm:hover { opacity: .85; }
     </style>
 @endpush
 
@@ -512,17 +562,17 @@
                                     <div id="panel-daterange">
                                         <div class="row g-3">
                                             <div class="col-6">
-                                                <label class="em-field-label">Start Date</label>
+                                                <label class="em-field-label">Start Date &amp; Time</label>
                                                 <div class="date-input-wrap">
-                                                    <input type="text" id="enroll-start-date" class="date-display-input" placeholder="Pick a date" readonly />
+                                                    <input type="text" id="enroll-start-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
                                                     <i class="ti-calendar cal-icon"></i>
                                                 </div>
                                                 <div id="cal-start" class="cal-widget"></div>
                                             </div>
                                             <div class="col-6">
-                                                <label class="em-field-label">End Date</label>
+                                                <label class="em-field-label">End Date &amp; Time</label>
                                                 <div class="date-input-wrap">
-                                                    <input type="text" id="enroll-end-date" class="date-display-input" placeholder="Pick a date" readonly />
+                                                    <input type="text" id="enroll-end-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
                                                     <i class="ti-calendar cal-icon"></i>
                                                 </div>
                                                 <div id="cal-end" class="cal-widget"></div>
@@ -535,7 +585,7 @@
                                     <div id="panel-duration" style="display:none;">
                                         <div class="row g-3">
                                             <div class="col-6">
-                                                <label class="em-field-label">Start Date</label>
+                                                <label class="em-field-label">Start Date &amp; Time</label>
                                                 <div class="date-input-wrap">
                                                     <input type="text" id="enroll-duration-start" class="date-display-input" placeholder="Today by default" readonly />
                                                     <i class="ti-calendar cal-icon"></i>
@@ -647,11 +697,18 @@
     function pad2(n) { return n < 10 ? '0' + n : '' + n; }
 
     function calFmt(d) {
-        return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+        // Returns "YYYY-MM-DD HH:MM:SS" for DB storage
+        return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate())
+             + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':00';
     }
 
     function calFmtDisplay(d) {
-        return pad2(d.getDate()) + ' ' + CAL_MONTHS[d.getMonth()].slice(0,3) + ' ' + d.getFullYear();
+        // Human-readable: "29 Apr 2026, 14:30"
+        var h = d.getHours(), m = d.getMinutes();
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        var h12  = h % 12 || 12;
+        return pad2(d.getDate()) + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]
+             + ' ' + d.getFullYear() + ', ' + pad2(h12) + ':' + pad2(m) + ' ' + ampm;
     }
 
     function todayMidnight() {
@@ -664,13 +721,40 @@
         return (parts[0] || '?')[0].toUpperCase();
     }
 
+    /* ── Build hour/minute selects ── */
+    function buildTimeSelects(prefix, defaultH, defaultM) {
+        var hOpts = '', mOpts = '';
+        for (var i = 0; i < 24; i++) {
+            var h12 = i % 12 || 12, ap = i < 12 ? 'AM' : 'PM';
+            var sel  = i === defaultH ? ' selected' : '';
+            hOpts += '<option value="' + i + '"' + sel + '>' + pad2(h12) + ' ' + ap + '</option>';
+        }
+        for (var j = 0; j < 60; j += 5) {
+            var sel2 = j === defaultM ? ' selected' : '';
+            mOpts += '<option value="' + j + '"' + sel2 + '>' + pad2(j) + '</option>';
+        }
+        return '<div class="cal-time-row">'
+            + '<span class="time-label"><i class="ti-time"></i></span>'
+            + '<select class="cal-time-select" id="' + prefix + '-hour">' + hOpts + '</select>'
+            + '<span class="cal-time-sep">:</span>'
+            + '<select class="cal-time-select" id="' + prefix + "-min" + '">' + mOpts + '</select>'
+            + '<button type="button" class="cal-time-confirm" id="' + prefix + '-ok">Set</button>'
+            + '</div>';
+    }
+
+    /* ────────────────────────────────────────────
+       InlineCalendar with time picker
+    ──────────────────────────────────────────── */
     function InlineCalendar(opts) {
         var self       = this;
         self.container = document.getElementById(opts.containerId);
         self.input     = document.getElementById(opts.inputId);
         self.minDateFn = opts.minDateFn || function(){ return null; };
         self.onChange  = opts.onChange  || function(){};
-        self.selected  = null;
+        self.selected  = null;               // full Date incl. time
+        self.pickedDay = null;               // Date with day only, pending time confirm
+        self.prefix    = opts.containerId;   // unique id prefix for time selects
+
         var now = todayMidnight();
         self.viewYear  = now.getFullYear();
         self.viewMonth = now.getMonth();
@@ -691,27 +775,44 @@
         var firstDay= new Date(self.viewYear, self.viewMonth, 1).getDay();
         var numDays = new Date(self.viewYear, self.viewMonth+1, 0).getDate();
         var cid     = self.container.id;
+        var CAL_MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        var CAL_DAYS_SHORT  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
         var html = '<div class="cal-header">'
             + '<button type="button" class="cal-nav" id="' + cid + '-prev">&#8249;</button>'
-            + '<span class="cal-month-label">' + CAL_MONTHS[self.viewMonth] + ' ' + self.viewYear + '</span>'
+            + '<span class="cal-month-label">' + CAL_MONTHS_FULL[self.viewMonth] + ' ' + self.viewYear + '</span>'
             + '<button type="button" class="cal-nav" id="' + cid + '-next">&#8250;</button>'
             + '</div><div class="cal-grid">';
 
-        CAL_DAYS.forEach(function(d){ html += '<div class="cal-dow">' + d + '</div>'; });
+        CAL_DAYS_SHORT.forEach(function(d){ html += '<div class="cal-dow">' + d + '</div>'; });
 
         for (var i = 0; i < firstDay; i++) html += '<div class="cal-day cal-empty"></div>';
 
         for (var d = 1; d <= numDays; d++) {
             var td = new Date(self.viewYear, self.viewMonth, d);
             var cls = 'cal-day';
-            if (td.getTime() === today.getTime())                           cls += ' cal-today';
-            if (self.selected && td.getTime() === self.selected.getTime()) cls += ' cal-selected';
-            if (minDate && td < minDate)                                    cls += ' cal-disabled';
+            if (td.getTime() === today.getTime()) cls += ' cal-today';
+            if (self.selected) {
+                var selDay = new Date(self.selected.getFullYear(), self.selected.getMonth(), self.selected.getDate());
+                if (td.getTime() === selDay.getTime()) cls += ' cal-selected';
+            }
+            if (minDate) {
+                var minDay = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+                if (td < minDay) cls += ' cal-disabled';
+            }
             html += '<div class="' + cls + '" data-ts="' + td.getTime() + '">' + d + '</div>';
         }
 
-        html += '</div><div class="cal-footer">'
+        // Determine default time for selects (use existing selection or 0:00)
+        var defH = self.pickedDay ? self.pickedDay.getHours() : (self.selected ? self.selected.getHours() : 0);
+        var defM = self.pickedDay ? self.pickedDay.getMinutes() : (self.selected ? self.selected.getMinutes() : 0);
+        // Round defM to nearest 5
+        defM = Math.round(defM / 5) * 5;
+        if (defM >= 60) defM = 55;
+
+        html += '</div>'
+            + buildTimeSelects(cid, defH, defM)
+            + '<div class="cal-footer">'
             + '<button type="button" class="cal-clear-btn" id="' + cid + '-clear">&#10005; Clear</button>'
             + '</div>';
 
@@ -727,20 +828,40 @@
         });
         document.getElementById(cid+'-clear').addEventListener('click', function(e){
             e.stopPropagation();
-            self.selected=null; self.input.value=''; self.input.classList.remove('has-value');
+            self.selected=null; self.pickedDay=null;
+            self.input.value=''; self.input.classList.remove('has-value');
             self.container.style.display='none'; self.onChange(null);
         });
+
+        // Day click — store picked day, keep widget open for time
         self.container.querySelectorAll('.cal-day:not(.cal-empty):not(.cal-disabled)').forEach(function(el){
             el.addEventListener('click', function(e){
                 e.stopPropagation();
                 var ts = parseInt(this.getAttribute('data-ts'), 10);
-                self.selected = new Date(ts);
-                self.input.value = calFmtDisplay(self.selected);
-                self.input.setAttribute('data-value', calFmt(self.selected));
-                self.input.classList.add('has-value');
-                self.container.style.display='none';
-                self.onChange(self.selected);
+                self.pickedDay = new Date(ts);
+                // Highlight selected
+                self.container.querySelectorAll('.cal-day').forEach(function(x){ x.classList.remove('cal-selected'); });
+                this.classList.add('cal-selected');
             });
+        });
+
+        // "Set" button — commit day + time
+        document.getElementById(cid+'-ok').addEventListener('click', function(e){
+            e.stopPropagation();
+            var dayBase = self.pickedDay || (self.selected ? new Date(self.selected.getFullYear(), self.selected.getMonth(), self.selected.getDate()) : null);
+            if (!dayBase) {
+                // No day selected yet — use today
+                dayBase = todayMidnight();
+            }
+            var h = parseInt(document.getElementById(cid+'-hour').value, 10);
+            var m = parseInt(document.getElementById(cid+'-min').value,  10);
+            self.selected = new Date(dayBase.getFullYear(), dayBase.getMonth(), dayBase.getDate(), h, m, 0);
+            self.pickedDay = null;
+            self.input.value = calFmtDisplay(self.selected);
+            self.input.setAttribute('data-value', calFmt(self.selected));
+            self.input.classList.add('has-value');
+            self.container.style.display='none';
+            self.onChange(self.selected);
         });
     };
 
@@ -748,7 +869,8 @@
     InlineCalendar.prototype.getValue  = function(){ return this.selected ? calFmt(this.selected) : null; };
     InlineCalendar.prototype.rerender  = function(){ if(this.container.style.display==='block') this.render(); };
     InlineCalendar.prototype.clear     = function(){
-        this.selected=null; this.input.value=''; this.input.removeAttribute('data-value');
+        this.selected=null; this.pickedDay=null;
+        this.input.value=''; this.input.removeAttribute('data-value');
         this.input.classList.remove('has-value'); this.container.style.display='none';
         var now=todayMidnight(); this.viewYear=now.getFullYear(); this.viewMonth=now.getMonth();
     };
@@ -788,6 +910,8 @@
         var sd   = calDurationStart.getDate();
         var base = sd ? new Date(sd.getTime()) : new Date();
         base.setDate(base.getDate()+days);
+        // Keep same time as start if set, else 23:59
+        if (!sd) { base.setHours(23,59,0,0); }
         out.textContent = calFmtDisplay(base);
     }
     document.getElementById('enroll-duration-days').addEventListener('input', recomputeEndDate);
