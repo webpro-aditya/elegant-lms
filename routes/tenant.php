@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Frontend\PdfAnnotationController;
 use App\Http\Controllers\StoreGoogleAnalyticsClientIdController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -289,9 +290,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('apply-course-coupon', 'Frontend\StudentController@StudentApplyCourseCoupon')->name('StudentApplyCourseCoupon')->withoutMiddleware(['auth']);
     Route::get('cancel-course-coupon/{course_id}', 'Frontend\StudentController@StudentCancelCourseCoupon')->name('StudentCancelCourseCoupon')->withoutMiddleware(['auth']);
 
-});
-Route::get('fullscreen-view/{course_id}/{lesson_id}', 'Frontend\WebsiteController@fullScreenView')->name('fullScreenView');
+    
+    Route::get('fullscreen-view/{course_id}/{lesson_id}', 'Frontend\WebsiteController@fullScreenView')->name('fullScreenView');
+    Route::post('/pdf-annotations/save', [PdfAnnotationController::class, 'save'])->name('pdf.annotations.save');
+    Route::get('/pdf-annotations/load',  [PdfAnnotationController::class, 'load'])->name('pdf.annotations.load');
 
+});
 
 //Admin Routes Here
 Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'admin']], function () {

@@ -1423,77 +1423,591 @@ if ($assign->questionBank->shuffle==1){
 
             @if ($lesson->host == 'PDF')
                 <script src="{{ assetPath('frontend/infixlmstheme/js/pdf.min.js') }}"></script>
-                <script src="{{ assetPath('frontend/infixlmstheme/js/pdfjs-viewer.js') }}"></script>
-                <script src="{{ assetPath('frontend/infixlmstheme/js/zoom.js') }}"></script>
-                <link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme/css/pdfjs-viewer.css') }}"/>
-                <style>
-                    .pdfjs-viewer.h-100 {
-                        max-height: calc(100vh - 50px);
-                        overflow: auto;
-                    }
-
-                    .small_btn_icon {
-                        padding: 10px;
-                    }
-                </style>
-
                 <script>
                     var pdfjsLib = window['pdfjs-dist/build/pdf'];
                     pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ assetPath('frontend/infixlmstheme/js/pdf.worker.min.js') }}';
                 </script>
+                <style>
+                    #pdfOuterContainer {
+                        width:100%; height:calc(100vh - 115px);
+                        overflow-y:auto; overflow-x:auto;
+                        background:#525659; padding:16px 0;
+                        position:relative;
+                    }
+                    #pdfPagesContainer {
+                        display:flex; flex-direction:column; align-items:center; min-width:fit-content;
+                    }
+                    .pdf-page-wrapper {
+                        position:relative; margin-bottom:12px;
+                        background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.35); line-height:0;
+                    }
+                    .pdf-canvas { display:block; }
+                    .pdf-text-layer {
+                        position:absolute; top:0; left:0; right:0; bottom:0;
+                        overflow:hidden; line-height:1; text-size-adjust:none;
+                        pointer-events:none; z-index:2;
+                    }
+                    .pdf-text-layer span {
+                        color:transparent; position:absolute; white-space:pre;
+                        cursor:text; transform-origin:0% 0%; pointer-events:all;
+                    }
+                    .pdf-text-layer ::selection { background:rgba(0,0,255,.2); color:transparent; }
+                    /* In comment mode — disable all pointer events on text spans */
+                    .pdf-page-wrapper.comment-mode .pdf-text-layer,
+                    .pdf-page-wrapper.comment-mode .pdf-text-layer span { pointer-events:none!important; }
+                    /* Comment mode cursor on the canvas */
+                    .pdf-page-wrapper.comment-mode { cursor:crosshair!important; }
+                    .pdf-page-wrapper.comment-mode canvas { cursor:crosshair!important; }
+                    .pdf-annot-layer {
+                        position:absolute; top:0; left:0;
+                        width:100%; height:100%; pointer-events:none; z-index:3;
+                    }
+                    .pdf-hl-rect {
+                        position:absolute; border-radius:2px;
+                        mix-blend-mode:multiply; opacity:.55;
+                        pointer-events:all; cursor:pointer; z-index:4;
+                    }
+                    .pdf-hl-rect:hover::after {
+                        content:'×'; position:absolute; top:-9px; right:-7px;
+                        background:#e74c3c; color:#fff; border-radius:50%;
+                        width:16px; height:16px; font-size:12px; line-height:16px;
+                        text-align:center; pointer-events:none;
+                    }
+                    .pdf-comment-pin {
+                        position:absolute; width:26px; height:26px;
+                        pointer-events:all; cursor:pointer; z-index:6;
+                        filter:drop-shadow(0 1px 3px rgba(0,0,0,.4)); transition:transform .15s;
+                    }
+                    .pdf-comment-pin:hover { transform:scale(1.2); }
+                    #pdfCommentPopup {
+                        display:none; position:fixed; z-index:99999;
+                        background:#fff; border:1px solid #ddd; border-radius:8px;
+                        padding:14px; min-width:240px; max-width:300px;
+                        box-shadow:0 6px 24px rgba(0,0,0,.18);
+                    }
+                    #pdfCommentPopup textarea {
+                        width:100%; border:1px solid #ddd; border-radius:5px;
+                        padding:7px 9px; font-size:13px; resize:vertical;
+                        font-family:inherit; color:#333;
+                    }
+                    #pdfCommentPopup textarea:focus { outline:none; border-color:#7aa8d4; }
+                    .pdf-popup-actions { display:flex; gap:8px; margin-top:10px; }
+                    .pdf-popup-actions .theme_btn,
+                    .pdf-popup-actions .theme_line_btn { padding:5px 14px; font-size:13px; }
+                    .pdf-search-wrap { display:flex; align-items:center; flex-wrap:wrap; gap:5px; justify-content:center; }
+                    #pdfSearchInput {
+                        border:1px solid #ccc; border-radius:4px; padding:4px 10px;
+                        font-size:13px; height:34px; width:180px; font-family:inherit; color:#333;
+                    }
+                    #pdfSearchInput:focus { outline:none; border-color:#7aa8d4; }
+                    #pdfSearchInput.search-found    { border-color:#27ae60; }
+                    #pdfSearchInput.search-not-found { border-color:#e74c3c; }
+                    #pdfSearchCount { font-size:12px; color:#666; min-width:60px; text-align:center; }
+                    .pdf-search-match { background:rgba(255,200,0,.6)!important; border-radius:2px; color:#000!important; }
+                    .pdf-search-match.active-match { background:rgba(255,100,0,.75)!important; outline:2px solid #e67e22; color:#000!important; }
+                    .pdf-hl-btn { width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:border-color .15s,transform .15s; }
+                    .pdf-hl-btn:hover,.pdf-hl-btn.active-hl { border-color:#333;transform:scale(1.15); }
+                    .pdf-hl-btn[data-color="yellow"] { background:#ffe066; }
+                    .pdf-hl-btn[data-color="green"]  { background:#90ee90; }
+                    .pdf-hl-btn[data-color="blue"]   { background:#90c8f0; }
+                    .pdf-hl-btn[data-color="pink"]   { background:#f0a8c8; }
+                    .pdf-toolbar-sep { width:1px;height:22px;background:#ddd;display:inline-block;margin:0 4px;vertical-align:middle; }
+                    #pdfCommentModeBtn.comment-active { background:linear-gradient(90deg,#3c7cff,#1aafff)!important;color:#fff!important; }
+                    .small_btn_icon { padding:10px; }
+                    .pdf-page-placeholder { background:#e0e0e0;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;font-family:sans-serif; }
+                    .pdftoolbar-slide-container { max-height:180px!important; }
+                    @media (max-width:767px) {
+                        .pdftoolbar-slide-container:not(.pdftoolbar-hidden) { max-height:180px!important; }
+                        #pdfOuterContainer { height:calc(100vh - 170px); }
+                    }
+                    @media (min-width:768px) {
+                        .pdftoolbar-slide-container { max-height:none!important;opacity:1!important;overflow:visible!important; }
+                        .pdftoolbar-toggle-wrapper { display:none!important; }
+                    }
+                </style>
+
                 <div class="pdftoolbar-toggle-wrapper">
-                    <button class="pdftoolbar-toggle-btn collapsed" id="pdftoolbarToggleBtn"
-                            aria-label="Show PDF Toolbar" title="Toggle Toolbar">
+                    <button class="pdftoolbar-toggle-btn collapsed" id="pdftoolbarToggleBtn" aria-label="Show PDF Toolbar">
                         <i class="fa fa-chevron-down pdftoolbar-arrow"></i>
                     </button>
                 </div>
                 <div class="pdftoolbar-slide-container pdftoolbar-hidden" id="pdftoolbarSlideContainer">
                     <div class="pdftoolbar text-center row m-0 p-0">
-                        <div class="col-12 col-lg-12 my-1">
-                            <button class="theme_btn small_btn_icon btn-first" onclick="pdfViewer.first()"><i
-                                    class="fa fa-step-backward"></i></button>
-                            <button class="theme_btn small_btn_icon btn-prev" onclick="pdfViewer.prev(); return false;">
-                                <i class="fa fa-angle-left"></i></button>
-                            <span class="pageno"></span>
-                            <button class="theme_btn small_btn_icon btn-next" onclick="pdfViewer.next(); return false;">
-                                <i class="fa fa-angle-right"></i></button>
-                            <button class="theme_btn small_btn_icon btn-last" onclick="pdfViewer.last()"><i
-                                    class="fa fa-step-forward"></i></button>
-                            <button class="theme_btn small_btn_icon" onclick="pdfViewer.setZoom('out')"><i
-                                    class="fa fa-search-minus"></i></button>
-                            <span class="zoomval">100%</span>
-                            <button class="theme_btn small_btn_icon" onclick="pdfViewer.setZoom('in')"><i
-                                    class="fa fa-search-plus"></i></button>
-                            <button class="theme_btn small_btn_icon ms-3" onclick="pdfViewer.setZoom('width')"><i
-                                    class="fa fa-arrows-alt-h"></i></button>
-                            <button class="theme_btn small_btn_icon" onclick="pdfViewer.setZoom('height')"><i
-                                    class="fa fa-arrows-alt-v"></i></button>
-                            <button class="theme_btn small_btn_icon" onclick="pdfViewer.setZoom('fit')"><i
-                                    class="fa fa-expand"></i></button>
+                        <div class="col-12 my-1">
+                            <button class="theme_btn small_btn_icon" id="pdfBtnFirst"   title="First page"><i class="fa fa-step-backward"></i></button>
+                            <button class="theme_btn small_btn_icon" id="pdfBtnPrev"    title="Previous"><i class="fa fa-angle-left"></i></button>
+                            <span class="pageno" id="pdfPageNo" style="margin:0 6px;">-/-</span>
+                            <button class="theme_btn small_btn_icon" id="pdfBtnNext"    title="Next"><i class="fa fa-angle-right"></i></button>
+                            <button class="theme_btn small_btn_icon" id="pdfBtnLast"    title="Last page"><i class="fa fa-step-forward"></i></button>
+                            <button class="theme_btn small_btn_icon" id="pdfBtnZoomOut" title="Zoom out"><i class="fa fa-search-minus"></i></button>
+                            <span class="zoomval" id="pdfZoomVal" style="margin:0 4px;">100%</span>
+                            <button class="theme_btn small_btn_icon" id="pdfBtnZoomIn"  title="Zoom in"><i class="fa fa-search-plus"></i></button>
+                            <button class="theme_btn small_btn_icon ms-3" id="pdfBtnFitW" title="Fit width"><i class="fa fa-arrows-alt-h"></i></button>
+                            <button class="theme_btn small_btn_icon"      id="pdfBtnFitH" title="Fit height"><i class="fa fa-arrows-alt-v"></i></button>
+                            <button class="theme_btn small_btn_icon"      id="pdfBtnFit"  title="Fit page"><i class="fa fa-expand"></i></button>
+                        </div>
+                        <div class="col-12 my-1 pdf-search-wrap">
+                            <input type="text" id="pdfSearchInput" placeholder="Search in PDF…" autocomplete="off">
+                            <button class="theme_btn small_btn_icon" id="pdfSearchBtn"  title="Search"><i class="fa fa-search"></i></button>
+                            <button class="theme_btn small_btn_icon" id="pdfSearchPrev" title="Prev match"><i class="fa fa-angle-up"></i></button>
+                            <button class="theme_btn small_btn_icon" id="pdfSearchNext" title="Next match"><i class="fa fa-angle-down"></i></button>
+                            <span id="pdfSearchCount"></span>
+                            <span class="pdf-toolbar-sep"></span>
+                            <span style="font-size:12px;color:#555;vertical-align:middle;">Highlight:</span>
+                            <button class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
+                            <button class="pdf-hl-btn"           data-color="green"  title="Green"></button>
+                            <button class="pdf-hl-btn"           data-color="blue"   title="Blue"></button>
+                            <button class="pdf-hl-btn"           data-color="pink"   title="Pink"></button>
+                            <span class="pdf-toolbar-sep"></span>
+                            <button class="theme_btn small_btn_icon" id="pdfCommentModeBtn" title="Add Comment">
+                                <i class="fa fa-comment-alt"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div style="border: none; min-height: 400px" class="pdfviewer w-100 h-100">
-                    <div class="pdfjs-viewer h-100"></div>
+                <div id="pdfOuterContainer">
+                    <div id="pdfPagesContainer"></div>
+                </div>
+
+                <div id="pdfCommentPopup">
+                    <textarea id="pdfCommentText" rows="4" placeholder="Write a comment…"></textarea>
+                    <div class="pdf-popup-actions">
+                        <button id="pdfCommentSave"   class="theme_btn">Save</button>
+                        <button id="pdfCommentDelete" class="theme_line_btn" style="display:none;">Delete</button>
+                        <button id="pdfCommentCancel" class="theme_line_btn">Cancel</button>
+                    </div>
                 </div>
 
                 <script>
-                    let pdfViewer = new PDFjsViewer($('.pdfjs-viewer'), {
-                        setZoom: 'width', // ✅ auto full width
-                        maxImageSize: -1,
-                        onZoomChange: function (zoom) {
-                            zoom = parseInt(zoom * 10000) / 100;
-                            $(".zoomval").text(zoom + "%");
-                        },
-                        onActivePageChanged: function (page, pageno) {
-                            $(".pageno").text(pageno + "/" + this.getPageCount());
+                (function () {
+                    'use strict';
+
+                    const LESSON_ID = {{ $lesson->id }};
+                    const COURSE_ID = {{ $course->id }};
+                    const SAVE_URL  = '{{ route("pdf.annotations.save") }}';
+                    const LOAD_URL  = '{{ route("pdf.annotations.load") }}';
+                    const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
+                    const PDF_URL   = '{{ assetPath($lesson->video_url) }}';
+                    const COLORS    = { yellow:'#ffe066', green:'#90ee90', blue:'#90c8f0', pink:'#f0a8c8' };
+                    const ZOOMS     = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
+
+                    let pdfDoc=null, scale=1.5, totalPages=0, rendered={};
+                    let highlights=[], comments=[], nextId=Date.now();
+                    let hlColor='yellow', commentMode=false, pendingCmt=null, editingCmt=null;
+                    let searchMatches=[], searchIdx=-1;
+
+                    const outerCont = document.getElementById('pdfOuterContainer');
+                    const pagesCont = document.getElementById('pdfPagesContainer');
+                    const pageNoEl  = document.getElementById('pdfPageNo');
+                    const zoomValEl = document.getElementById('pdfZoomVal');
+                    const srchInput = document.getElementById('pdfSearchInput');
+                    const srchCount = document.getElementById('pdfSearchCount');
+                    const popup     = document.getElementById('pdfCommentPopup');
+                    const popupText = document.getElementById('pdfCommentText');
+                    const popupSave = document.getElementById('pdfCommentSave');
+                    const popupDel  = document.getElementById('pdfCommentDelete');
+                    const popupCncl = document.getElementById('pdfCommentCancel');
+                    const cmBtn     = document.getElementById('pdfCommentModeBtn');
+
+                    /* ── API ───────────────────────────────── */
+                    function apiSave(payload) {
+                        return fetch(SAVE_URL, {
+                            method:'POST',
+                            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},
+                            body:JSON.stringify(payload)
+                        }).then(r=>r.ok?r.json():null).catch(()=>null);
+                    }
+                    function loadAnnotations() {
+                        fetch(LOAD_URL+'?lesson_id='+LESSON_ID,{headers:{'X-CSRF-TOKEN':CSRF}})
+                            .then(r=>r.ok?r.json():null)
+                            .then(d=>{if(!d||!d.success)return;highlights=d.highlights||[];comments=d.comments||[];redrawAll();})
+                            .catch(()=>{});
+                    }
+
+                    /* ── LOAD PDF ──────────────────────────── */
+                    pdfjsLib.getDocument(PDF_URL).promise.then(doc=>{
+                        pdfDoc=doc; totalPages=doc.numPages;
+                        buildWrappers(); loadAnnotations();
+                        doc.getPage(1).then(pg=>{
+                            const vp=pg.getViewport({scale:1});
+                            scale=Math.max(0.5,Math.min(3.0,Math.round(((outerCont.clientWidth-32)/vp.width)*100)/100));
+                            zoomValEl.textContent=Math.round(scale*100)+'%';
+                            rendered={}; triggerVisible();
+                        });
+                    }).catch(e=>console.error('PDF load error:',e));
+
+                    function buildWrappers(){
+                        pagesCont.innerHTML=''; rendered={};
+                        for(let i=1;i<=totalPages;i++){
+                            const wrap=document.createElement('div');
+                            wrap.className='pdf-page-wrapper'; wrap.dataset.page=i;
+                            const ph=document.createElement('div');
+                            ph.className='pdf-page-placeholder'; ph.style.cssText='width:612px;height:792px;';
+                            ph.textContent='Page '+i; wrap.appendChild(ph); pagesCont.appendChild(wrap);
+                        }
+                        updatePageNo(1); setupObserver();
+                    }
+
+                    let observer;
+                    function setupObserver(){
+                        if(observer)observer.disconnect();
+                        observer=new IntersectionObserver(entries=>{
+                            entries.forEach(e=>{if(e.isIntersecting)renderPage(+e.target.dataset.page);});
+                        },{root:outerCont,rootMargin:'400px'});
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>observer.observe(w));
+                    }
+                    function triggerVisible(){
+                        const outerR=outerCont.getBoundingClientRect();
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>{
+                            const r=w.getBoundingClientRect();
+                            if(r.bottom>=outerR.top-400&&r.top<=outerR.bottom+400)renderPage(+w.dataset.page);
+                        });
+                    }
+
+                    /* ── RENDER PAGE ───────────────────────── */
+                    async function renderPage(pageNum){
+                        if(rendered[pageNum]||!pdfDoc)return;
+                        rendered[pageNum]=true;
+                        const wrap=pagesCont.querySelector(`[data-page="${pageNum}"]`);
+                        if(!wrap)return;
+                        const page=await pdfDoc.getPage(pageNum);
+                        const viewport=page.getViewport({scale});
+
+                        const canvas=document.createElement('canvas');
+                        canvas.width=viewport.width; canvas.height=viewport.height; canvas.style.display='block';
+                        await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+
+                        const textDiv=document.createElement('div');
+                        textDiv.className='pdf-text-layer';
+                        textDiv.style.width=viewport.width+'px'; textDiv.style.height=viewport.height+'px';
+
+                        const annotDiv=document.createElement('div');
+                        annotDiv.className='pdf-annot-layer'; annotDiv.dataset.annotPage=pageNum;
+                        annotDiv.style.width=viewport.width+'px'; annotDiv.style.height=viewport.height+'px';
+
+                        wrap.style.width=viewport.width+'px'; wrap.style.height=viewport.height+'px';
+                        wrap.innerHTML='';
+                        wrap.appendChild(canvas); wrap.appendChild(textDiv); wrap.appendChild(annotDiv);
+
+                        const textContent=await page.getTextContent();
+                        buildTextLayer(textContent,textDiv,viewport);
+
+                        /* highlight: mouseup on this wrap */
+                        wrap.addEventListener('mouseup',e=>onMouseUp(e,wrap,pageNum));
+
+                        /* apply comment-mode class if currently active */
+                        if(commentMode) wrap.classList.add('comment-mode');
+
+                        drawAnnotsForPage(pageNum);
+                    }
+
+                    function buildTextLayer(textContent,container,viewport){
+                        if(typeof pdfjsLib.renderTextLayer==='function'){
+                            try{pdfjsLib.renderTextLayer({textContentSource:textContent,container,viewport,textDivs:[]});return;}catch(e){}
+                            try{pdfjsLib.renderTextLayer({textContent,container,viewport,textDivs:[]});return;}catch(e){}
+                        }
+                        if(!textContent||!textContent.items)return;
+                        textContent.items.forEach(item=>{
+                            if(!item.str)return;
+                            const tx=pdfjsLib.Util.transform(viewport.transform,item.transform);
+                            const span=document.createElement('span');
+                            span.textContent=item.str;
+                            const fontH=Math.sqrt(tx[2]*tx[2]+tx[3]*tx[3]);
+                            span.style.left=tx[4]+'px'; span.style.top=(tx[5]-fontH)+'px'; span.style.fontSize=fontH+'px';
+                            const angle=Math.atan2(tx[1],tx[0]);
+                            const sx=item.width>0?item.width/(fontH*item.str.length*0.55||1):1;
+                            span.style.transform=(angle?`rotate(${-angle}rad) `:'')+`scaleX(${sx})`;
+                            container.appendChild(span);
+                        });
+                    }
+
+                    async function rerenderAll(){
+                        clearSearch(); rendered={};
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>{
+                            const ph=document.createElement('div');
+                            ph.className='pdf-page-placeholder';
+                            ph.style.cssText=`width:${w.offsetWidth||612}px;height:${w.offsetHeight||792}px;`;
+                            ph.textContent='Page '+w.dataset.page; w.innerHTML=''; w.appendChild(ph);
+                        });
+                        setupObserver();
+                    }
+
+                    /* ── DRAW ANNOTATIONS ──────────────────── */
+                    function drawAnnotsForPage(pageNum){
+                        const annotDiv=pagesCont.querySelector(`.pdf-annot-layer[data-annot-page="${pageNum}"]`);
+                        if(!annotDiv)return;
+                        annotDiv.querySelectorAll('.pdf-hl-rect,.pdf-comment-pin').forEach(el=>el.remove());
+                        highlights.filter(h=>h.pageNum===pageNum).forEach(hl=>{
+                            if(!hl.rects)return;
+                            hl.rects.forEach(r=>{
+                                const div=document.createElement('div');
+                                div.className='pdf-hl-rect';
+                                div.style.cssText=`background:${COLORS[hl.color]||COLORS.yellow};left:${r.x*100}%;top:${r.y*100}%;width:${r.w*100}%;height:${r.h*100}%;`;
+                                div.title=(hl.text||'Highlight').substring(0,80);
+                                div.addEventListener('click',ev=>{
+                                    ev.stopPropagation();
+                                    if(confirm('Delete this highlight?')){
+                                        apiSave({action:'delete_highlight',lesson_id:LESSON_ID,course_id:COURSE_ID,id:hl.id});
+                                        highlights=highlights.filter(h2=>h2.id!==hl.id);
+                                        drawAnnotsForPage(pageNum);
+                                    }
+                                });
+                                annotDiv.appendChild(div);
+                            });
+                        });
+                        comments.filter(c=>c.pageNum===pageNum).forEach(c=>{
+                            const pin=document.createElement('div');
+                            pin.className='pdf-comment-pin';
+                            pin.innerHTML=`<svg viewBox="0 0 24 24" fill="#3c7cff" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>`;
+                            pin.style.left=`calc(${c.x*100}% - 13px)`;
+                            pin.style.top=`calc(${c.y*100}% - 26px)`;
+                            pin.title=(c.text||'Comment').substring(0,60);
+                            pin.addEventListener('click',ev=>{ev.stopPropagation();openPopup(ev.clientX,ev.clientY,c);});
+                            annotDiv.appendChild(pin);
+                        });
+                    }
+                    function redrawAll(){ for(let i=1;i<=totalPages;i++){if(rendered[i])drawAnnotsForPage(i);} }
+
+                    /* ── HIGHLIGHT — mouseup ───────────────── */
+                    function onMouseUp(e,wrap,pageNum){
+                        if(commentMode)return;
+                        const sel=window.getSelection();
+                        if(!sel||sel.isCollapsed||!sel.toString().trim())return;
+                        const text=sel.toString().trim();
+                        const range=sel.getRangeAt(0);
+                        const rects=Array.from(range.getClientRects());
+                        if(!rects.length)return;
+                        const wRect=wrap.getBoundingClientRect();
+                        const norm=rects.map(r=>({
+                            x:(r.left-wRect.left)/wRect.width, y:(r.top-wRect.top)/wRect.height,
+                            w:r.width/wRect.width, h:r.height/wRect.height
+                        })).filter(r=>r.w>0.001&&r.h>0.001);
+                        sel.removeAllRanges();
+                        if(!norm.length)return;
+                        const id=nextId++;
+                        highlights.push({id,pageNum,rects:norm,text,color:hlColor});
+                        drawAnnotsForPage(pageNum);
+                        apiSave({action:'highlight',lesson_id:LESSON_ID,course_id:COURSE_ID,id,pageNum,rects:norm,text,color:hlColor});
+                    }
+
+                    /* ════════════════════════════════════════
+                       COMMENT MODE
+                       No overlay needed — listen on outerCont
+                       via event bubbling from canvas.
+                       The .comment-mode class on each wrapper
+                       sets pointer-events:none on text spans
+                       so clicks fall through to canvas → bubble up.
+                       ════════════════════════════════════════ */
+                    function enterCommentMode(){
+                        commentMode=true;
+                        cmBtn.classList.add('comment-active');
+                        cmBtn.title='Click anywhere on PDF to place comment';
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>w.classList.add('comment-mode'));
+                    }
+                    function exitCommentMode(){
+                        commentMode=false;
+                        cmBtn.classList.remove('comment-active');
+                        cmBtn.title='Add Comment';
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>w.classList.remove('comment-mode'));
+                    }
+
+                    cmBtn.addEventListener('click',function(e){
+                        e.stopPropagation();
+                        if(commentMode) exitCommentMode(); else enterCommentMode();
+                    });
+
+                    /* outerCont click — bubbles up from canvas when in comment mode */
+                    outerCont.addEventListener('click',function(e){
+                        if(!commentMode)return;
+                        /* walk up from click target to find the page wrapper */
+                        let hitWrap=null;
+                        let node=e.target;
+                        while(node && node!==outerCont){
+                            if(node.classList && node.classList.contains('pdf-page-wrapper')){hitWrap=node;break;}
+                            node=node.parentElement;
+                        }
+                        if(!hitWrap)return; /* clicked in gap between pages */
+
+                        const pageNum=parseInt(hitWrap.dataset.page);
+                        const r=hitWrap.getBoundingClientRect();
+                        pendingCmt={pageNum, x:(e.clientX-r.left)/r.width, y:(e.clientY-r.top)/r.height};
+                        editingCmt=null;
+                        e.stopPropagation();
+                        openPopup(e.clientX,e.clientY,null);
+                    });
+
+                    /* ── COMMENT POPUP ─────────────────────── */
+                    function openPopup(cx,cy,existing){
+                        exitCommentMode();
+                        popup.style.display='block';
+                        let left=cx+12, top=cy+12;
+                        if(left+300>window.innerWidth)  left=cx-312;
+                        if(top+220>window.innerHeight)  top=cy-220;
+                        popup.style.left=Math.max(4,left)+'px';
+                        popup.style.top=Math.max(4,top)+'px';
+                        if(existing){
+                            popupText.value=existing.text||''; editingCmt=existing; pendingCmt=null;
+                            popupDel.style.display='inline-block';
+                        } else {
+                            popupText.value=''; popupDel.style.display='none';
+                        }
+                        setTimeout(()=>popupText.focus(),50);
+                    }
+
+                    popupSave.addEventListener('click',function(){
+                        const txt=popupText.value.trim();
+                        if(!txt){popupText.focus();return;}
+                        if(editingCmt){
+                            editingCmt.text=txt;
+                            apiSave({action:'update_comment',lesson_id:LESSON_ID,course_id:COURSE_ID,id:editingCmt.id,text:txt});
+                            redrawAll();
+                        } else if(pendingCmt){
+                            const id=nextId++;
+                            const c={id,pageNum:pendingCmt.pageNum,x:pendingCmt.x,y:pendingCmt.y,text:txt};
+                            comments.push(c);
+                            apiSave({action:'comment',lesson_id:LESSON_ID,course_id:COURSE_ID,id,pageNum:c.pageNum,x:c.x,y:c.y,text:txt});
+                            drawAnnotsForPage(c.pageNum);
+                        }
+                        closePopup(); pendingCmt=null; editingCmt=null;
+                    });
+
+                    popupDel.addEventListener('click',function(){
+                        if(!editingCmt||!confirm('Delete this comment?'))return;
+                        apiSave({action:'delete_comment',lesson_id:LESSON_ID,course_id:COURSE_ID,id:editingCmt.id});
+                        comments=comments.filter(c=>c.id!==editingCmt.id);
+                        redrawAll(); closePopup(); editingCmt=null;
+                    });
+
+                    popupCncl.addEventListener('click',()=>{closePopup();pendingCmt=null;editingCmt=null;});
+                    function closePopup(){popup.style.display='none';exitCommentMode();}
+                    document.addEventListener('click',e=>{
+                        if(!popup.contains(e.target)&&e.target!==cmBtn&&!cmBtn.contains(e.target)){
+                            if(popup.style.display==='block')closePopup();
                         }
                     });
 
-                    pdfViewer.loadDocument("{{assetPath($lesson->video_url) }}").then(function () {
-                        pdfViewer.setZoom('width'); // ✅ enforce full width
+                    document.querySelectorAll('.pdf-hl-btn').forEach(btn=>{
+                        btn.addEventListener('click',function(){
+                            document.querySelectorAll('.pdf-hl-btn').forEach(b=>b.classList.remove('active-hl'));
+                            this.classList.add('active-hl'); hlColor=this.dataset.color;
+                            if(commentMode)exitCommentMode();
+                        });
                     });
+
+                    /* ── SEARCH ─────────────────────────────── */
+                    function clearSearch(){
+                        document.querySelectorAll('.pdf-search-match').forEach(m=>{
+                            if(m.parentNode)m.parentNode.replaceChild(document.createTextNode(m.textContent),m);
+                        });
+                        pagesCont.querySelectorAll('.pdf-text-layer span').forEach(s=>{try{s.normalize();}catch(e){}});
+                        searchMatches=[];searchIdx=-1;
+                        srchCount.textContent='';
+                        srchInput.classList.remove('search-found','search-not-found');
+                    }
+
+                    async function doSearch(){
+                        clearSearch();
+                        const query=srchInput.value.trim();
+                        if(!query)return;
+                        const re=new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+                        for(let pn=1;pn<=totalPages;pn++){
+                            if(!rendered[pn]){await renderPage(pn);await new Promise(res=>setTimeout(res,80));}
+                            const wrap=pagesCont.querySelector(`[data-page="${pn}"]`);
+                            if(!wrap)continue;
+                            const tl=wrap.querySelector('.pdf-text-layer');
+                            if(!tl)continue;
+                            tl.querySelectorAll('span').forEach(span=>{
+                                const nodes=[];
+                                span.childNodes.forEach(n=>{if(n.nodeType===3&&n.nodeValue)nodes.push(n);});
+                                nodes.forEach(node=>{
+                                    const val=node.nodeValue; re.lastIndex=0;
+                                    if(!re.test(val))return; re.lastIndex=0;
+                                    const frag=document.createDocumentFragment();
+                                    let last=0,m;
+                                    while((m=re.exec(val))!==null){
+                                        if(m.index>last)frag.appendChild(document.createTextNode(val.slice(last,m.index)));
+                                        const mark=document.createElement('mark');
+                                        mark.className='pdf-search-match'; mark.textContent=m[0];
+                                        frag.appendChild(mark); searchMatches.push(mark);
+                                        last=m.index+m[0].length;
+                                    }
+                                    if(last<val.length)frag.appendChild(document.createTextNode(val.slice(last)));
+                                    node.parentNode.replaceChild(frag,node); re.lastIndex=0;
+                                });
+                            });
+                        }
+                        if(searchMatches.length){srchInput.classList.add('search-found');activateMatch(0);}
+                        else{srchInput.classList.add('search-not-found');srchCount.textContent='0 results';}
+                    }
+
+                    function activateMatch(idx){
+                        searchMatches.forEach(m=>{if(m){m.style.background='rgba(255,200,0,.6)';m.style.outline='';m.classList.remove('active-match');}});
+                        if(!searchMatches.length)return;
+                        idx=((idx%searchMatches.length)+searchMatches.length)%searchMatches.length;
+                        searchIdx=idx;
+                        const mark=searchMatches[idx];
+                        if(mark){mark.classList.add('active-match');mark.style.background='rgba(255,100,0,.75)';mark.style.outline='2px solid #e67e22';mark.scrollIntoView({behavior:'smooth',block:'center'});}
+                        srchCount.textContent=(idx+1)+' / '+searchMatches.length;
+                    }
+
+                    document.getElementById('pdfSearchBtn').addEventListener('click',doSearch);
+                    document.getElementById('pdfSearchNext').addEventListener('click',()=>activateMatch(searchIdx+1));
+                    document.getElementById('pdfSearchPrev').addEventListener('click',()=>activateMatch(searchIdx-1));
+                    srchInput.addEventListener('keydown',e=>{
+                        if(e.key==='Enter'){e.shiftKey?activateMatch(searchIdx-1):doSearch();}
+                        if(e.key==='Escape')clearSearch();
+                    });
+
+                    /* ── NAVIGATION ────────────────────────── */
+                    function updatePageNo(n){pageNoEl.textContent=n+'/'+totalPages;}
+                    function getCurrentPage(){
+                        const outerR=outerCont.getBoundingClientRect(); let cur=1;
+                        pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w=>{
+                            if(w.getBoundingClientRect().top<=outerR.top+outerR.height*0.5)cur=+w.dataset.page;
+                        });
+                        return cur;
+                    }
+                    function scrollToPage(n){
+                        const w=pagesCont.querySelector(`[data-page="${n}"]`);
+                        if(w){w.scrollIntoView({behavior:'smooth',block:'start'});updatePageNo(n);}
+                    }
+                    outerCont.addEventListener('scroll',()=>updatePageNo(getCurrentPage()));
+                    document.getElementById('pdfBtnFirst').addEventListener('click',()=>scrollToPage(1));
+                    document.getElementById('pdfBtnLast').addEventListener('click',()=>scrollToPage(totalPages));
+                    document.getElementById('pdfBtnPrev').addEventListener('click',()=>{const c=getCurrentPage();if(c>1)scrollToPage(c-1);});
+                    document.getElementById('pdfBtnNext').addEventListener('click',()=>{const c=getCurrentPage();if(c<totalPages)scrollToPage(c+1);});
+
+                    /* ── ZOOM ───────────────────────────────── */
+                    function setScale(s){
+                        scale=Math.round(Math.max(0.5,Math.min(3.0,s))*100)/100;
+                        zoomValEl.textContent=Math.round(scale*100)+'%'; rerenderAll();
+                    }
+                    document.getElementById('pdfBtnZoomIn').addEventListener('click',()=>{const n=ZOOMS.find(z=>z>scale);if(n)setScale(n);});
+                    document.getElementById('pdfBtnZoomOut').addEventListener('click',()=>{const p=[...ZOOMS].reverse().find(z=>z<scale);if(p)setScale(p);});
+                    document.getElementById('pdfBtnFitW').addEventListener('click',async()=>{const vp=(await pdfDoc.getPage(1)).getViewport({scale:1});setScale((outerCont.clientWidth-32)/vp.width);});
+                    document.getElementById('pdfBtnFitH').addEventListener('click',async()=>{const vp=(await pdfDoc.getPage(1)).getViewport({scale:1});setScale((outerCont.clientHeight-32)/vp.height);});
+                    document.getElementById('pdfBtnFit').addEventListener('click',async()=>{const vp=(await pdfDoc.getPage(1)).getViewport({scale:1});setScale(Math.min((outerCont.clientWidth-32)/vp.width,(outerCont.clientHeight-32)/vp.height));});
+
+                    /* ── MOBILE TOOLBAR TOGGLE ─────────────── */
+                    (function(){
+                        const tBtn=document.getElementById('pdftoolbarToggleBtn');
+                        const sEl=document.getElementById('pdftoolbarSlideContainer');
+                        if(!sEl)return;
+                        if(window.innerWidth<768){
+                            sEl.style.maxHeight='0';sEl.style.opacity='0';
+                            if(tBtn){tBtn.addEventListener('click',function(){
+                                const hidden=sEl.style.maxHeight==='0px'||sEl.style.maxHeight==='0';
+                                sEl.style.maxHeight=hidden?'180px':'0';sEl.style.opacity=hidden?'1':'0';
+                                tBtn.querySelector('i').style.transform=hidden?'rotate(180deg)':'rotate(0deg)';
+                                tBtn.setAttribute('aria-label',hidden?'Hide PDF Toolbar':'Show PDF Toolbar');
+                            });}
+                        } else {sEl.style.maxHeight='none';sEl.style.opacity='1';}
+                    })();
+
+                    window.addEventListener('resize',()=>setTimeout(redrawAll,150));
+
+                })();
                 </script>
             @endif
             @if ($lesson->host == 'Word')
@@ -2097,26 +2611,6 @@ if ($assign->questionBank->shuffle==1){
             });
         });
 
-        let lastScrollTop = 0;
-        const toolbar = document.querySelector('.pdftoolbar');
-
-        window.addEventListener('scroll', function () {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-            // Only apply for mobile devices
-            if (window.innerWidth <= 768) {
-
-                if (scrollTop > lastScrollTop) {
-                    // Scrolling DOWN → hide toolbar
-                    toolbar.style.transform = "translateY(100%)";
-                } else {
-                    // Scrolling UP → show toolbar
-                    toolbar.style.transform = "translateY(0)";
-                }
-
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            }
-        });
     </script>
 
     @if ($lesson->host == 'Self' || $lesson->host == 'AmazonS3' || $lesson->host == 'URL' || $lesson->host == 'Youtube' || $lesson->host == 'Iframe'|| $lesson->host == 'Vimeo')

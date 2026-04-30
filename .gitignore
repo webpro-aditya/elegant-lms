@@ -24,3 +24,4 @@ frankenphp-worker.php
 rr
 .rr.yaml
 Modules/CourseSetting/Resources/views/student_list.blade.php__
+resources/views/frontend/infixlmstheme/pages/fullscreen_video.blade copy.php
