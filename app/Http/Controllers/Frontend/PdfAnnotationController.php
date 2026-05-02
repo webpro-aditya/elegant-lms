@@ -12,86 +12,167 @@ class PdfAnnotationController extends Controller
 {
     public function save(Request $request): JsonResponse
     {
-        $data      = $request->json()->all();
-        $action    = $data['action']    ?? '';
-        $lessonId  = (int)($data['lesson_id']  ?? 0);
-        $courseId  = (int)($data['course_id']  ?? 0);
-        $userId    = Auth::id();
+        $data = $request->all();
+
+        $action   = $data['action'] ?? '';
+        $lessonId = (int) ($data['lesson_id'] ?? 0);
+        $courseId = (int) ($data['course_id'] ?? 0);
+        $userId   = Auth::id();
 
         if (!$userId || !$lessonId) {
-            return response()->json(['success' => false, 'error' => 'Unauthenticated or missing lesson'], 403);
+            return response()->json([
+                'success' => false,
+                'error'   => 'Unauthenticated or missing lesson'
+            ], 403);
         }
 
         switch ($action) {
-
             case 'highlight':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
                 PdfAnnotation::updateOrCreate(
                     [
                         'user_id'   => $userId,
                         'lesson_id' => $lessonId,
+                        'course_id' => $courseId,
                         'type'      => 'highlight',
-                        'annot_id'  => (int)$data['id'],
+                        'annot_id'  => $annotId,
                     ],
                     [
-                        'course_id' => $courseId,
-                        'page_num'  => (int)($data['pageNum'] ?? 1),
-                        'rects'     => json_encode($data['rects'] ?? []),
-                        'text'      => substr($data['text'] ?? '', 0, 2000),
-                        'color'     => preg_replace('/[^a-z]/', '', $data['color'] ?? 'yellow'),
+                        'page_num' => (int) ($data['pageNum'] ?? 1),
+                        'rects'    => is_array($data['rects'] ?? null)
+                            ? json_encode($data['rects'])
+                            : ($data['rects'] ?? '[]'),
+                        'text'     => substr((string) ($data['text'] ?? ''), 0, 2000),
+                        'color'    => preg_replace('/[^a-z]/', '', (string) ($data['color'] ?? 'yellow')),
                     ]
                 );
-                break;
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
 
             case 'delete_highlight':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
                 PdfAnnotation::where([
                     'user_id'   => $userId,
                     'lesson_id' => $lessonId,
+                    'course_id' => $courseId,
                     'type'      => 'highlight',
-                    'annot_id'  => (int)($data['id'] ?? 0),
+                    'annot_id'  => $annotId,
                 ])->delete();
-                break;
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
 
             case 'comment':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
                 PdfAnnotation::updateOrCreate(
                     [
                         'user_id'   => $userId,
                         'lesson_id' => $lessonId,
+                        'course_id' => $courseId,
                         'type'      => 'comment',
-                        'annot_id'  => (int)$data['id'],
+                        'annot_id'  => $annotId,
                     ],
                     [
-                        'course_id' => $courseId,
-                        'page_num'  => (int)($data['pageNum'] ?? 1),
-                        'pos_x'     => (float)($data['x'] ?? 0),
-                        'pos_y'     => (float)($data['y'] ?? 0),
-                        'text'      => substr($data['text'] ?? '', 0, 5000),
+                        'page_num' => (int) ($data['pageNum'] ?? 1),
+                        'pos_x'    => (float) ($data['x'] ?? 0),
+                        'pos_y'    => (float) ($data['y'] ?? 0),
+                        'text'     => substr((string) ($data['text'] ?? ''), 0, 5000),
                     ]
                 );
-                break;
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
 
             case 'update_comment':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
                 PdfAnnotation::where([
                     'user_id'   => $userId,
                     'lesson_id' => $lessonId,
+                    'course_id' => $courseId,
                     'type'      => 'comment',
-                    'annot_id'  => (int)($data['id'] ?? 0),
-                ])->update(['text' => substr($data['text'] ?? '', 0, 5000)]);
-                break;
+                    'annot_id'  => $annotId,
+                ])->update([
+                    'text' => substr((string) ($data['text'] ?? ''), 0, 5000)
+                ]);
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
 
             case 'delete_comment':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
                 PdfAnnotation::where([
                     'user_id'   => $userId,
                     'lesson_id' => $lessonId,
+                    'course_id' => $courseId,
                     'type'      => 'comment',
-                    'annot_id'  => (int)($data['id'] ?? 0),
+                    'annot_id'  => $annotId,
                 ])->delete();
-                break;
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
 
             default:
-                return response()->json(['success' => false, 'error' => 'Unknown action']);
+                return response()->json([
+                    'success' => false,
+                    'error'   => 'Unknown action'
+                ], 400);
         }
-
-        return response()->json(['success' => true, 'action' => $action]);
     }
 
     // ── Load (all annotations for current user + lesson) ─────────

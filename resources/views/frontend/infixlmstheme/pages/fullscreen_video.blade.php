@@ -1427,6 +1427,7 @@ if ($assign->questionBank->shuffle==1){
         var pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ assetPath('frontend/infixlmstheme/js/pdf.worker.min.js') }}';
     </script>
+
     <style>
         #pdfOuterContainer {
             width: 100%;
@@ -1656,21 +1657,10 @@ if ($assign->questionBank->shuffle==1){
             transform: scale(1.15);
         }
 
-        .pdf-hl-btn[data-color="yellow"] {
-            background: #ffe066;
-        }
-
-        .pdf-hl-btn[data-color="green"] {
-            background: #90ee90;
-        }
-
-        .pdf-hl-btn[data-color="blue"] {
-            background: #90c8f0;
-        }
-
-        .pdf-hl-btn[data-color="pink"] {
-            background: #f0a8c8;
-        }
+        .pdf-hl-btn[data-color="yellow"] { background: #ffe066; }
+        .pdf-hl-btn[data-color="green"] { background: #90ee90; }
+        .pdf-hl-btn[data-color="blue"] { background: #90c8f0; }
+        .pdf-hl-btn[data-color="pink"] { background: #f0a8c8; }
 
         .pdf-toolbar-sep {
             width: 1px;
@@ -1736,19 +1726,19 @@ if ($assign->questionBank->shuffle==1){
     <div class="pdftoolbar-slide-container pdftoolbar-hidden" id="pdftoolbarSlideContainer">
         <div class="pdftoolbar text-center row m-0 p-0">
             <div class="col-12 my-1">
-                <button class="theme_btn small_btn_icon" id="pdfBtnFirst" title="First page"><i class="fa fa-step-backward"></i></button>
-                <button class="theme_btn small_btn_icon" id="pdfBtnPrev" title="Previous"><i class="fa fa-angle-left"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFirst" title="First page"><i class="fa fa-step-backward"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnPrev" title="Previous"><i class="fa fa-angle-left"></i></button>
                 <span class="pageno" id="pdfPageNo" style="margin:0 6px;">-/-</span>
-                <button class="theme_btn small_btn_icon" id="pdfBtnNext" title="Next"><i class="fa fa-angle-right"></i></button>
-                <button class="theme_btn small_btn_icon" id="pdfBtnLast" title="Last page"><i class="fa fa-step-forward"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnNext" title="Next"><i class="fa fa-angle-right"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnLast" title="Last page"><i class="fa fa-step-forward"></i></button>
 
-                <button class="theme_btn small_btn_icon" id="pdfBtnZoomOut" title="Zoom out"><i class="fa fa-search-minus"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnZoomOut" title="Zoom out"><i class="fa fa-search-minus"></i></button>
                 <span class="zoomval" id="pdfZoomVal" style="margin:0 4px;">100%</span>
-                <button class="theme_btn small_btn_icon" id="pdfBtnZoomIn" title="Zoom in"><i class="fa fa-search-plus"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnZoomIn" title="Zoom in"><i class="fa fa-search-plus"></i></button>
 
-                <button class="theme_btn small_btn_icon ms-3" id="pdfBtnFitW" title="Fit width"><i class="fa fa-arrows-alt-h"></i></button>
-                <button class="theme_btn small_btn_icon" id="pdfBtnFitH" title="Fit height"><i class="fa fa-arrows-alt-v"></i></button>
-                <button class="theme_btn small_btn_icon" id="pdfBtnFit" title="Fit page"><i class="fa fa-expand"></i></button>
+                <button type="button" class="theme_btn small_btn_icon ms-3" id="pdfBtnFitW" title="Fit width"><i class="fa fa-arrows-alt-h"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFitH" title="Fit height"><i class="fa fa-arrows-alt-v"></i></button>
+                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFit" title="Fit page"><i class="fa fa-expand"></i></button>
             </div>
 
             <div class="col-12 my-1 pdf-search-wrap">
@@ -1796,11 +1786,11 @@ if ($assign->questionBank->shuffle==1){
             const LOAD_URL = '{{ route("pdf.annotations.load") }}';
             const CSRF = document.querySelector('meta[name="csrf-token"]').content;
             const PDF_URL = '{{ assetPath($lesson->video_url) }}';
-            const COLORS = {yellow: '#ffe066', green: '#90ee90', blue: '#90c8f0', pink: '#f0a8c8'};
+            const COLORS = { yellow: '#ffe066', green: '#90ee90', blue: '#90c8f0', pink: '#f0a8c8' };
             const ZOOMS = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
 
             let pdfDoc = null, scale = 1.5, totalPages = 0, rendered = {};
-            let highlights = [], comments = [], nextId = Date.now();
+            let highlights = [], comments = [];
             let hlColor = 'yellow', commentMode = false, pendingCmt = null, editingCmt = null;
             let searchMatches = [], searchIdx = -1, lastSearchQuery = '';
 
@@ -1817,32 +1807,96 @@ if ($assign->questionBank->shuffle==1){
             const popupCncl = document.getElementById('pdfCommentCancel');
             const cmBtn = document.getElementById('pdfCommentModeBtn');
 
+            function makeAnnotId() {
+                return Math.floor((Date.now() % 1000000000) + Math.floor(Math.random() * 10000));
+            }
+
+            function getAnnotId(item) {
+                return item ? parseInt(item.annot_id || item.id || 0, 10) : 0;
+            }
+
+            function normalizeLoadedAnnotations() {
+                highlights = (highlights || []).map(h => ({
+                    ...h,
+                    annot_id: parseInt(h.annot_id || h.id || 0, 10),
+                    pageNum: parseInt(h.pageNum || h.page_num || 1, 10),
+                    rects: Array.isArray(h.rects) ? h.rects : (typeof h.rects === 'string' ? safeJsonParse(h.rects, []) : [])
+                })).filter(h => h.annot_id > 0);
+
+                comments = (comments || []).map(c => ({
+                    ...c,
+                    annot_id: parseInt(c.annot_id || c.id || 0, 10),
+                    pageNum: parseInt(c.pageNum || c.page_num || 1, 10),
+                    x: typeof c.x !== 'undefined' ? parseFloat(c.x) : parseFloat(c.pos_x || 0),
+                    y: typeof c.y !== 'undefined' ? parseFloat(c.y) : parseFloat(c.pos_y || 0)
+                })).filter(c => c.annot_id > 0);
+            }
+
+            function safeJsonParse(value, fallback) {
+                try {
+                    return JSON.parse(value);
+                } catch (e) {
+                    return fallback;
+                }
+            }
+
             function apiSave(payload) {
+                const formData = new FormData();
+
+                Object.keys(payload).forEach(key => {
+                    const value = payload[key];
+
+                    if (Array.isArray(value) || (value && typeof value === 'object')) {
+                        formData.append(key, JSON.stringify(value));
+                    } else if (value !== undefined && value !== null) {
+                        formData.append(key, value);
+                    }
+                });
+
                 return fetch(SAVE_URL, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF},
-                    body: JSON.stringify(payload)
-                }).then(r => r.ok ? r.json() : null).catch(() => null);
+                    headers: {
+                        'X-CSRF-TOKEN': CSRF,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                }).then(async r => {
+                    const text = await r.text();
+                    try {
+                        return text ? JSON.parse(text) : null;
+                    } catch (e) {
+                        console.error('Save API non-JSON response:', text);
+                        return null;
+                    }
+                }).catch(err => {
+                    console.error('apiSave error:', err);
+                    return null;
+                });
             }
 
             function loadAnnotations() {
-                fetch(LOAD_URL + '?lesson_id=' + LESSON_ID, {headers: {'X-CSRF-TOKEN': CSRF}})
-                    .then(r => r.ok ? r.json() : null)
-                    .then(d => {
-                        if (!d || !d.success) return;
-                        highlights = d.highlights || [];
-                        comments = d.comments || [];
-                        redrawAll();
-                    })
-                    .catch(() => {
-                    });
+                fetch(LOAD_URL + '?lesson_id=' + LESSON_ID, {
+                    headers: {
+                        'X-CSRF-TOKEN': CSRF,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.ok ? r.json() : null)
+                .then(d => {
+                    if (!d || !d.success) return;
+                    highlights = d.highlights || [];
+                    comments = d.comments || [];
+                    normalizeLoadedAnnotations();
+                    redrawAll();
+                })
+                .catch(err => console.error('Load annotations error:', err));
             }
 
             async function fitPdfToWidthOnLoad() {
                 if (!pdfDoc) return;
 
                 const page = await pdfDoc.getPage(1);
-                const vp = page.getViewport({scale: 1});
+                const vp = page.getViewport({ scale: 1 });
 
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => setTimeout(resolve, 60));
@@ -1918,7 +1972,7 @@ if ($assign->questionBank->shuffle==1){
                     entries.forEach(e => {
                         if (e.isIntersecting) renderPage(+e.target.dataset.page);
                     });
-                }, {root: outerCont, rootMargin: '400px'});
+                }, { root: outerCont, rootMargin: '400px' });
 
                 pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
             }
@@ -1942,12 +1996,13 @@ if ($assign->questionBank->shuffle==1){
                 if (!wrap) return;
 
                 const page = await pdfDoc.getPage(pageNum);
-                const viewport = page.getViewport({scale});
+                const viewport = page.getViewport({ scale });
 
                 const canvas = document.createElement('canvas');
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 canvas.style.display = 'block';
+                canvas.className = 'pdf-canvas';
 
                 await page.render({
                     canvasContext: canvas.getContext('2d'),
@@ -1975,6 +2030,7 @@ if ($assign->questionBank->shuffle==1){
                 const textContent = await page.getTextContent();
                 buildTextLayer(textContent, textDiv, viewport);
 
+                wrap.onmouseup = null;
                 wrap.addEventListener('mouseup', e => onMouseUp(e, wrap, pageNum));
 
                 if (commentMode) wrap.classList.add('comment-mode');
@@ -1992,8 +2048,7 @@ if ($assign->questionBank->shuffle==1){
                             textDivs: []
                         });
                         return;
-                    } catch (e) {
-                    }
+                    } catch (e) {}
 
                     try {
                         pdfjsLib.renderTextLayer({
@@ -2003,8 +2058,7 @@ if ($assign->questionBank->shuffle==1){
                             textDivs: []
                         });
                         return;
-                    } catch (e) {
-                    }
+                    } catch (e) {}
                 }
 
                 if (!textContent || !textContent.items) return;
@@ -2052,25 +2106,30 @@ if ($assign->questionBank->shuffle==1){
 
                 annotDiv.querySelectorAll('.pdf-hl-rect,.pdf-comment-pin').forEach(el => el.remove());
 
-                highlights.filter(h => h.pageNum === pageNum).forEach(hl => {
-                    if (!hl.rects) return;
+                highlights.filter(h => parseInt(h.pageNum, 10) === pageNum).forEach(hl => {
+                    if (!hl.rects || !hl.rects.length) return;
 
                     hl.rects.forEach(r => {
                         const div = document.createElement('div');
                         div.className = 'pdf-hl-rect';
                         div.style.cssText = `background:${COLORS[hl.color] || COLORS.yellow};left:${r.x * 100}%;top:${r.y * 100}%;width:${r.w * 100}%;height:${r.h * 100}%;`;
-                        div.title = (hl.text || 'Highlight').substring(0, 80);
+                        div.title = ((hl.text || 'Highlight') + '').substring(0, 80);
 
-                        div.addEventListener('click', ev => {
+                        div.addEventListener('click', async ev => {
                             ev.stopPropagation();
+
+                            const annotId = getAnnotId(hl);
+                            if (!annotId) return;
+
                             if (confirm('Delete this highlight?')) {
-                                apiSave({
+                                await apiSave({
                                     action: 'delete_highlight',
                                     lesson_id: LESSON_ID,
                                     course_id: COURSE_ID,
-                                    id: hl.id
+                                    annot_id: annotId
                                 });
-                                highlights = highlights.filter(h2 => h2.id !== hl.id);
+
+                                highlights = highlights.filter(h2 => getAnnotId(h2) !== annotId);
                                 drawAnnotsForPage(pageNum);
                             }
                         });
@@ -2079,13 +2138,13 @@ if ($assign->questionBank->shuffle==1){
                     });
                 });
 
-                comments.filter(c => c.pageNum === pageNum).forEach(c => {
+                comments.filter(c => parseInt(c.pageNum, 10) === pageNum).forEach(c => {
                     const pin = document.createElement('div');
                     pin.className = 'pdf-comment-pin';
                     pin.innerHTML = `<svg viewBox="0 0 24 24" fill="#3c7cff" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>`;
                     pin.style.left = `calc(${c.x * 100}% - 13px)`;
                     pin.style.top = `calc(${c.y * 100}% - 26px)`;
-                    pin.title = (c.text || 'Comment').substring(0, 60);
+                    pin.title = ((c.text || 'Comment') + '').substring(0, 60);
 
                     pin.addEventListener('click', ev => {
                         ev.stopPropagation();
@@ -2102,7 +2161,7 @@ if ($assign->questionBank->shuffle==1){
                 }
             }
 
-            function onMouseUp(e, wrap, pageNum) {
+            async function onMouseUp(e, wrap, pageNum) {
                 if (commentMode) return;
 
                 const sel = window.getSelection();
@@ -2124,15 +2183,31 @@ if ($assign->questionBank->shuffle==1){
                 sel.removeAllRanges();
                 if (!norm.length) return;
 
-                const id = nextId++;
-                highlights.push({id, pageNum, rects: norm, text, color: hlColor});
+                let annot_id = makeAnnotId();
+
+                while (
+                    highlights.some(h => getAnnotId(h) === annot_id) ||
+                    comments.some(c => getAnnotId(c) === annot_id)
+                ) {
+                    annot_id = makeAnnotId();
+                }
+
+                const localHighlight = {
+                    annot_id,
+                    pageNum,
+                    rects: norm,
+                    text,
+                    color: hlColor
+                };
+
+                highlights.push(localHighlight);
                 drawAnnotsForPage(pageNum);
 
-                apiSave({
+                await apiSave({
                     action: 'highlight',
                     lesson_id: LESSON_ID,
                     course_id: COURSE_ID,
-                    id,
+                    annot_id: annot_id,
                     pageNum,
                     rects: norm,
                     text,
@@ -2214,7 +2289,7 @@ if ($assign->questionBank->shuffle==1){
                 setTimeout(() => popupText.focus(), 50);
             }
 
-            popupSave.addEventListener('click', function () {
+            popupSave.addEventListener('click', async function () {
                 const txt = popupText.value.trim();
 
                 if (!txt) {
@@ -2224,18 +2299,28 @@ if ($assign->questionBank->shuffle==1){
 
                 if (editingCmt) {
                     editingCmt.text = txt;
-                    apiSave({
+
+                    await apiSave({
                         action: 'update_comment',
                         lesson_id: LESSON_ID,
                         course_id: COURSE_ID,
-                        id: editingCmt.id,
+                        annot_id: getAnnotId(editingCmt),
                         text: txt
                     });
+
                     redrawAll();
                 } else if (pendingCmt) {
-                    const id = nextId++;
+                    let annot_id = makeAnnotId();
+
+                    while (
+                        highlights.some(h => getAnnotId(h) === annot_id) ||
+                        comments.some(c => getAnnotId(c) === annot_id)
+                    ) {
+                        annot_id = makeAnnotId();
+                    }
+
                     const c = {
-                        id,
+                        annot_id,
                         pageNum: pendingCmt.pageNum,
                         x: pendingCmt.x,
                         y: pendingCmt.y,
@@ -2244,11 +2329,11 @@ if ($assign->questionBank->shuffle==1){
 
                     comments.push(c);
 
-                    apiSave({
+                    await apiSave({
                         action: 'comment',
                         lesson_id: LESSON_ID,
                         course_id: COURSE_ID,
-                        id,
+                        annot_id: annot_id,
                         pageNum: c.pageNum,
                         x: c.x,
                         y: c.y,
@@ -2263,17 +2348,20 @@ if ($assign->questionBank->shuffle==1){
                 editingCmt = null;
             });
 
-            popupDel.addEventListener('click', function () {
+            popupDel.addEventListener('click', async function () {
                 if (!editingCmt || !confirm('Delete this comment?')) return;
 
-                apiSave({
+                const annotId = getAnnotId(editingCmt);
+                if (!annotId) return;
+
+                await apiSave({
                     action: 'delete_comment',
                     lesson_id: LESSON_ID,
                     course_id: COURSE_ID,
-                    id: editingCmt.id
+                    annot_id: annotId
                 });
 
-                comments = comments.filter(c => c.id !== editingCmt.id);
+                comments = comments.filter(c => getAnnotId(c) !== annotId);
                 redrawAll();
                 closePopup();
                 editingCmt = null;
@@ -2315,10 +2403,7 @@ if ($assign->questionBank->shuffle==1){
                 });
 
                 pagesCont.querySelectorAll('.pdf-text-layer span').forEach(s => {
-                    try {
-                        s.normalize();
-                    } catch (e) {
-                    }
+                    try { s.normalize(); } catch (e) {}
                 });
 
                 searchMatches = [];
@@ -2326,9 +2411,7 @@ if ($assign->questionBank->shuffle==1){
                 srchCount.textContent = '';
                 srchInput.classList.remove('search-found', 'search-not-found');
 
-                if (resetQuery) {
-                    lastSearchQuery = '';
-                }
+                if (resetQuery) lastSearchQuery = '';
             }
 
             async function doSearch() {
@@ -2386,10 +2469,7 @@ if ($assign->questionBank->shuffle==1){
                                 frag.appendChild(document.createTextNode(val.slice(last)));
                             }
 
-                            if (node.parentNode) {
-                                node.parentNode.replaceChild(frag, node);
-                            }
-
+                            if (node.parentNode) node.parentNode.replaceChild(frag, node);
                             re.lastIndex = 0;
                         });
                     });
@@ -2423,7 +2503,7 @@ if ($assign->questionBank->shuffle==1){
                     mark.classList.add('active-match');
                     mark.style.background = 'rgba(255,100,0,.75)';
                     mark.style.outline = '2px solid #e67e22';
-                    mark.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
 
                 srchCount.textContent = (idx + 1) + ' / ' + searchMatches.length;
@@ -2504,7 +2584,7 @@ if ($assign->questionBank->shuffle==1){
             function scrollToPage(n) {
                 const w = pagesCont.querySelector(`[data-page="${n}"]`);
                 if (w) {
-                    w.scrollIntoView({behavior: 'smooth', block: 'start'});
+                    w.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     updatePageNo(n);
                 }
             }
@@ -2541,17 +2621,17 @@ if ($assign->questionBank->shuffle==1){
             });
 
             document.getElementById('pdfBtnFitW').addEventListener('click', async () => {
-                const vp = (await pdfDoc.getPage(1)).getViewport({scale: 1});
+                const vp = (await pdfDoc.getPage(1)).getViewport({ scale: 1 });
                 setScale((outerCont.clientWidth - 32) / vp.width);
             });
 
             document.getElementById('pdfBtnFitH').addEventListener('click', async () => {
-                const vp = (await pdfDoc.getPage(1)).getViewport({scale: 1});
+                const vp = (await pdfDoc.getPage(1)).getViewport({ scale: 1 });
                 setScale((outerCont.clientHeight - 32) / vp.height);
             });
 
             document.getElementById('pdfBtnFit').addEventListener('click', async () => {
-                const vp = (await pdfDoc.getPage(1)).getViewport({scale: 1});
+                const vp = (await pdfDoc.getPage(1)).getViewport({ scale: 1 });
                 setScale(Math.min(
                     (outerCont.clientWidth - 32) / vp.width,
                     (outerCont.clientHeight - 32) / vp.height
