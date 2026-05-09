@@ -125,6 +125,24 @@
             color: white !important;
         }
 
+        /* Hover-triggered dropdown (desktop) */
+        @media (min-width: 768px) {
+            .header__common_btn.dropdown .dropdown-menu {
+                display: block;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                margin-top: 0;
+            }
+
+            .header__common_btn.dropdown:hover .dropdown-menu {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+        }
+
     </style>
     <style>
         .nice-select.quiz-select {
@@ -545,8 +563,8 @@
                                         </a>
                                         <div class="header__common_btn dropdown ms-2">
                                             <button
-                                                class="d-block w-100 h-100 bg-transparent border-0 dropdown-toggle outline-none border-0 p-0 currentColor"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                class="d-block w-100 h-100 bg-transparent border-0 outline-none border-0 p-0 currentColor js-hover-dropdown-toggle"
+                                                type="button">
                                                 <i class="fa fa-ellipsis-v"></i>
                                             </button>
                                             <ul class="dropdown-menu">
@@ -3378,4 +3396,25 @@ if ($assign->questionBank->shuffle==1){
 
     @include(theme('partials.fullscreen_video._summernote_script'))
     @include(theme('partials.fullscreen_video._scorm_script'))
+
+    <script>
+        /* Mobile fallback: click-to-toggle for ellipsis dropdown */
+        (function () {
+            var btn = document.querySelector('.js-hover-dropdown-toggle');
+            if (!btn) return;
+            var menu = btn.closest('.dropdown').querySelector('.dropdown-menu');
+            if (!menu) return;
+
+            btn.addEventListener('click', function (e) {
+                if (window.innerWidth >= 768) return; // hover handles desktop
+                e.stopPropagation();
+                var isOpen = menu.classList.contains('show');
+                menu.classList.toggle('show', !isOpen);
+            });
+
+            document.addEventListener('click', function () {
+                if (window.innerWidth < 768) menu.classList.remove('show');
+            });
+        })();
+    </script>
 @endpush

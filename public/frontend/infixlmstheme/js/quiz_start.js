@@ -252,23 +252,37 @@ $(".submitBtn").click(function (e) {
     let assign_id = $(this).data('assign_id');
     let question_id = $(this).data('question_id');
 
-
     if (!validateData(question_type, question_id, assign_id)) {
         return false;
     }
-    let $this =$(this);
+    let $this = $(this);
 
-   let submit = questionSubmitSingle(question_type, assign_id, question_id,$this);
+    let submit = questionSubmitSingle(question_type, assign_id, question_id, $this);
 
-     $(".submitBtn").html('Submitting..');
-     if (submit){
-         $('#submitConfirmModal').modal('show');
-     }
-    // setTimeout(function () {
-    //     $('#submitConfirmModal').modal('show');
-    // }, 3000);
+    $(".submitBtn").html('Submitting..');
 
+    if (submit) {
+        // Count skipped (unanswered) questions using the q-box grid navigation
+        var totalBoxes = $('.q-box').length;
+        // The last question is answered now (just submitted via questionSubmitSingle)
+        // Mark it answered in the grid too
+        var currentPane = $('.tab-pane.active.show');
+        var currentQid = currentPane.data('qus-id');
+        if (currentQid) {
+            $('.qbox_' + currentQid).addClass('answered');
+        }
+        var answeredBoxes = $('.q-box.answered').length;
+        var skipped = totalBoxes - answeredBoxes;
 
+        var modalMsg;
+        if (skipped > 0) {
+            modalMsg = '<span class="text-danger fw-bold">' + skipped + ' question' + (skipped > 1 ? 's' : '') + ' skipped.</span> Are you sure you want to submit?';
+        } else {
+            modalMsg = 'All questions answered. Are you sure you want to submit?';
+        }
+        $('#submitConfirmModal .modal-body').html(modalMsg);
+        $('#submitConfirmModal').modal('show');
+    }
 });
 
 $("#QuizSubmitBtn").click(function (e) {
