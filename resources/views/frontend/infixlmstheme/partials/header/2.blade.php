@@ -4,9 +4,12 @@
 <style>
     .heading-category-dropdown ul {
         max-height: calc(100vh - 100px);
-        overflow: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
         padding-left: 0;
         padding-right: 0;
+        width: max-content;
+        min-width: 250px;
     }
 
     .heading-category-dropdown ul li {
