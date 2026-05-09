@@ -11,8 +11,24 @@
 
     .heading-category-dropdown ul li {
         position: relative;
-        padding-left: 25px;
-        padding-right: 25px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    .heading-category-dropdown ul li a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        white-space: nowrap;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .heading-category-dropdown ul li a:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        color: var(--system_primery_color);
     }
 
     .heading-category-dropdown ul li ul {
@@ -332,6 +348,12 @@
 
                                     @endforeach
                                 @endif
+                                
+                                @auth
+                                        <li class="heading-list @if($menu->mega_menu==1) position-static @else @if($menu->show==1) right_control_submenu @endif @endif">
+                                            <a class="heading-links" href="{{ route('dashboard') }}">Dashboard</a>
+                                        </li>
+                                @endauth
 
                             </ul>
                         </nav>
@@ -735,18 +757,16 @@
     (function () {
         'use strict';
         jQuery(document).ready(function () {
-            $(document).on('click', '#showCateDrop', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $('#cateDropDown').fadeToggle('fast');
-                $(this).find('i').toggleClass('ti-angle-down').toggleClass('ti-angle-up')
-            })
-            $(document).on('click', function (e) {
-                if (!$(e.target).is('#cateDropDown *')) {
-                    $('#cateDropDown').fadeOut('fast');
-                    $('#showCateDrop').find('i').addClass('ti-angle-down').removeClass('ti-angle-up')
+            $('.heading-category').hover(
+                function() {
+                    $('#cateDropDown').stop(true, true).fadeIn('fast');
+                    $('#showCateDrop').find('i').removeClass('ti-angle-down').addClass('ti-angle-up');
+                },
+                function() {
+                    $('#cateDropDown').stop(true, true).fadeOut('fast');
+                    $('#showCateDrop').find('i').addClass('ti-angle-down').removeClass('ti-angle-up');
                 }
-            })
+            );
         })
     }());
 
