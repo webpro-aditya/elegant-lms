@@ -697,6 +697,11 @@
                                     </div>
                                 </div>
                                 <div class="sumit_skip_btns d-flex gap-3 align-items-center flex-wrap">
+                                    <button type="button"
+                                            onclick="javascript:history.back()"
+                                            class="quiz_secondary_btn border-0 d-flex align-items-center gap-1">
+                                        <i class="fa fa-arrow-left"></i> {{ __('common.Back') }}
+                                    </button>
                                     @if (isset($result) && $result['status'] != 'Failed')
                                         <form action="{{ route('lesson.complete') }}" method="post">
                                             @csrf
