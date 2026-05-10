@@ -292,7 +292,9 @@
                 chunkRetryDelays: [500, 1000, 3000],
                 'allowMultiple': $('#multipleForm').length ? true : false,
                 server: {
-                    url: '{{url('/filepond/api/process')}}',
+                    process: '{{url('/filepond/api/process')}}',
+                    patch: '{{url('/filepond/api/process')}}?patch=',
+                    revert: '{{url('/filepond/api/process')}}',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
