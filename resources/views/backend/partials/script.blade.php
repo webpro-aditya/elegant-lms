@@ -286,7 +286,7 @@
                 acceptedFileTypes: accepts,
                 labelFileTypeNotAllowed: '{{__('common.Invalid File Format')}}',
 
-                chunkUploads: true,
+                chunkUploads: false,
                 chunkSize: 100 * 1024 * 1024,
                 maxParallelUploads: 3,     
                 chunkRetryDelays: [500, 1000, 3000],
