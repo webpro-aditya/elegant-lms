@@ -88,21 +88,19 @@ class FilepondController extends Controller
         if ($size == $length) {
             // create output file
             $file_handle = fopen($dir, 'wb');
+            
+            // Sort patches by offset to avoid zero-padding and massive IO
+            usort($patch, function($a, $b) {
+                $aOffset = (int) explode('.patch.', $a)[1];
+                $bOffset = (int) explode('.patch.', $b)[1];
+                return $aOffset <=> $bOffset;
+            });
+            
             // write patches to file
             foreach ($patch as $filename) {
-                // get offset from filename
-                list($dir, $offset) = explode('.patch.', $filename, 2);
-                // read patch and close
                 $patch_handle = fopen($filename, 'rb');
-                $patch_contents = fread($patch_handle, filesize($filename));
+                stream_copy_to_stream($patch_handle, $file_handle);
                 fclose($patch_handle);
-
-                // apply patch
-                fseek($file_handle, $offset);
-                fwrite($file_handle, $patch_contents);
-            }
-            // remove patches
-            foreach ($patch as $filename) {
                 unlink($filename);
             }
             // done with file
