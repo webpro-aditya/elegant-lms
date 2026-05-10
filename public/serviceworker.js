@@ -68,6 +68,11 @@ self.addEventListener('activate', event => {
 
 // Serve from Cache
 self.addEventListener("fetch", event => {
+    // Bypass service worker for non-GET requests (like POST uploads)
+    if (event.request.method !== 'GET' || event.request.url.includes('/filepond/')) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {
