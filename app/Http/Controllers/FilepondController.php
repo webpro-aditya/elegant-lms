@@ -58,44 +58,48 @@ class FilepondController extends Controller
      */
     public function chunk(Request $request)
     {
-        error_reporting(E_ERROR);
         $id = $request->get('patch');
 
         // location of patch files
         $filePath = $this->getPathFromServerId($id);
 
-        $fileName = $_SERVER['HTTP_UPLOAD_NAME'];
+        $fileName = $request->header('Upload-Name');
+        if (empty($fileName)) {
+            return Response::make('Missing upload name', 400);
+        }
         $dir = $filePath . '/' . $fileName;
 
         // get patch data
-        $offset = $_SERVER['HTTP_UPLOAD_OFFSET'];
-        $length = $_SERVER['HTTP_UPLOAD_LENGTH'];
+        $offset = $request->header('Upload-Offset');
+        $length = $request->header('Upload-Length');
+
         // should be numeric values, else exit
         if (!is_numeric($offset) || !is_numeric($length)) {
-            return http_response_code(400);
+            return Response::make('Invalid offset or length', 400);
         }
-        // get sanitized name
 
         // write patch file for this request
         file_put_contents($dir . '.patch.' . $offset, fopen('php://input', 'rb'));
+
         // calculate total size of patches
         $size = 0;
         $patch = glob($dir . '.patch.*');
         foreach ($patch as $filename) {
             $size += filesize($filename);
         }
+
         // if total size equals length of file we have gathered all patch files
         if ($size == $length) {
             // create output file
             $file_handle = fopen($dir, 'wb');
-            
+
             // Sort patches by offset to avoid zero-padding and massive IO
-            usort($patch, function($a, $b) {
-                $aOffset = (int) explode('.patch.', $a)[1];
-                $bOffset = (int) explode('.patch.', $b)[1];
+            usort($patch, function ($a, $b) {
+                $aOffset = (int)explode('.patch.', $a)[1];
+                $bOffset = (int)explode('.patch.', $b)[1];
                 return $aOffset <=> $bOffset;
             });
-            
+
             // write patches to file
             foreach ($patch as $filename) {
                 $patch_handle = fopen($filename, 'rb');
@@ -106,6 +110,7 @@ class FilepondController extends Controller
             // done with file
             fclose($file_handle);
         }
+
         return Response::make('', 204);
     }
 
