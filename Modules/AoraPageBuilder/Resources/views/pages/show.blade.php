@@ -72,6 +72,47 @@
             color: #ffffff !important;
         }
 
+        /* Dynamic customizable text colors */
+        [data-text-color="light"] {
+            color: #ffffff !important;
+        }
+        [data-text-color="light"] p,
+        [data-text-color="light"] span,
+        [data-text-color="light"] a,
+        [data-text-color="light"] h1,
+        [data-text-color="light"] h2,
+        [data-text-color="light"] h3,
+        [data-text-color="light"] h4,
+        [data-text-color="light"] h5,
+        [data-text-color="light"] h6 {
+            color: #ffffff !important;
+        }
+
+        [data-text-color="dark"] {
+            color: #1f2937 !important;
+        }
+        [data-text-color="dark"] p,
+        [data-text-color="dark"] span,
+        [data-text-color="dark"] a,
+        [data-text-color="dark"] h1,
+        [data-text-color="dark"] h2,
+        [data-text-color="dark"] h3,
+        [data-text-color="dark"] h4,
+        [data-text-color="dark"] h5,
+        [data-text-color="dark"] h6 {
+            color: #1f2937 !important;
+        }
+
+        /* Automatically fix breadcrumb banner elements to white on dark images/banners */
+        .breadcrumb_area .breadcam_wrap h3,
+        .breadcrumb_area .breadcam_wrap span,
+        .breadcrumb_area .breadcam_wrap a {
+            color: #ffffff !important;
+        }
+        .breadcrumb_area .breadcam_wrap p {
+            color: #e5e7eb !important;
+        }
+
         /* Automatic Full-Bleed Banners Auto-Detection (forces zero padding/margins) */
         [data-type="container"]:has(.__banner),
         [data-type="container"]:has(.breadcrumb_area),
