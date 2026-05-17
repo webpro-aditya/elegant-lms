@@ -84,34 +84,34 @@
             color: #ffffff !important;
         }
 
-        /* Dynamic customizable text colors */
-        [data-text-color="light"] {
+        /* Banner-specific text color presets inside a container */
+        [data-banner-color="light"] {
             color: #ffffff !important;
         }
-        [data-text-color="light"] p,
-        [data-text-color="light"] span,
-        [data-text-color="light"] a,
-        [data-text-color="light"] h1,
-        [data-text-color="light"] h2,
-        [data-text-color="light"] h3,
-        [data-text-color="light"] h4,
-        [data-text-color="light"] h5,
-        [data-text-color="light"] h6 {
+        [data-banner-color="light"] p,
+        [data-banner-color="light"] span,
+        [data-banner-color="light"] a,
+        [data-banner-color="light"] h1,
+        [data-banner-color="light"] h2,
+        [data-banner-color="light"] h3,
+        [data-banner-color="light"] h4,
+        [data-banner-color="light"] h5,
+        [data-banner-color="light"] h6 {
             color: #ffffff !important;
         }
 
-        [data-text-color="dark"] {
+        [data-banner-color="dark"] {
             color: #1f2937 !important;
         }
-        [data-text-color="dark"] p,
-        [data-text-color="dark"] span,
-        [data-text-color="dark"] a,
-        [data-text-color="dark"] h1,
-        [data-text-color="dark"] h2,
-        [data-text-color="dark"] h3,
-        [data-text-color="dark"] h4,
-        [data-text-color="dark"] h5,
-        [data-text-color="dark"] h6 {
+        [data-banner-color="dark"] p,
+        [data-banner-color="dark"] span,
+        [data-banner-color="dark"] a,
+        [data-banner-color="dark"] h1,
+        [data-banner-color="dark"] h2,
+        [data-banner-color="dark"] h3,
+        [data-banner-color="dark"] h4,
+        [data-banner-color="dark"] h5,
+        [data-banner-color="dark"] h6 {
             color: #1f2937 !important;
         }
 
@@ -247,15 +247,6 @@
                                 <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Choose how close content sits to the viewport boundaries.</span>
                             </div>
                             <div class="form-group" style="margin-bottom: 20px;">
-                                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Content Text Color Preset</label>
-                                <select id="container-color" class="form-control" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px;">
-                                    <option value="default">Default / Automatic</option>
-                                    <option value="light">Light (White Text for Dark Backgrounds)</option>
-                                    <option value="dark">Dark (Dark Gray Text for Light Backgrounds)</option>
-                                </select>
-                                <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Force a text color style inside this entire container block.</span>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 20px;">
                                 <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Background Preset Style</label>
                                 <select id="container-bg" class="form-control" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px;">
                                     <option value="transparent">Transparent / Default</option>
@@ -263,6 +254,15 @@
                                     <option value="dark-slate">Dark Slate Block</option>
                                 </select>
                                 <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Change the background of this entire section block.</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Banner Text Color</label>
+                                <select id="container-banner-color" class="form-control" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px;">
+                                    <option value="default">Default / Automatic</option>
+                                    <option value="light">Light (White Text for Dark BG)</option>
+                                    <option value="dark">Dark (Dark Text for Light BG)</option>
+                                </select>
+                                <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Set text color of the banner component within this row.</span>
                             </div>
                         </form>
                     `);
@@ -288,16 +288,6 @@
                         }
                     });
 
-                    form.find('#container-color').on('change', function () {
-                        var container = editor.getSettingContainer();
-                        if (container) {
-                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
-                            var val = $(this).val();
-                            innerContainer.attr('data-text-color', val);
-                            editor.options.onContentChanged();
-                        }
-                    });
-
                     form.find('#container-bg').on('change', function () {
                         var container = editor.getSettingContainer();
                         if (container) {
@@ -307,19 +297,29 @@
                             editor.options.onContentChanged();
                         }
                     });
+
+                    form.find('#container-banner-color').on('change', function () {
+                        var container = editor.getSettingContainer();
+                        if (container) {
+                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
+                            var val = $(this).val();
+                            innerContainer.attr('data-banner-color', val);
+                            editor.options.onContentChanged();
+                        }
+                    });
                 },
                 containerSettingShowFunction: function (form, container, editor) {
                     var innerContainer = container.find('.aoraeditor-container-inner > div').first();
                     
                     var padY = innerContainer.attr('data-padding-y') || 'large';
                     var padX = innerContainer.attr('data-padding-x') || 'comfortable';
-                    var textColor = innerContainer.attr('data-text-color') || 'default';
                     var bgStyle = innerContainer.attr('data-bg-style') || 'transparent';
+                    var bannerColor = innerContainer.attr('data-banner-color') || 'default';
 
                     form.find('#container-padding-y').val(padY);
                     form.find('#container-padding-x').val(padX);
-                    form.find('#container-color').val(textColor);
                     form.find('#container-bg').val(bgStyle);
+                    form.find('#container-banner-color').val(bannerColor);
                 }
 
             });

@@ -72,34 +72,34 @@
             color: #ffffff !important;
         }
 
-        /* Dynamic customizable text colors */
-        [data-text-color="light"] {
+        /* Banner-specific text color presets inside a container */
+        [data-banner-color="light"] {
             color: #ffffff !important;
         }
-        [data-text-color="light"] p,
-        [data-text-color="light"] span,
-        [data-text-color="light"] a,
-        [data-text-color="light"] h1,
-        [data-text-color="light"] h2,
-        [data-text-color="light"] h3,
-        [data-text-color="light"] h4,
-        [data-text-color="light"] h5,
-        [data-text-color="light"] h6 {
+        [data-banner-color="light"] p,
+        [data-banner-color="light"] span,
+        [data-banner-color="light"] a,
+        [data-banner-color="light"] h1,
+        [data-banner-color="light"] h2,
+        [data-banner-color="light"] h3,
+        [data-banner-color="light"] h4,
+        [data-banner-color="light"] h5,
+        [data-banner-color="light"] h6 {
             color: #ffffff !important;
         }
 
-        [data-text-color="dark"] {
+        [data-banner-color="dark"] {
             color: #1f2937 !important;
         }
-        [data-text-color="dark"] p,
-        [data-text-color="dark"] span,
-        [data-text-color="dark"] a,
-        [data-text-color="dark"] h1,
-        [data-text-color="dark"] h2,
-        [data-text-color="dark"] h3,
-        [data-text-color="dark"] h4,
-        [data-text-color="dark"] h5,
-        [data-text-color="dark"] h6 {
+        [data-banner-color="dark"] p,
+        [data-banner-color="dark"] span,
+        [data-banner-color="dark"] a,
+        [data-banner-color="dark"] h1,
+        [data-banner-color="dark"] h2,
+        [data-banner-color="dark"] h3,
+        [data-banner-color="dark"] h4,
+        [data-banner-color="dark"] h5,
+        [data-banner-color="dark"] h6 {
             color: #1f2937 !important;
         }
 
