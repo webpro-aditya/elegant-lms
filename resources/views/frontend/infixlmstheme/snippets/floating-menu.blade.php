@@ -15,7 +15,7 @@
     /* FAB ROOT */
     #fab-root {
         position: fixed;
-        left: 6px;
+        left: 0;
         top: 50%;
         transform: translateY(-50%);
         display: flex;
@@ -128,12 +128,12 @@
     /* FAB BUTTON */
     /* PREMIUM FAB BUTTON */
     #fab-main {
-        width: 50px;
-        height: 60px;
+        width: 36px;
+        height: 56px;
         padding: 5px;
-        border-radius: 18px;
+        border-radius: 0 28px 28px 0;
         position: absolute;
-        left: -33px;
+        left: 0;
 
 
         background: linear-gradient(135deg, #1e293b, #1e40af);
@@ -145,10 +145,10 @@
         cursor: pointer;
 
         box-shadow:
-            8px 8px 20px rgba(0, 0, 0, 0.35),
-            -4px -4px 12px rgba(255, 255, 255, 0.08);
+            5px 5px 15px rgba(30, 41, 59, 0.35),
+            -2px -2px 8px rgba(255, 255, 255, 0.05);
 
-        transition: left 0.3s ease, transform 0.25s ease;
+        transition: width 0.25s ease, transform 0.25s ease, background 0.3s ease;
     }
 
     /* GLOW EFFECT */
@@ -164,18 +164,18 @@
 
     /* HOVER */
     #fab-main:hover {
-        transform: translateY(-2px) scale(1.05);
+        width: 44px;
         box-shadow:
-            10px 10px 24px rgba(0, 0, 0, 0.4),
-            -4px -4px 12px rgba(255, 255, 255, 0.1);
+            6px 6px 18px rgba(30, 64, 175, 0.4),
+            -2px -2px 8px rgba(255, 255, 255, 0.05);
     }
 
     #fab-root:hover #fab-main {
-        left: 0;
+        width: 44px;
     }
 
     #fab-root.active #fab-main {
-        left: 0;
+        width: 44px;
     }
 
     #sub-icons {
@@ -206,15 +206,15 @@
 
     /* ICON STYLE */
     #fab-main svg {
-        width: 24px;
-        height: 24px;
+        width: 18px;
+        height: 18px;
         stroke: #fff;
         transition: transform 0.3s ease;
     }
 
     /* ROTATION WHEN OPEN */
     #fab-main.open svg {
-        transform: rotate(45deg);
+        transform: rotate(180deg);
     }
 
     /* OVERLAY */
@@ -481,9 +481,8 @@
 
     <!-- FAB BUTTON -->
     <button id="fab-main">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
     </button>
 
