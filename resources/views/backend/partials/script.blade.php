@@ -274,7 +274,7 @@
      * server ID into a hidden input so the form submission contract is unchanged.
      */
     function initChunkedUpload() {
-        const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+        const CHUNK_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
         const INIT_URL   = '{{ url("/chunked-upload/init") }}';
         const CHUNK_URL  = '{{ url("/chunked-upload/chunk") }}';
         const CSRF_TOKEN = '{{ csrf_token() }}';
@@ -437,26 +437,23 @@
                     const uploadId    = initData.upload_id;
                     const totalChunks = initData.total_chunks;
 
-                    // Step 2: Send chunks sequentially
-                    for (let i = 0; i < totalChunks; i++) {
-                        if (signal.aborted) return;
-
-                        const start = i * CHUNK_SIZE;
+                    // Helper to upload a single chunk
+                    const uploadChunk = async (chunkIndex) => {
+                        const start = chunkIndex * CHUNK_SIZE;
                         const end   = Math.min(start + CHUNK_SIZE, file.size);
                         const blob  = file.slice(start, end);
 
                         const fd = new FormData();
                         fd.append('upload_id', uploadId);
-                        fd.append('chunk_index', i);
+                        fd.append('chunk_index', chunkIndex);
                         fd.append('total_chunks', totalChunks);
                         fd.append('chunk', blob, file.name + '.part');
 
                         let retries = 0;
                         const maxRetries = 3;
                         const retryDelays = [500, 1000, 3000];
-                        let success = false;
 
-                        while (!success && retries <= maxRetries) {
+                        while (retries <= maxRetries) {
                             try {
                                 const chunkRes = await fetch(CHUNK_URL, {
                                     method: 'POST',
@@ -468,29 +465,47 @@
                                     signal: signal,
                                 });
 
-                                if (!chunkRes.ok) throw new Error('Chunk ' + i + ' failed: ' + chunkRes.status);
+                                if (!chunkRes.ok) throw new Error('Chunk ' + chunkIndex + ' failed: ' + chunkRes.status);
 
-                                const chunkData = await chunkRes.json();
-                                success = true;
-
-                                // Update progress
-                                const pct = Math.round(((i + 1) / totalChunks) * 100);
-                                barFill.style.width = pct + '%';
-                                percentTxt.textContent = pct + '%';
-
-                                // Final chunk — set the server ID
-                                if (chunkData.completed && chunkData.server_id) {
-                                    hiddenInput.value = chunkData.server_id;
-                                    showDone(file.name);
-                                }
+                                return await chunkRes.json();
                             } catch (err) {
-                                if (signal.aborted) return;
+                                if (signal.aborted) throw err;
                                 retries++;
                                 if (retries > maxRetries) throw err;
-                                await new Promise(function (r) { setTimeout(r, retryDelays[retries - 1] || 3000); });
+                                await new Promise(r => setTimeout(r, retryDelays[retries - 1] || 3000));
                             }
                         }
-                    }
+                    };
+
+                    // Send chunks in parallel with a max concurrency of 3
+                    const queue = Array.from({ length: totalChunks }, (_, i) => i);
+                    let completedCount = 0;
+                    const CONCURRENCY = 3;
+
+                    const worker = async () => {
+                        while (queue.length > 0 && !signal.aborted) {
+                            const chunkIndex = queue.shift();
+                            if (chunkIndex === undefined) break;
+
+                            const chunkData = await uploadChunk(chunkIndex);
+                            completedCount++;
+
+                            // Update progress
+                            const pct = Math.round((completedCount / totalChunks) * 100);
+                            barFill.style.width = pct + '%';
+                            percentTxt.textContent = pct + '%';
+
+                            // Final chunk — set the server ID
+                            if (chunkData.completed && chunkData.server_id) {
+                                hiddenInput.value = chunkData.server_id;
+                                showDone(file.name);
+                            }
+                        }
+                    };
+
+                    const workers = Array.from({ length: Math.min(CONCURRENCY, totalChunks) }, worker);
+                    await Promise.all(workers);
+
                 } catch (err) {
                     if (err.name === 'AbortError') return;
                     console.error('Chunked upload error:', err);

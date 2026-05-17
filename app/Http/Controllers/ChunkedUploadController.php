@@ -101,26 +101,53 @@ class ChunkedUploadController extends Controller
         if (!file_exists($metaFile)) {
             return response()->json(['error' => 'Upload metadata not found'], 404);
         }
-        $meta = json_decode(file_get_contents($metaFile), true);
 
-        // Get the chunk file from the request
-        $chunkFile = $request->file('chunk');
-        if (!$chunkFile) {
-            return response()->json(['error' => 'No chunk data received'], 400);
+        // Open metadata file with exclusive lock to prevent race conditions during parallel chunk uploads
+        $fp = fopen($metaFile, 'r+');
+        if (!$fp) {
+            return response()->json(['error' => 'Failed to open metadata'], 500);
         }
 
-        // Write chunk to disk with sequential naming
-        $chunkPath = $filePath . '/chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT);
-        $chunkFile->move($filePath, 'chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT));
+        $completed = false;
+        $meta = [];
 
-        // Update metadata
-        $meta['received'][] = $chunkIndex;
-        $meta['received'] = array_unique($meta['received']);
-        file_put_contents($metaFile, json_encode($meta));
+        if (flock($fp, LOCK_EX)) {
+            $content = stream_get_contents($fp);
+            $meta = json_decode($content, true);
 
-        // Check if all chunks have been received
-        if (count($meta['received']) >= $meta['total_chunks']) {
-            // Assemble the final file
+            // Get the chunk file from the request
+            $chunkFile = $request->file('chunk');
+            if (!$chunkFile) {
+                flock($fp, LOCK_UN);
+                fclose($fp);
+                return response()->json(['error' => 'No chunk data received'], 400);
+            }
+
+            // Write chunk to disk with sequential naming
+            $chunkPath = $filePath . '/chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT);
+            $chunkFile->move($filePath, 'chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT));
+
+            // Update metadata
+            $meta['received'][] = $chunkIndex;
+            $meta['received'] = array_unique($meta['received']);
+
+            // Truncate and write new metadata
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($meta));
+            fflush($fp);
+            
+            // Check if all chunks have been received
+            if (count($meta['received']) >= $meta['total_chunks']) {
+                $completed = true;
+            }
+
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
+
+        // If completed, assemble the final file (handles are closed, safe to unlink on Windows)
+        if ($completed) {
             $finalFile = $filePath . '/' . $meta['filename'];
             $finalHandle = fopen($finalFile, 'wb');
 
