@@ -73,33 +73,49 @@
         }
 
         /* Banner-specific text color presets inside a container */
-        [data-banner-color="light"] {
-            color: #ffffff !important;
-        }
-        [data-banner-color="light"] p,
-        [data-banner-color="light"] span,
-        [data-banner-color="light"] a,
-        [data-banner-color="light"] h1,
-        [data-banner-color="light"] h2,
-        [data-banner-color="light"] h3,
-        [data-banner-color="light"] h4,
-        [data-banner-color="light"] h5,
-        [data-banner-color="light"] h6 {
+        [data-banner-color="light"] .__banner,
+        [data-banner-color="light"] .breadcrumb_area,
+        [data-banner-color="light"] .__banner p,
+        [data-banner-color="light"] .__banner span,
+        [data-banner-color="light"] .__banner a,
+        [data-banner-color="light"] .__banner h1,
+        [data-banner-color="light"] .__banner h2,
+        [data-banner-color="light"] .__banner h3,
+        [data-banner-color="light"] .__banner h4,
+        [data-banner-color="light"] .__banner h5,
+        [data-banner-color="light"] .__banner h6,
+        [data-banner-color="light"] .breadcrumb_area p,
+        [data-banner-color="light"] .breadcrumb_area span,
+        [data-banner-color="light"] .breadcrumb_area a,
+        [data-banner-color="light"] .breadcrumb_area h1,
+        [data-banner-color="light"] .breadcrumb_area h2,
+        [data-banner-color="light"] .breadcrumb_area h3,
+        [data-banner-color="light"] .breadcrumb_area h4,
+        [data-banner-color="light"] .breadcrumb_area h5,
+        [data-banner-color="light"] .breadcrumb_area h6 {
             color: #ffffff !important;
         }
 
-        [data-banner-color="dark"] {
-            color: #1f2937 !important;
-        }
-        [data-banner-color="dark"] p,
-        [data-banner-color="dark"] span,
-        [data-banner-color="dark"] a,
-        [data-banner-color="dark"] h1,
-        [data-banner-color="dark"] h2,
-        [data-banner-color="dark"] h3,
-        [data-banner-color="dark"] h4,
-        [data-banner-color="dark"] h5,
-        [data-banner-color="dark"] h6 {
+        [data-banner-color="dark"] .__banner,
+        [data-banner-color="dark"] .breadcrumb_area,
+        [data-banner-color="dark"] .__banner p,
+        [data-banner-color="dark"] .__banner span,
+        [data-banner-color="dark"] .__banner a,
+        [data-banner-color="dark"] .__banner h1,
+        [data-banner-color="dark"] .__banner h2,
+        [data-banner-color="dark"] .__banner h3,
+        [data-banner-color="dark"] .__banner h4,
+        [data-banner-color="dark"] .__banner h5,
+        [data-banner-color="dark"] .__banner h6,
+        [data-banner-color="dark"] .breadcrumb_area p,
+        [data-banner-color="dark"] .breadcrumb_area span,
+        [data-banner-color="dark"] .breadcrumb_area a,
+        [data-banner-color="dark"] .breadcrumb_area h1,
+        [data-banner-color="dark"] .breadcrumb_area h2,
+        [data-banner-color="dark"] .breadcrumb_area h3,
+        [data-banner-color="dark"] .breadcrumb_area h4,
+        [data-banner-color="dark"] .breadcrumb_area h5,
+        [data-banner-color="dark"] .breadcrumb_area h6 {
             color: #1f2937 !important;
         }
 
