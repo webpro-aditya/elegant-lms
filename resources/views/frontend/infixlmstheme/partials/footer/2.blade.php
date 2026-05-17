@@ -189,16 +189,12 @@
                         <div class="col-lg-3 col-sm-6">
                             <h4 class="text-uppercase currentColor">{{__('frontend.Payment Method')}}</h4>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                @foreach($payment_methods as $method)
-                                    @php
-                                        if(empty($method->logo)){
-                                            continue;
-                                        }
-                                    @endphp
-                                    <img src="{{assetPath($method->logo)}}" class="payment-methods"
-                                         alt="{{$method->method}}">
-
-                                @endforeach
+                                <img src="{{assetPath('images/payment-icons/visa.jpeg')}}" class="payment-methods" alt="Visa">
+                                <img src="{{assetPath('images/payment-icons/mastercard.jpeg')}}" class="payment-methods" alt="Mastercard">
+                                <img src="{{assetPath('images/payment-icons/paytabs.jpeg')}}" class="payment-methods" alt="Paytabs">
+                                <img src="{{assetPath('images/payment-icons/paymennt.jpeg')}}" class="payment-methods" alt="Paymennt">
+                                <img src="{{assetPath('images/payment-icons/tabby.jpeg')}}" class="payment-methods" alt="Tabby">
+                                <img src="{{assetPath('images/payment-icons/tamara.jpeg')}}" class="payment-methods" alt="Tamara">
                             </div>
                         </div>
                     </div>
