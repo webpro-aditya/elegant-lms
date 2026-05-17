@@ -3,32 +3,88 @@
 
 @section('content')
     <style>
-        /* Premium Spacing & Padding for Pagebuilder Content */
+        /* Premium Spacing & Background Preset Stylesheet */
         #content-area {
             padding-bottom: 60px; /* Elegant bottom padding before footer */
         }
-        
-        /* Apply spacious column padding for all content sections */
-        #content-area [class*="col-"] {
-            padding-left: 48px !important;
-            padding-right: 48px !important;
+
+        [data-type="container"] {
+            box-sizing: border-box;
+            transition: all 0.25s ease-in-out;
         }
-        
-        /* EXCLUDE the first row/section (the top header banner) from heavy padding to keep it full-width */
-        #content-area > .row:first-of-type [class*="col-"],
-        #content-area > div:first-of-type [class*="col-"],
-        #content-area > section:first-of-type [class*="col-"],
-        #content-area > [class*="col-"]:first-of-type {
+
+        /* Specific padding overrides matching the settings dropdowns */
+        [data-padding-y="none"] {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
+        [data-padding-y="small"] {
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+        }
+        [data-padding-y="medium"] {
+            padding-top: 30px !important;
+            padding-bottom: 30px !important;
+        }
+        [data-padding-y="large"] {
+            padding-top: 60px !important;
+            padding-bottom: 60px !important;
+        }
+        [data-padding-y="huge"] {
+            padding-top: 100px !important;
+            padding-bottom: 100px !important;
+        }
+
+        [data-padding-x="none"] {
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+        }
+        [data-padding-x="standard"] {
             padding-left: 15px !important;
             padding-right: 15px !important;
         }
-        
+        [data-padding-x="comfortable"] {
+            padding-left: 48px !important;
+            padding-right: 48px !important;
+        }
+        [data-padding-x="wide"] {
+            padding-left: 80px !important;
+            padding-right: 80px !important;
+        }
+
+        /* Background preset themes */
+        [data-bg-style="light-gray"] {
+            background-color: #f9fafb !important;
+        }
+        [data-bg-style="dark-slate"] {
+            background-color: #111827 !important;
+            color: #f9fafb !important;
+        }
+        [data-bg-style="dark-slate"] p {
+            color: #d1d5db !important;
+        }
+        [data-bg-style="dark-slate"] h1,
+        [data-bg-style="dark-slate"] h2,
+        [data-bg-style="dark-slate"] h3,
+        [data-bg-style="dark-slate"] h4,
+        [data-bg-style="dark-slate"] h5,
+        [data-bg-style="dark-slate"] h6 {
+            color: #ffffff !important;
+        }
+
+        /* Automatic Full-Bleed Banners Auto-Detection (forces zero padding/margins) */
+        [data-type="container"]:has(.__banner),
+        [data-type="container"]:has(.breadcrumb_area),
+        [data-type="container"]:has(.bradcam_bg_1) {
+            padding: 0px !important;
+        }
+
         /* Make sure inner elements have nice line height and spacing for readability */
         #content-area p {
             line-height: 1.8 !important;
             margin-bottom: 20px !important;
             font-size: 15.5px !important;
-            color: #4b5563; /* Removed !important to preserve custom/white text colors on dark backgrounds */
+            color: #4b5563; /* Preserved base color, overrides work transparently */
         }
         
         #content-area h1, 
@@ -40,20 +96,18 @@
             margin-top: 35px !important;
             margin-bottom: 18px !important;
             font-weight: 700 !important;
-            color: #1f2937; /* Removed !important to preserve custom/white text colors on dark headers */
+            color: #1f2937;
         }
 
+        /* Ensure mobile-responsive padding for maximum readability */
         @media (max-width: 767px) {
-            #content-area [class*="col-"] {
+            [data-type="container"]:not([data-padding-x="none"]):not([data-padding-x="standard"]) {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
             }
-            #content-area > .row:first-of-type [class*="col-"],
-            #content-area > div:first-of-type [class*="col-"],
-            #content-area > section:first-of-type [class*="col-"],
-            #content-area > [class*="col-"]:first-of-type {
-                padding-left: 15px !important;
-                padding-right: 15px !important;
+            [data-type="container"]:not([data-padding-y="none"]):not([data-padding-y="small"]) {
+                padding-top: 40px !important;
+                padding-bottom: 40px !important;
             }
             #content-area {
                 padding-bottom: 40px;

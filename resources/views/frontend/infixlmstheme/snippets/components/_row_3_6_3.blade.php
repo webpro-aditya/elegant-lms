@@ -1,4 +1,6 @@
 <div data-type="container"
+     data-padding-y="large"
+     data-padding-x="comfortable"
      data-preview="{{!function_exists('themeAsset')?'':themeAsset('img/snippets/preview/row_3_6_3.png')}}"
      data-aoraeditor-title="3 columns (25% - 50% - 35%)" data-aoraeditor-categories="3 columns">
     <div class="row">
