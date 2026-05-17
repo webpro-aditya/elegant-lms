@@ -514,6 +514,11 @@ Route::prefix('filepond/api')->group(function () {
     Route::patch('/process', 'FilepondController@chunk')->name('filepond.chunk');
     Route::delete('/process', 'FilepondController@delete')->name('filepond.delete');
 });
+
+Route::prefix('chunked-upload')->group(function () {
+    Route::post('/init', 'ChunkedUploadController@init')->name('chunked-upload.init');
+    Route::post('/chunk', 'ChunkedUploadController@chunk')->name('chunked-upload.chunk');
+});
 Route::get('get_preview_modal/{id}', 'AjaxController@get_preview_modal')->name('get_preview_modal');
 Route::get('ajaxGetSubCategoryList', 'AjaxController@ajaxGetSubCategoryList')->name('ajaxGetSubCategoryList');
 Route::get('ajaxGetCourseList', 'AjaxController@ajaxGetCourseList')->name('ajaxGetCourseList');

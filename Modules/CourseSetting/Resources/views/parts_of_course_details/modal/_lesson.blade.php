@@ -637,7 +637,7 @@
         $('.primary_select').niceSelect();
     })
 
-    initFilePond();
+    initChunkedUpload();
 
 
 </script>

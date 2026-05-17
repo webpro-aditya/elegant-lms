@@ -262,68 +262,287 @@
 
 <script>
     $(function () {
-        initFilePond();
+        initChunkedUpload();
     });
 
-    function initFilePond() {
-        FilePond.registerPlugin(FilePondPluginFileValidateType);
+    /**
+     * Custom Chunked File Uploader — replaces FilePond.
+     *
+     * Finds all <input type="file" class="filepond"> and wraps each in a
+     * drag-drop zone with progress bar. Uploads via 5 MB chunks to
+     * /chunked-upload/init + /chunked-upload/chunk, then sets the encrypted
+     * server ID into a hidden input so the form submission contract is unchanged.
+     */
+    function initChunkedUpload() {
+        const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+        const INIT_URL   = '{{ url("/chunked-upload/init") }}';
+        const CHUNK_URL  = '{{ url("/chunked-upload/chunk") }}';
+        const CSRF_TOKEN = '{{ csrf_token() }}';
 
-        let inputs = $('.filepond');
-        const filePondInstances = [];
-        inputs.each(function (i, obj) {
-            let existingFileUrl = $(this).data('file');
-            let fileType = $(this).data('type');
-            let data_accepts = $(this).data('accepts') ?? "";
-            let allowFileTypeValidation = false;
-            let accepts = data_accepts != "" ? data_accepts.split(',') : '';
-            if (accepts.length > 0) {
-                allowFileTypeValidation = true;
+        document.querySelectorAll('input[type="file"].filepond').forEach(function (input) {
+            // Read original attributes
+            const fieldName      = input.getAttribute('name') || 'file';
+            const existingFile   = input.getAttribute('data-file') || '';
+            const dataAccepts    = input.getAttribute('data-accepts') || '';
+            const parentEl       = input.parentElement;
+
+            // Hide original input
+            input.style.display = 'none';
+            input.removeAttribute('name'); // prevent double-submit
+
+            // Create hidden input that holds the server ID (same name as original)
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type  = 'hidden';
+            hiddenInput.name  = fieldName;
+            hiddenInput.value = existingFile || '';
+            parentEl.appendChild(hiddenInput);
+
+            // Build the uploader UI
+            const wrapper = document.createElement('div');
+            wrapper.className = 'chunked-upload-zone';
+            wrapper.innerHTML = `
+                <div class="cu-dropzone" tabindex="0">
+                    <div class="cu-idle">
+                        <svg class="cu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 16V4m0 0L8 8m4-4l4 4"/>
+                            <path d="M20 16.7V19a2 2 0 01-2 2H6a2 2 0 01-2-2v-2.3"/>
+                        </svg>
+                        <span class="cu-label">{{ __('common.Drag & Drop or') }} <em>{{ __('common.Browse') }}</em></span>
+                    </div>
+                    <div class="cu-progress-wrap" style="display:none">
+                        <div class="cu-file-info">
+                            <span class="cu-filename"></span>
+                            <button type="button" class="cu-cancel" title="{{ __('common.Cancel') }}">&times;</button>
+                        </div>
+                        <div class="cu-bar-bg"><div class="cu-bar-fill"></div></div>
+                        <span class="cu-percent">0%</span>
+                    </div>
+                    <div class="cu-done" style="display:none">
+                        <svg class="cu-done-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span class="cu-done-name"></span>
+                        <button type="button" class="cu-remove" title="{{ __('common.Remove') }}">&times;</button>
+                    </div>
+                </div>`;
+            parentEl.insertBefore(wrapper, hiddenInput);
+
+            // References
+            const dropzone    = wrapper.querySelector('.cu-dropzone');
+            const idleUI      = wrapper.querySelector('.cu-idle');
+            const progressUI  = wrapper.querySelector('.cu-progress-wrap');
+            const doneUI      = wrapper.querySelector('.cu-done');
+            const filenameTxt = wrapper.querySelector('.cu-filename');
+            const barFill     = wrapper.querySelector('.cu-bar-fill');
+            const percentTxt  = wrapper.querySelector('.cu-percent');
+            const cancelBtn   = wrapper.querySelector('.cu-cancel');
+            const removeBtn   = wrapper.querySelector('.cu-remove');
+            const doneName    = wrapper.querySelector('.cu-done-name');
+
+            let abortController = null;
+
+            // If an existing file is already set, show "done" state
+            if (existingFile) {
+                showDone(existingFile.split('/').pop() || '{{ __("common.Existing File") }}');
             }
-            const pond = FilePond.create(obj, {
-                allowRevert: true,
 
-                allowFileTypeValidation: allowFileTypeValidation,
-                acceptedFileTypes: accepts,
-                labelFileTypeNotAllowed: '{{__('common.Invalid File Format')}}',
-
-                chunkUploads: true,
-                chunkSize: 5 * 1024 * 1024,
-                maxParallelUploads: 3,
-                chunkRetryDelays: [500, 1000, 3000],
-                'allowMultiple': $('#multipleForm').length ? true : false,
-                server: {
-                    process: '{{url('/filepond/api/process')}}',
-                    patch: '{{url('/filepond/api/process')}}?patch=',
-                    revert: '{{url('/filepond/api/process')}}',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                },
-                files: existingFileUrl
-                    ? [
-                        {
-                            source: existingFileUrl,
-                            options: {
-                                type: fileType ? fileType : 'local',
-                            },
-                        },
-                    ]
-                    : null,
-                // Add any desired plugins
-                plugins: [FilePondPluginFileValidateType],
-
-            });
-            if (existingFileUrl) {
-                pond.setOptions({
-                    data: {
-                        fileUrl: existingFileUrl,
-                    },
+            // Click to browse
+            dropzone.addEventListener('click', function (e) {
+                if (e.target === cancelBtn || e.target === removeBtn) return;
+                const fi = document.createElement('input');
+                fi.type = 'file';
+                if (dataAccepts) fi.accept = dataAccepts;
+                fi.addEventListener('change', function () {
+                    if (fi.files.length) handleFile(fi.files[0]);
                 });
+                fi.click();
+            });
+
+            // Keyboard accessibility
+            dropzone.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dropzone.click(); }
+            });
+
+            // Drag & drop
+            ['dragenter', 'dragover'].forEach(function (evt) {
+                dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('cu-dragover'); });
+            });
+            ['dragleave', 'drop'].forEach(function (evt) {
+                dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove('cu-dragover'); });
+            });
+            dropzone.addEventListener('drop', function (e) {
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+
+            // Cancel
+            cancelBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (abortController) abortController.abort();
+                resetUI();
+            });
+
+            // Remove
+            removeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                hiddenInput.value = '';
+                resetUI();
+            });
+
+            function resetUI() {
+                idleUI.style.display = '';
+                progressUI.style.display = 'none';
+                doneUI.style.display = 'none';
+                barFill.style.width = '0%';
+                percentTxt.textContent = '0%';
             }
-            filePondInstances.push(pond);
+
+            function showDone(name) {
+                idleUI.style.display = 'none';
+                progressUI.style.display = 'none';
+                doneUI.style.display = '';
+                doneName.textContent = name;
+            }
+
+            async function handleFile(file) {
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                // Show progress UI
+                idleUI.style.display = 'none';
+                doneUI.style.display = 'none';
+                progressUI.style.display = '';
+                filenameTxt.textContent = file.name;
+                barFill.style.width = '0%';
+                percentTxt.textContent = '0%';
+
+                try {
+                    // Step 1: Init upload
+                    const initRes = await fetch(INIT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': CSRF_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            filename: file.name,
+                            filesize: file.size,
+                            chunk_size: CHUNK_SIZE,
+                        }),
+                        signal: signal,
+                    });
+
+                    if (!initRes.ok) throw new Error('Init failed: ' + initRes.status);
+                    const initData = await initRes.json();
+                    const uploadId    = initData.upload_id;
+                    const totalChunks = initData.total_chunks;
+
+                    // Step 2: Send chunks sequentially
+                    for (let i = 0; i < totalChunks; i++) {
+                        if (signal.aborted) return;
+
+                        const start = i * CHUNK_SIZE;
+                        const end   = Math.min(start + CHUNK_SIZE, file.size);
+                        const blob  = file.slice(start, end);
+
+                        const fd = new FormData();
+                        fd.append('upload_id', uploadId);
+                        fd.append('chunk_index', i);
+                        fd.append('total_chunks', totalChunks);
+                        fd.append('chunk', blob, file.name + '.part');
+
+                        let retries = 0;
+                        const maxRetries = 3;
+                        const retryDelays = [500, 1000, 3000];
+                        let success = false;
+
+                        while (!success && retries <= maxRetries) {
+                            try {
+                                const chunkRes = await fetch(CHUNK_URL, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': CSRF_TOKEN,
+                                        'Accept': 'application/json',
+                                    },
+                                    body: fd,
+                                    signal: signal,
+                                });
+
+                                if (!chunkRes.ok) throw new Error('Chunk ' + i + ' failed: ' + chunkRes.status);
+
+                                const chunkData = await chunkRes.json();
+                                success = true;
+
+                                // Update progress
+                                const pct = Math.round(((i + 1) / totalChunks) * 100);
+                                barFill.style.width = pct + '%';
+                                percentTxt.textContent = pct + '%';
+
+                                // Final chunk — set the server ID
+                                if (chunkData.completed && chunkData.server_id) {
+                                    hiddenInput.value = chunkData.server_id;
+                                    showDone(file.name);
+                                }
+                            } catch (err) {
+                                if (signal.aborted) return;
+                                retries++;
+                                if (retries > maxRetries) throw err;
+                                await new Promise(function (r) { setTimeout(r, retryDelays[retries - 1] || 3000); });
+                            }
+                        }
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.error('Chunked upload error:', err);
+                    toastr.error(err.message || '{{ __("common.Something Went Wrong") }}', '{{ __("common.Error") }}');
+                    resetUI();
+                }
+            }
         });
     }
 </script>
+
+<style>
+    .chunked-upload-zone { width: 100%; }
+    .cu-dropzone {
+        border: 2px dashed rgba(130, 139, 178, 0.35);
+        border-radius: 10px;
+        padding: 22px 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+        background: var(--bg_white, #fff);
+        outline: none;
+    }
+    .cu-dropzone:hover, .cu-dropzone.cu-dragover {
+        border-color: var(--base_color, #6C27FF);
+        background: rgba(108, 39, 255, 0.04);
+    }
+    .cu-icon { width: 32px; height: 32px; color: var(--base_color, #6C27FF); margin-bottom: 6px; }
+    .cu-label { display: block; font-size: 13px; color: var(--text-color, #828bb2); }
+    .cu-label em { font-style: normal; color: var(--base_color, #6C27FF); font-weight: 600; }
+    .cu-progress-wrap { text-align: left; }
+    .cu-file-info { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .cu-filename { font-size: 13px; color: var(--dynamic-text-color, #333); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85%; }
+    .cu-cancel, .cu-remove {
+        background: none; border: none; font-size: 20px; line-height: 1;
+        color: #e74c3c; cursor: pointer; padding: 0 4px; font-weight: 700;
+    }
+    .cu-cancel:hover, .cu-remove:hover { color: #c0392b; }
+    .cu-bar-bg {
+        width: 100%; height: 6px; border-radius: 3px;
+        background: rgba(130, 139, 178, 0.18); overflow: hidden;
+    }
+    .cu-bar-fill {
+        height: 100%; width: 0%; border-radius: 3px;
+        background: linear-gradient(90deg, var(--base_color, #6C27FF), #a855f7);
+        transition: width .25s ease;
+    }
+    .cu-percent { font-size: 12px; color: var(--text-color, #828bb2); margin-top: 3px; display: inline-block; }
+    .cu-done { display: flex; align-items: center; gap: 8px; }
+    .cu-done-icon { width: 22px; height: 22px; color: #27ae60; flex-shrink: 0; }
+    .cu-done-name { font-size: 13px; color: var(--dynamic-text-color, #333); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
 <script src="{{ assetPath('chat/js/custom.js') }}{{assetVersion()}}"></script>
 @if(isModuleActive("WhatsappSupport"))
     <script src="{{ assetPath('whatsapp-support/scripts.js') }}{{assetVersion()}}"></script>
