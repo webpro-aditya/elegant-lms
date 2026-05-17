@@ -8,14 +8,19 @@
             padding-bottom: 60px; /* Elegant bottom padding before footer */
         }
         
-        #content-area .row {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-        }
-        
+        /* Apply spacious column padding for all content sections */
         #content-area [class*="col-"] {
             padding-left: 48px !important;
             padding-right: 48px !important;
+        }
+        
+        /* EXCLUDE the first row/section (the top header banner) from heavy padding to keep it full-width */
+        #content-area > .row:first-of-type [class*="col-"],
+        #content-area > div:first-of-type [class*="col-"],
+        #content-area > section:first-of-type [class*="col-"],
+        #content-area > [class*="col-"]:first-of-type {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
         }
         
         /* Make sure inner elements have nice line height and spacing for readability */
@@ -23,7 +28,7 @@
             line-height: 1.8 !important;
             margin-bottom: 20px !important;
             font-size: 15.5px !important;
-            color: #4b5563 !important; /* Premium slate-grey color */
+            color: #4b5563; /* Removed !important to preserve custom/white text colors on dark backgrounds */
         }
         
         #content-area h1, 
@@ -35,13 +40,20 @@
             margin-top: 35px !important;
             margin-bottom: 18px !important;
             font-weight: 700 !important;
-            color: #1f2937 !important;
+            color: #1f2937; /* Removed !important to preserve custom/white text colors on dark headers */
         }
 
         @media (max-width: 767px) {
             #content-area [class*="col-"] {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
+            }
+            #content-area > .row:first-of-type [class*="col-"],
+            #content-area > div:first-of-type [class*="col-"],
+            #content-area > section:first-of-type [class*="col-"],
+            #content-area > [class*="col-"]:first-of-type {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
             }
             #content-area {
                 padding-bottom: 40px;
