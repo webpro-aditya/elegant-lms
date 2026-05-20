@@ -1738,6 +1738,19 @@ if ($assign->questionBank->shuffle==1){
                 display: none !important;
             }
         }
+
+        .pdfviewer,
+        .pdfjs-viewer {
+        touch-action: pan-y pan-x;
+        overscroll-behavior: contain;
+        }
+
+        @media (max-width: 767px) {
+            .pdfviewer,
+            .pdfjs-viewer {
+                touch-action: none;
+            }
+        }
     </style>
 
     <div class="pdftoolbar-toggle-wrapper">
