@@ -1479,6 +1479,9 @@ if ($assign->questionBank->shuffle==1){
 
         .pdf-canvas {
             display: block;
+            width: 100%;
+            height: auto;
+            image-rendering: auto;
         }
 
         .pdf-text-layer {
@@ -1725,6 +1728,10 @@ if ($assign->questionBank->shuffle==1){
             #pdfOuterContainer {
                 height: calc(100vh - 170px);
             }
+
+             #pdfPagesContainer {
+                display: block !important;
+             }
         }
 
         @media (min-width:768px) {
@@ -2034,34 +2041,45 @@ if ($assign->questionBank->shuffle==1){
                 const page = await pdfDoc.getPage(pageNum);
                 const viewport = page.getViewport({ scale });
 
-                const canvas = document.createElement('canvas');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                canvas.style.display = 'block';
-                canvas.className = 'pdf-canvas';
+                const outputScale = window.devicePixelRatio || 1;
 
-                await page.render({
-                    canvasContext: canvas.getContext('2d'),
-                    viewport
-                }).promise;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { alpha: false });
+
+                canvas.className = 'pdf-canvas';
+                canvas.style.display = 'block';
+
+                canvas.style.width = `${viewport.width}px`;
+                canvas.style.height = `${viewport.height}px`;
+
+                canvas.width = Math.floor(viewport.width * outputScale);
+                canvas.height = Math.floor(viewport.height * outputScale);
+
+                ctx.setTransform(outputScale, 0, 0, outputScale, 0, 0);
 
                 const textDiv = document.createElement('div');
                 textDiv.className = 'pdf-text-layer';
-                textDiv.style.width = viewport.width + 'px';
-                textDiv.style.height = viewport.height + 'px';
+                textDiv.style.width = `${viewport.width}px`;
+                textDiv.style.height = `${viewport.height}px`;
 
                 const annotDiv = document.createElement('div');
                 annotDiv.className = 'pdf-annot-layer';
                 annotDiv.dataset.annotPage = pageNum;
-                annotDiv.style.width = viewport.width + 'px';
-                annotDiv.style.height = viewport.height + 'px';
+                annotDiv.style.width = `${viewport.width}px`;
+                annotDiv.style.height = `${viewport.height}px`;
 
-                wrap.style.width = viewport.width + 'px';
-                wrap.style.height = viewport.height + 'px';
+                wrap.style.width = `${viewport.width}px`;
+                wrap.style.height = `${viewport.height}px`;
                 wrap.innerHTML = '';
+
                 wrap.appendChild(canvas);
                 wrap.appendChild(textDiv);
                 wrap.appendChild(annotDiv);
+
+                await page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                }).promise;
 
                 const textContent = await page.getTextContent();
                 buildTextLayer(textContent, textDiv, viewport);
@@ -2070,10 +2088,9 @@ if ($assign->questionBank->shuffle==1){
                 wrap.addEventListener('mouseup', e => onMouseUp(e, wrap, pageNum));
 
                 if (commentMode) wrap.classList.add('comment-mode');
-
                 drawAnnotsForPage(pageNum);
             }
-
+            
             function buildTextLayer(textContent, container, viewport) {
                 if (typeof pdfjsLib.renderTextLayer === 'function') {
                     try {
