@@ -1470,11 +1470,8 @@ if ($assign->questionBank->shuffle==1){
         }
 
         .pdf-page-wrapper {
-            position: relative;
-            margin-bottom: 12px;
-            background: #fff;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .35);
-            line-height: 0;
+           position: relative;
+           overflow: hidden;
         }
 
         .pdf-canvas {
@@ -1509,6 +1506,12 @@ if ($assign->questionBank->shuffle==1){
         .pdf-text-layer ::selection {
             background: rgba(0, 0, 255, .2);
             color: transparent;
+        }
+
+        .pdf-text-layer,
+        .pdf-annot-layer {
+            width: 100%;
+            height: 100%;
         }
 
         .pdf-page-wrapper.comment-mode .pdf-text-layer,
@@ -2725,43 +2728,6 @@ if ($assign->questionBank->shuffle==1){
                 }, 180);
             });
         })();
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const pdfArea = document.querySelector('.pdfviewer');
-            if (!pdfArea || !window.pdfViewer) return;
-
-            let lastDistance = null;
-
-            function getDistance(touches) {
-                const dx = touches[0].clientX - touches[1].clientX;
-                const dy = touches[0].clientY - touches[1].clientY;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
-
-            pdfArea.addEventListener('touchmove', function (e) {
-                if (e.touches.length === 2) {
-                e.preventDefault();
-
-                const distance = getDistance(e.touches);
-
-                if (lastDistance) {
-                    if (distance - lastDistance > 12) {
-                    pdfViewer.setZoomIn();
-                    lastDistance = distance;
-                    } else if (lastDistance - distance > 12) {
-                    pdfViewer.setZoomOut();
-                    lastDistance = distance;
-                    }
-                } else {
-                    lastDistance = distance;
-                }
-                }
-            }, { passive: false });
-
-            pdfArea.addEventListener('touchend', function () {
-                lastDistance = null;
-            });
-        });
     </script>
 @endif
             @if ($lesson->host == 'Word')
