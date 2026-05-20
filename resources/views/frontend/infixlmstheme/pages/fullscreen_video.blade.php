@@ -2699,6 +2699,43 @@ if ($assign->questionBank->shuffle==1){
                 }, 180);
             });
         })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const pdfArea = document.querySelector('.pdfviewer');
+            if (!pdfArea || !window.pdfViewer) return;
+
+            let lastDistance = null;
+
+            function getDistance(touches) {
+                const dx = touches[0].clientX - touches[1].clientX;
+                const dy = touches[0].clientY - touches[1].clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            pdfArea.addEventListener('touchmove', function (e) {
+                if (e.touches.length === 2) {
+                e.preventDefault();
+
+                const distance = getDistance(e.touches);
+
+                if (lastDistance) {
+                    if (distance - lastDistance > 12) {
+                    pdfViewer.setZoomIn();
+                    lastDistance = distance;
+                    } else if (lastDistance - distance > 12) {
+                    pdfViewer.setZoomOut();
+                    lastDistance = distance;
+                    }
+                } else {
+                    lastDistance = distance;
+                }
+                }
+            }, { passive: false });
+
+            pdfArea.addEventListener('touchend', function () {
+                lastDistance = null;
+            });
+        });
     </script>
 @endif
             @if ($lesson->host == 'Word')
