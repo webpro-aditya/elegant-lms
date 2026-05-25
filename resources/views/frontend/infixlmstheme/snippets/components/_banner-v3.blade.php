@@ -43,7 +43,8 @@
 
         @media only screen and (max-width: 991px) {
             .banner-area::before {
-                content: ""
+                content: "";
+                background-color: rgba(0, 0, 0, 0.65);
             }
         }
 
@@ -90,7 +91,8 @@
         .banner-text h1 {
             font-size: 64px;
             line-height: 1.25;
-            margin-bottom: 20px
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
         }
 
         @media only screen and (min-width: 1280px) and (max-width: 1439px) {
@@ -132,7 +134,8 @@
         .banner-text p {
             font-size: 18px;
             line-height: 1.66667;
-            margin-bottom: 60px
+            margin-bottom: 60px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
         }
 
         @media only screen and (min-width: 1280px) and (max-width: 1439px) {

@@ -19,6 +19,10 @@ body { margin: 0; min-height: 200px; background: #f0f4ff; }
   z-index: 9999;
   display: flex; flex-direction: column; align-items: flex-end;
   font-family: 'Outfit', sans-serif;
+  pointer-events: none;
+}
+.fc-widget.open {
+  pointer-events: auto;
 }
 
 .fc-cards { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; align-items:flex-end; }
@@ -83,6 +87,7 @@ body { margin: 0; min-height: 200px; background: #f0f4ff; }
     0 2px 6px rgba(0,0,0,.18),
     0 0 0 3px rgba(255,255,255,.12);
   transition:transform .3s cubic-bezier(.34,1.4,.64,1),box-shadow .3s;
+  pointer-events: auto;
 }
 .fc-trigger::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,rgba(255,255,255,.22) 0%,transparent 52%);pointer-events:none}
 

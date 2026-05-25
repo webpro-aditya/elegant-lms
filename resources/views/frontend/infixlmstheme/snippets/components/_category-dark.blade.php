@@ -323,7 +323,7 @@
         }
 
         .category-cta.bg-primary h3, .category-cta.bg-primary p {
-            color: currentColor
+            color: #fff !important;
         }
 
         .category-cta.bg-primary a {
@@ -439,7 +439,8 @@
 
         @media only screen and (max-width: 767px) {
             .category-cta-content h3 {
-                font-size: 24px
+                font-size: 24px;
+                line-height: 1.3;
             }
         }
 

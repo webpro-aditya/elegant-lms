@@ -265,7 +265,7 @@
         }
 
         .category-cta.bg-primary h3, .category-cta.bg-primary p {
-            color: currentColor
+            color: #fff !important;
         }
 
         .category-cta.bg-primary a {

@@ -91,7 +91,9 @@
 
         @media only screen and (max-width: 991px) {
             .banner-wrap {
-                padding: 40px 30px
+                padding: 40px 30px;
+                background-color: rgba(0, 0, 0, 0.65);
+                border-radius: 10px;
             }
         }
 
@@ -99,7 +101,8 @@
             font-size: 64px;
             line-height: 1.25;
             color: #fff;
-            margin-bottom: 20px
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
         }
 
         @media only screen and (min-width: 1280px) and (max-width: 1439px) {
@@ -148,7 +151,8 @@
             font-size: 20px;
             line-height: 1.5;
             color: #CEE8FF;
-            margin-bottom: 40px
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
         }
 
         @media only screen and (min-width: 992px) and (max-width: 1279px) {
