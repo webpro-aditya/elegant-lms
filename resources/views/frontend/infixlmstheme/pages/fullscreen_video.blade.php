@@ -1475,6 +1475,8 @@ if ($assign->questionBank->shuffle==1){
             background: #fff;
             box-shadow: 0 2px 12px rgba(0, 0, 0, .35);
             line-height: 0;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
 
         .pdf-canvas {
@@ -1730,7 +1732,9 @@ if ($assign->questionBank->shuffle==1){
             }
 
              #pdfPagesContainer {
-                display: block !important;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
              }
         }
 
