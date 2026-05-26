@@ -422,7 +422,7 @@
             }
         }
     </style>
-    <div class="instrucotr position-relative bg-white">
+    <div class="instrucotr position-relative" style="background-color: #F4F7FB;">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-8 text-center">

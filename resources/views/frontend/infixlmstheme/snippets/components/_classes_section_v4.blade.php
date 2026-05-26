@@ -391,7 +391,7 @@
 
     </style>
 
-    <div class="classes position-relative section-margin-lg">
+    <div class="classes position-relative section-padding-lg" style="background-color: #1A2238;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">

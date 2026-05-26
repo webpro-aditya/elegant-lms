@@ -557,7 +557,7 @@
         }
 
     </style>
-    <div class="instrucotr position-relative bg-white">
+    <div class="instrucotr position-relative" style="background-color: #F4F7FB;">
         <div class="instrucotr-shape"><img src="{{themeAsset('img/shape/team-shape.png')}}" alt=""></div>
         <div class="container">
             <div class="row justify-content-center">

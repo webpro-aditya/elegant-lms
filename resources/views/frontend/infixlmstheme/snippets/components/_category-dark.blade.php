@@ -493,7 +493,7 @@
 
     </style>
 
-    <div class="category position-relative">
+    <div class="category position-relative" style="background-color: #1A2238;">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-9 text-center">

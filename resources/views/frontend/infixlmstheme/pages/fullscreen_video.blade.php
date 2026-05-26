@@ -1731,11 +1731,11 @@ if ($assign->questionBank->shuffle==1){
                 height: calc(100vh - 170px);
             }
 
-             #pdfPagesContainer {
+            #pdfPagesContainer {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-             }
+            }
         }
 
         @media (min-width:768px) {
@@ -1752,8 +1752,8 @@ if ($assign->questionBank->shuffle==1){
 
         .pdfviewer,
         .pdfjs-viewer {
-        touch-action: pan-y pan-x;
-        overscroll-behavior: contain;
+            touch-action: pan-y pan-x;
+            overscroll-behavior: contain;
         }
 
         @media (max-width: 767px) {
