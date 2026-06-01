@@ -69,6 +69,10 @@
                         <div class="col-12">
 
                             <div class="mb_30">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3 class="mb-0">{{__('student.Result Sheet')}}</h3>
+                                    <a href="javascript:history.back()" class="theme_btn small_btn2"><i class="ti-arrow-left"></i> {{__('common.Back')}}</a>
+                                </div>
                                 <!-- quiz_test_header  -->
                                 {{--<div class="quiz_test_header">
                                     <h3>{{__('student.Result Sheet')}}</h3>

@@ -440,11 +440,21 @@
     @endphp
     @push('js')
         <script>
-            // $(document).on('click', '.showHistory', function (e) {
-            //     console.log('click')
-            //     e.preventDefault();
-            //     $("#historyDiv").toggle('slow')
-            // });
+            $(document).on('click', '.showHistoryBtn', function (e) {
+                e.preventDefault();
+                $("#historyDiv").slideToggle('slow', function() {
+                    if ($("#historyDiv").is(':visible')) {
+                        $('.course_fullview_wrapper').animate({
+                            scrollTop: $("#historyDiv").offset().top + $('.course_fullview_wrapper').scrollTop() - 100
+                        }, 500);
+                        
+                        // Fallback to body scroll if wrapper isn't the scroll container
+                        $('html, body').animate({
+                            scrollTop: $("#historyDiv").offset().top - 100
+                        }, 500);
+                    }
+                });
+            });
         </script>
         <script>
             var completeRequest = false;
@@ -714,7 +724,7 @@
                                     @endif
                                     @if (count($preResult) != 0)
                                         <button type="button"
-                                                class="theme_line_btn  showHistory quiz_secondary_btn border-0">{{ __('frontend.View History') }}</button>
+                                                class="theme_line_btn showHistoryBtn quiz_secondary_btn border-0">{{ __('frontend.View History') }}</button>
                                     @endif
                                     <a href="{{ $lesson->lessonQuiz->show_ans_sheet == 1 ? route('quizResultPreview', $_GET['quiz_result_id'] ?? 0) : '#' }}"
                                        data-quiz_test_id="{{ $_GET['quiz_result_id'] ?? 0 }}"
