@@ -277,6 +277,15 @@ $(".submitBtn").click(function (e) {
         var modalMsg;
         if (skipped > 0) {
             modalMsg = '<span class="text-danger fw-bold">' + skipped + ' question' + (skipped > 1 ? 's' : '') + ' skipped.</span> Are you sure you want to submit?';
+            
+            modalMsg += '<div class="mt-3"><p class="mb-2" style="font-size: 14px; font-weight: 500;">Jump to skipped questions:</p><div class="d-flex flex-wrap" style="gap: 8px;">';
+            
+            $('.q-box:not(.answered)').each(function() {
+                var qid = $(this).data('id');
+                var qNum = $(this).text().trim();
+                modalMsg += '<button type="button" class="theme_line_btn small_btn2 jump-to-skipped" data-qus="' + qid + '" style="padding: 4px 12px; font-size: 12px; border-radius: 4px;">Q ' + qNum + '</button>';
+            });
+            modalMsg += '</div></div>';
         } else {
             modalMsg = 'All questions answered. Are you sure you want to submit?';
         }
@@ -289,6 +298,18 @@ $("#QuizSubmitBtn").click(function (e) {
     e.preventDefault();
     back = false;
     $("#quizForm").submit();
+});
+
+$(document).on('click', '.jump-to-skipped', function(e) {
+    e.preventDefault();
+    var qid = $(this).data('qus');
+    $('#submitConfirmModal').modal('hide');
+    
+    let tabEl = document.querySelector('.link_' + qid);
+    if (tabEl) {
+        let tab = new bootstrap.Tab(tabEl);
+        tab.show();
+    }
 });
 
 $(".questionLink").click(function (e) {
