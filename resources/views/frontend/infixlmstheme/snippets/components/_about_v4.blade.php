@@ -298,7 +298,7 @@
             box-shadow: 0 0 0 !important
         }
     </style>
-    <div class="about section-margin" style="background-color: #1A2238;">
+    <div class="about section-margin">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-8 text-center">

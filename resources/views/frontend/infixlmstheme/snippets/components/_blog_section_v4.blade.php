@@ -248,7 +248,7 @@
             margin-bottom: -40px;
         }
     </style>
-    <div class="blog section-margin-lg position-relative" style="background-color: #1A2238;">
+    <div class="blog section-margin-lg position-relative" style="background-color: #1A2238; padding-top: 80px; padding-bottom: 80px;">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-8 text-center">

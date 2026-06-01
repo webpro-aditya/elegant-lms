@@ -55,6 +55,10 @@
             color: #98A6B4;
         }
 
+        .category .section-title h2 {
+            color: #F0F3F8;
+        }
+
         @media only screen and (max-width: 991px) {
             .category .section-title p {
                 font-size: 16px
@@ -100,7 +104,8 @@
             --icon: 50px;
             border-radius: 16px;
             filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.08));
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px;
             width: calc(100% / 10 * 2 - 28px);
             flex: 0 0 auto
@@ -206,7 +211,8 @@
             text-overflow: ellipsis;
             display: -webkit-box;
             -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical
+            -webkit-box-orient: vertical;
+            color: #E5E7EB;
         }
 
         @media only screen and (min-width: 992px) and (max-width: 1279px) {
@@ -222,7 +228,7 @@
         }
 
         .category-item .content p {
-            color: var(--system_secendory_color);
+            color: #98A6B4;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
@@ -273,7 +279,17 @@
         }
 
         .category-cta.bg-white {
-            background-color: rgba(255, 255, 255, 0.05) !important
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-cta.bg-white h3 {
+            color: #F0F3F8;
+        }
+
+        .category-cta.bg-white .theme-btn {
+            border-color: #fff;
+            color: #fff;
         }
 
         .category-cta.bg-primary {
@@ -493,7 +509,7 @@
 
     </style>
 
-    <div class="category position-relative" style="background-color: #1A2238;">
+    <div class="category position-relative" style="background-color: #1A2238; padding-top: 80px; padding-bottom: 80px;">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-9 text-center">

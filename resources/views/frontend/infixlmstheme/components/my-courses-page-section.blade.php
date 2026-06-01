@@ -7,6 +7,26 @@
             right: 0;
         }
 
+        a.course-item-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        a.course-item-link:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        a.course-item-link .course-item {
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        a.course-item-link:hover .course-item {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 991px){
             .input-group.theme_search_field {
                 width: 80%!important;
@@ -102,6 +122,7 @@
                                 @endphp
                                 <div class="col-xl-4 col-md-6">
                                     @if ($course->type == 1)
+                                        <a href="{{ route('continueCourse', [$course->slug]) }}" class="course-item-link">
                                         <div class="course-item">
                                             <div class="course-item-img">
                                                 <img src="{{ getCourseImage($course->thumbnail) }}" alt="thumb image">
@@ -116,9 +137,9 @@
 
                                             </div>
                                             <div class="course-item-info">
-                                                <a href="{{ route('continueCourse', [$course->slug]) }}" class="title">
+                                                <span class="title">
                                                     {{ $course->title }}
-                                                </a>
+                                                </span>
 
                                                 <div class="course-item-info-description mb-3">
                         {{ getLimitedText($course->about,120) }}
@@ -144,6 +165,7 @@
 
                                             </div>
                                         </div>
+                                        </a>
                                     @elseif($course->type == 2)
                                         <div class="course-item">
                                             <a href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}">
@@ -174,6 +196,7 @@
                                             </div>
                                         </div>
                                     @elseif($course->type == 3)
+                                        <a href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}" class="course-item-link">
                                         <div class="course-item">
                                             <div class="course-item-img">
                                                 <img src="{{ getCourseImage($course->thumbnail) }}" alt="thumb image">
@@ -188,18 +211,18 @@
                                                 <div class="class_tags">
 
                                                     @if($course->class->show_record)
-                                                        <a href="{{route('classRecords', $course->slug)}}">
+                                                        <span>
                                                                     <span class="class_record_tag bg3">
                                                                       {{count($course->class->records)}} {{__('virtual-class.Records')}}
                                                     </span>
-                                                        </a>
+                                                        </span>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="course-item-info">
-                                                <a href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}" class="title">
+                                                <span class="title">
                                                     {{ $course->title }}
-                                                </a>
+                                                </span>
 
                                                 <div class="course-item-info-description mb-3">
                         {{ getLimitedText($course->about,120) }}
@@ -225,6 +248,7 @@
 
                                             </div>
                                         </div>
+                                        </a>
                                     @endif
                                 </div>
                             @endforeach

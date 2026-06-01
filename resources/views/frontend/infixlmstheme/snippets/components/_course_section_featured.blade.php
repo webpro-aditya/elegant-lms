@@ -596,7 +596,7 @@
 
     </style>
 
-    <section class="featured bg-white">
+    <section class="featured" style="background-color: #F4F7FB;">
         <div class="featured-inner">
             <div data-type="component-nonExisting"
                  data-preview=""

@@ -293,6 +293,7 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             margin-bottom: 0;
+            color: #F0F3F8;
         }
 
         @media only screen and (min-width: 768px) and (max-width: 991px) {
@@ -351,7 +352,7 @@
             font-size: 13px;
             line-height: 1.1666666667;
             margin-bottom: 10px;
-            color: var(--system_paragraph_color);
+            color: #C8D1DC;
         }
 
         .classes-item-user {
@@ -391,7 +392,7 @@
 
     </style>
 
-    <div class="classes position-relative section-padding-lg" style="background-color: #1A2238;">
+    <div class="classes position-relative section-margin-lg" style="background-color: #1A2238; padding-top: 60px; padding-bottom: 60px; border-radius: 0;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
