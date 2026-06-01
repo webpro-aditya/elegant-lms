@@ -2709,46 +2709,57 @@ class WebsiteController extends Controller
 
             if ($isEnrolled || $enrollForCpd || $enrollForClass || $enrollForMembership) {
 
-                $lesson = LessonComplete::where('course_id', $course->id)->where('user_id', $user->id)->has('lesson')->orderBy('updated_at', 'desc')->first();
-                if (empty($lesson)) {
-                    $chapter = Chapter::where('course_id', $course->id)->whereHas('lessons')->orderBy('position', 'asc')->first();
-                    if (empty($chapter)) {
-                        Toastr::error(trans('frontend.No lesson found'), trans('common.Failed'));
-                        return redirect()->route('courseDetailsView', $slug);
-                    }
-                    $lesson = Lesson::where('course_id', $course->id)->where('chapter_id', $chapter->id)->orderBy('position', 'asc')->first();
-                    if (!empty($lesson)) {
-                        $lesson_id = $lesson->id;
-                    }
+                // Get all chapters in position order, then get all lessons ordered by chapter position + lesson position
+                $chapters = Chapter::where('course_id', $course->id)
+                    ->whereHas('lessons')
+                    ->orderBy('position', 'asc')
+                    ->pluck('id')
+                    ->toArray();
+
+                if (empty($chapters)) {
+                    Toastr::error(trans('frontend.No lesson found'), trans('common.Failed'));
+                    return redirect()->route('courseDetailsView', $slug);
+                }
+
+                // Get all lessons ordered by chapter position, then lesson position
+                $allLessons = Lesson::where('course_id', $course->id)
+                    ->whereIn('chapter_id', $chapters)
+                    ->orderByRaw('FIELD(chapter_id, ' . implode(',', $chapters) . ')')
+                    ->orderBy('position', 'asc')
+                    ->get();
+
+                if ($allLessons->isEmpty()) {
+                    Toastr::error(trans('frontend.There is no lesson for this course'), trans('common.Failed'));
+                    return redirect()->route('courseDetailsView', $slug);
+                }
+
+                // Get IDs of all completed lessons for this user & course
+                $completedLessonIds = LessonComplete::where('course_id', $course->id)
+                    ->where('user_id', $user->id)
+                    ->where('status', 1)
+                    ->pluck('lesson_id')
+                    ->toArray();
+
+                // Find the first incomplete lesson — this is where the student should resume
+                $resumeLesson = $allLessons->first(function ($l) use ($completedLessonIds) {
+                    return !in_array($l->id, $completedLessonIds);
+                });
+
+                if ($resumeLesson) {
+                    // Student has an incomplete lesson — resume there
+                    $lesson_id = $resumeLesson->id;
                 } else {
-                    $next_lesson = null;
-                    $chapters = Chapter::select('id')->where('course_id', $course->id)->whereHas('lessons')->orderBy('position', 'asc')->get();
-                    $all_lessons = Lesson::select('id')->where('course_id', $course->id)->orderBy('position', 'asc')->get();
-
-                    $lesson_ids=[];
-                    foreach ($chapters as $c) {
-                        foreach ($all_lessons as $item) {
-                            if ($c->id == $item->chapter_id) {
-                                $lesson_ids[] = $item->id;
-
-                            }
-                        }
-                    }
-
-                    foreach ($lesson_ids as $id) {
-                        if (in_array($lesson->lesson_id, $id)) {
-                            $position = array_search($lesson->lesson_id, $id);
-                            $position = $position + 1;
-                            if (isset($lessons[$position])) {
-                                $next_lesson = $lessons[$position];
-                            }
-                        }
-                    }
-                    $lesson_id = !empty($next_lesson) ? $next_lesson : $lesson->lesson_id;
+                    // All lessons are complete — take them to the last lesson they interacted with,
+                    // or the very last lesson in the course
+                    $lastCompleted = LessonComplete::where('course_id', $course->id)
+                        ->where('user_id', $user->id)
+                        ->has('lesson')
+                        ->orderBy('updated_at', 'desc')
+                        ->first();
+                    $lesson_id = $lastCompleted ? $lastCompleted->lesson_id : $allLessons->last()->id;
                 }
 
                 if (!empty($lesson_id)) {
-
                     return \redirect()->to(url('fullscreen-view/' . $course->id . '/' . $lesson_id));
                 } else {
                     Toastr::error(trans('frontend.There is no lesson for this course'), trans('common.Failed'));
