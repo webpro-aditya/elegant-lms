@@ -2709,54 +2709,34 @@ class WebsiteController extends Controller
 
             if ($isEnrolled || $enrollForCpd || $enrollForClass || $enrollForMembership) {
 
-                // Get all chapters in position order, then get all lessons ordered by chapter position + lesson position
-                $chapters = Chapter::where('course_id', $course->id)
-                    ->whereHas('lessons')
-                    ->orderBy('position', 'asc')
-                    ->pluck('id')
-                    ->toArray();
-
-                if (empty($chapters)) {
-                    Toastr::error(trans('frontend.No lesson found'), trans('common.Failed'));
-                    return redirect()->route('courseDetailsView', $slug);
-                }
-
-                // Get all lessons ordered by chapter position, then lesson position
-                $allLessons = Lesson::where('course_id', $course->id)
-                    ->whereIn('chapter_id', $chapters)
-                    ->orderByRaw('FIELD(chapter_id, ' . implode(',', $chapters) . ')')
-                    ->orderBy('position', 'asc')
-                    ->get();
-
-                if ($allLessons->isEmpty()) {
-                    Toastr::error(trans('frontend.There is no lesson for this course'), trans('common.Failed'));
-                    return redirect()->route('courseDetailsView', $slug);
-                }
-
-                // Get IDs of all completed lessons for this user & course
-                $completedLessonIds = LessonComplete::where('course_id', $course->id)
+                // Find the last lesson the student interacted with (most recently completed/viewed)
+                $lastCompleted = LessonComplete::where('course_id', $course->id)
                     ->where('user_id', $user->id)
-                    ->where('status', 1)
-                    ->pluck('lesson_id')
-                    ->toArray();
+                    ->has('lesson')
+                    ->orderBy('updated_at', 'desc')
+                    ->first();
 
-                // Find the first incomplete lesson — this is where the student should resume
-                $resumeLesson = $allLessons->first(function ($l) use ($completedLessonIds) {
-                    return !in_array($l->id, $completedLessonIds);
-                });
-
-                if ($resumeLesson) {
-                    // Student has an incomplete lesson — resume there
-                    $lesson_id = $resumeLesson->id;
+                if ($lastCompleted) {
+                    // Resume at the exact lesson the student last interacted with
+                    $lesson_id = $lastCompleted->lesson_id;
                 } else {
-                    // All lessons are complete — take them to the last lesson they interacted with,
-                    // or the very last lesson in the course
-                    $lastCompleted = LessonComplete::where('course_id', $course->id)
-                        ->where('user_id', $user->id)
-                        ->has('lesson')
-                        ->orderBy('updated_at', 'desc')
+                    // No lessons completed yet — go to the first lesson of the course
+                    $chapter = Chapter::where('course_id', $course->id)
+                        ->whereHas('lessons')
+                        ->orderBy('position', 'asc')
                         ->first();
-                    $lesson_id = $lastCompleted ? $lastCompleted->lesson_id : $allLessons->last()->id;
+
+                    if (empty($chapter)) {
+                        Toastr::error(trans('frontend.No lesson found'), trans('common.Failed'));
+                        return redirect()->route('courseDetailsView', $slug);
+                    }
+
+                    $firstLesson = Lesson::where('course_id', $course->id)
+                        ->where('chapter_id', $chapter->id)
+                        ->orderBy('position', 'asc')
+                        ->first();
+
+                    $lesson_id = $firstLesson ? $firstLesson->id : null;
                 }
 
                 if (!empty($lesson_id)) {
