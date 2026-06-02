@@ -9,6 +9,7 @@ use App\Jobs\SendGeneralEmail;
 use App\LessonComplete;
 use App\Subscription;
 use App\Traits\GoogleAnalytics4;
+use App\Models\ContactMessage;
 use App\Traits\SendNotification;
 use App\User;
 use Brian2694\Toastr\Facades\Toastr;
@@ -1625,6 +1626,7 @@ class WebsiteController extends Controller
                 'email' => 'required|email',
                 'message' => 'required',
                 'subject' => 'required',
+                'phone' => 'nullable|string|max:20',
                 'g-recaptcha-response' => 'required|captcha'
             ];
         } else {
@@ -1633,6 +1635,7 @@ class WebsiteController extends Controller
                 'email' => 'required|email',
                 'message' => 'required',
                 'subject' => 'required',
+                'phone' => 'nullable|string|max:20',
             ];
         }
 
@@ -1643,6 +1646,17 @@ class WebsiteController extends Controller
         $email = $request->get('email');
         $message = $request->get('message');
         $subject = $request->get('subject');
+        // Use full_phone (ISD + number) if available, otherwise fall back to raw phone input
+        $phone = $request->get('full_phone') ?: $request->get('phone');
+
+        // Save contact message to database
+        ContactMessage::create([
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'subject' => $subject,
+            'message' => $message,
+        ]);
 
 
         $admin = User::where('role_id', 1)->first();
@@ -1652,7 +1666,8 @@ class WebsiteController extends Controller
             'name' => $name,
             'email' => $email,
             'message' => $message,
-            'subject' => $subject
+            'subject' => $subject,
+            'phone' => $phone
         ]);
 
 

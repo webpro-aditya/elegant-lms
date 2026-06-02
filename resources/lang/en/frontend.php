@@ -815,7 +815,9 @@ return ["Account Settings" => "Account Settings",
     'I’m unlocking badges and developing my skills on new technologies, tools and frameworks. Cheer me on'=>'I’m unlocking badges and developing my skills on new technologies, tools and frameworks. Cheer me on',
     'I earned the'=>'I earned the',
     'badge on'=>'badge on',
-    'Badge earned by'=>'Badge earned by'
+    'Badge earned by'=>'Badge earned by',
+    'Phone Number'=>'Phone Number',
+    'Enter Phone Number'=>'Enter Phone Number'
 
 
 ];

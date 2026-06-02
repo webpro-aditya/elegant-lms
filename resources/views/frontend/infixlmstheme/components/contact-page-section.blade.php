@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+
 <div>
 
     <div class="contact_section ">
@@ -81,6 +83,20 @@
                                                                type="email" value="{{old('email')}}">
                                                         <span class="text-danger"
                                                               role="alert">{{$errors->first('email')}}</span>
+
+                                                        {{-- Phone Number with ISD Code --}}
+                                                        <div class="contact-phone-element mb_20">
+                                                            <input id="contactPhoneComponent" name="phone" type="tel"
+                                                                   class="primary_input"
+                                                                   placeholder="{{__('frontend.Phone Number')}}"
+                                                                   onfocus="this.placeholder = ''"
+                                                                   onblur="this.placeholder = '{{__('frontend.Phone Number')}}'"
+                                                                   value="{{old('phone')}}">
+                                                            <input type="hidden" name="full_phone" id="contactFullPhoneComponent">
+                                                        </div>
+                                                        <span class="text-danger"
+                                                              role="alert">{{$errors->first('phone')}}</span>
+
                                                         <label class="primary_label">{{__('frontend.Subject')}}</label>
                                                         <input name="subject" required
                                                                placeholder="{{__('frontend.Enter your subject')}}"
@@ -170,3 +186,64 @@
     </div>
 
 </div>
+
+{{-- intl-tel-input JS (v24 - stable release) --}}
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+
+<style>
+    /* intl-tel-input seamless integration */
+    .contact-phone-element .iti {
+        width: 100%;
+        display: block;
+    }
+    .contact-phone-element .iti .primary_input {
+        width: 100% !important;
+        padding-left: 96px !important;
+    }
+    .contact-phone-element .iti .primary_input::placeholder {
+        color: #8e8e8e;
+        font-weight: 400;
+    }
+    .contact-phone-element .iti__country-container {
+        z-index: 10;
+    }
+    .contact-phone-element .iti__country-list {
+        z-index: 999;
+        max-height: 200px;
+        border-radius: 4px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+    .contact-phone-element .iti__selected-country-primary {
+        padding-left: 12px;
+    }
+    .contact-phone-element .iti__selected-dial-code {
+        font-size: 14px;
+        color: #415094;
+        font-weight: 500;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        // Initialize intl-tel-input on the phone field (component version)
+        var phoneInput = document.querySelector("#contactPhoneComponent");
+        if (phoneInput && typeof window.intlTelInput === 'function') {
+            var iti = window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                preferredCountries: ["in", "us", "gb", "ae", "sa", "om"],
+                separateDialCode: true,
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+            });
+
+            // Before form submit, set the full_phone hidden field with ISD + phone number
+            var form = document.getElementById("myForm");
+            if (form) {
+                form.addEventListener("submit", function () {
+                    var fullPhone = iti.getNumber();
+                    document.getElementById("contactFullPhoneComponent").value = fullPhone;
+                });
+            }
+        }
+    });
+</script>
+
