@@ -59,6 +59,7 @@ class MyCoursesPageSection extends Component
 
 // Build the base query
         $query = CourseEnrolled::where('user_id', Auth::user()->id)
+            ->where('course_enrolleds.status', 1)
             ->whereHas('course', function ($query) use ($type, $category_id, $search) {
                 $query->where('type', '=', $type)
                     ->where('status', '=', 1);

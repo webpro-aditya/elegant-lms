@@ -27,9 +27,10 @@ class XSS
                     $str = $input;
                     $searchVal = array("<script>", "</script>");
                     $replaceVal = array(" ", " ");
-                    $input = null;
-                    if ($str) {
+                    if ($str !== null && $str !== '') {
                         $input = str_replace($searchVal, $replaceVal, $str);
+                    } else {
+                        $input = $str;
                     }
 // todo check pagebulider
 /*                    $input = preg_replace('/<script.*?>.*?<\/script>/is', '', $input);*/

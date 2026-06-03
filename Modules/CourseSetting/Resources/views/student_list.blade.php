@@ -456,6 +456,7 @@
                                     <th>{{__('courses.Enrolled On')}}</th>
                                     <th>{{__('courses.Access Until')}}</th>
                                     <th>{{__('common.Action')}}</th>
+                                    <th>Status</th>
                                     <th>Remove</th>
                                 </tr>
                                 </thead>
@@ -712,6 +713,7 @@
         {data:'enroll_start_date', name:'enroll_start_date', orderable:false},
         {data:'enroll_end_date',   name:'enroll_end_date',   orderable:false},
         {data:'notify_user',       name:'notify_user',       orderable:false},
+        {data:'status',            name:'status',            orderable:false, searchable:false},
         {data:'remove_student',    name:'remove_student',    orderable:false, searchable:false},
     ];
     dataTableOptions = updateColumnExportOption(dataTableOptions,[0,2,3,4,5,6]);
@@ -1256,6 +1258,46 @@
         unenrollUserId = null;
         unenrollFeedback.style.display = 'none';
         unenrollFeedback.innerHTML = '';
+    });
+
+    /* ════════════════════════════════════════════════
+       TOGGLE STATUS
+    ════════════════════════════════════════════════ */
+    $('#lms_table').on('change', '.enrollment_status_toggle', function() {
+        var checkbox = $(this);
+        var userId = parseInt(checkbox.attr('data-user-id'));
+        var courseId = parseInt(checkbox.attr('data-course-id'));
+        var status = checkbox.is(':checked') ? 1 : 0;
+        
+        // Use toastr for temporary feedback if available, otherwise fallback
+        fetch('{{ url("admin/course/course") }}/' + courseId + '/enroll-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type':     'application/json',
+                'Accept':           'application/json',
+                'X-CSRF-TOKEN':     '{!! $csrfToken !!}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ user_id: userId, status: status })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+            if (res.success) {
+                if (typeof toastr !== 'undefined') toastr.success(res.message);
+                table.ajax.reload(null, false);
+            } else {
+                var errorMsg = res.message;
+                if (res.errors) errorMsg += " | Errors: " + JSON.stringify(res.errors);
+                if (res.received_data) errorMsg += " | Received: " + JSON.stringify(res.received_data);
+                
+                if (typeof toastr !== 'undefined') toastr.error(errorMsg);
+                checkbox.prop('checked', !status); // Revert UI
+            }
+        })
+        .catch(function(){
+            if (typeof toastr !== 'undefined') toastr.error('Something went wrong.');
+            checkbox.prop('checked', !status); // Revert UI
+        });
     });
 
     </script>

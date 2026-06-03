@@ -217,7 +217,8 @@ class CourseInvitationController extends Controller
                 'users.*',
                 'course_enrolleds.id as enroll_id',
                 'course_enrolleds.start_date as enroll_date',
-                'course_enrolleds.end_date as expiry_date'
+                'course_enrolleds.end_date as expiry_date',
+                'course_enrolleds.status as enroll_status'
             );
 
         return Datatables::of($query)
@@ -322,11 +323,11 @@ class CourseInvitationController extends Controller
                 return $row->userCountry->name ?? '';
             })
 
-            ->addColumn('status', function ($row) {
-                $checked = $row->status == 1 ? 'checked' : '';
+            ->addColumn('status', function ($row) use ($course) {
+                $checked = $row->enroll_status == 1 ? 'checked' : '';
 
                 return '<label class="switch_toggle">
-                            <input type="checkbox" class="status_enable_disable" value="' . $row->id . '" ' . $checked . '>
+                            <input type="checkbox" class="enrollment_status_toggle" data-user-id="' . $row->id . '" data-course-id="' . $course->id . '" ' . $checked . '>
                             <i class="slider round"></i>
                         </label>';
             })
@@ -738,6 +739,56 @@ class CourseInvitationController extends Controller
         return response()->json([
             'success' => true,
             'message' => trans('courses.Student unenrolled successfully'),
+        ]);
+    }
+
+    // -----------------------------------------------------------
+    // 4. TOGGLE STATUS: Change student's active/inactive status
+    // -----------------------------------------------------------
+    public function toggleEnrollmentStatus(Request $request, $course_id)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:users,id',
+            'status'  => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+                'received_data' => $request->all()
+            ]);
+        }
+
+        $enrollment = CourseEnrolled::where('course_id', $course_id)
+            ->where('user_id', $request->user_id)
+            ->first();
+
+        if (!$enrollment) {
+            return response()->json([
+                'success' => false,
+                'message' => trans('courses.Enrollment not found'),
+            ], 404);
+        }
+
+        $enrollment->status = $request->status;
+        $enrollment->save();
+
+        $actionStr = $request->status == 1 ? 'activated' : 'deactivated';
+
+        // Log status change action
+        CourseEnrollmentLog::create([
+            'course_id'    => (int) $course_id,
+            'user_id'      => $request->user_id,
+            'performed_by' => Auth::id(),
+            'action'       => 'updated',
+            'details'      => ['note' => "Enrollment status $actionStr."],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => trans('common.Status has been changed'),
         ]);
     }
 

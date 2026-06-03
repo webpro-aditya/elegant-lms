@@ -402,7 +402,7 @@ class Course extends Model
                 return true;
             } elseif (!empty($this->assistant_instructors) && in_array($user->id, $this->assistantInstructorsIds)) {
                 return true;
-            } elseif ($this->enrollUsers->where('id', $user->id)->count()) {
+            } elseif ($this->hasValidEnrollment($user)) {
                 return true;
             }
         }
@@ -411,12 +411,25 @@ class Course extends Model
                 return true;
             }
         }
-        if ($this->enrollUsers->where('id', $user->id)->count()) {
+        if ($this->hasValidEnrollment($user)) {
             return true;
         }
 
         return false;
 
+    }
+
+    public function hasValidEnrollment($user)
+    {
+        $enrollment = $this->enrolls->where('user_id', $user->id)->first();
+        if ($enrollment) {
+            $now = \Carbon\Carbon::now();
+            $validStart = !$enrollment->start_date || $now->gte(\Carbon\Carbon::parse($enrollment->start_date));
+            $validEnd   = !$enrollment->end_date || $now->lte(\Carbon\Carbon::parse($enrollment->end_date));
+            $isActive   = $enrollment->status == 1;
+            return $validStart && $validEnd && $isActive;
+        }
+        return false;
     }
 
     public function hasEnrollForClass()

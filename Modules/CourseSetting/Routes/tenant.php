@@ -70,8 +70,8 @@ Route::group(['prefix' => 'admin/course', 'middleware' => ['auth', 'admin']], fu
         Route::delete('/course/{course_id}/enroll', 'CourseInvitationController@unenrollStudent')
             ->name('course.enroll.destroy');
 
-        Route::put('/course/{course_id}/enroll', 'CourseInvitationController@updateEnrollment')
-            ->name('course.enroll.update');
+        Route::put('course/{id}/enroll', 'CourseInvitationController@updateEnrollment')->name('course.enroll.update');
+        Route::post('course/{id}/enroll-status', 'CourseInvitationController@toggleEnrollmentStatus')->name('course.enroll.status');
 
         // Enrollment activity log
         Route::get('/course/{course_id}/enrollment-log', 'CourseInvitationController@enrollmentActivityLog')
