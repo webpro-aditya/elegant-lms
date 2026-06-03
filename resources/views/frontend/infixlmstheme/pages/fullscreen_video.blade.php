@@ -431,6 +431,22 @@
             display: block !important;
         }
     }
+
+    /* Prevent text selection / copy protection on course view */
+    body, html, .course_fullview_wrapper, .mainContent {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+
+    /* Re-enable selection for inputs, textareas, and the PDF text layer (for highlighting) */
+    input, textarea, [contenteditable="true"], .note-editable, #pdfOuterContainer, #pdfOuterContainer * {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
+    }
     </style>
 @endsection
 
@@ -458,6 +474,64 @@
         </script>
         <script>
             var completeRequest = false;
+        </script>
+        <script>
+            // Prevent Right-Click / Context Menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+
+            // Prevent Copy and Cut events
+            document.addEventListener('copy', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('cut', function(e) {
+                e.preventDefault();
+            });
+
+            // Prevent Drag and Drop (prevents dragging images/videos to desktop/new tab to save)
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+            });
+
+            // Prevent DevTools Keyboard Shortcuts
+            document.addEventListener('keydown', function(e) {
+                // F12 key
+                if (e.keyCode === 123) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+I or Cmd+Opt+I (Chrome, Firefox, Safari DevTools)
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 73) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+J or Cmd+Opt+J (Console)
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 74) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+C or Cmd+Opt+C (Inspect Element)
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 67) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+U or Cmd+Opt+U (View Source)
+                if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+S or Cmd+S (Save Page - prevents page saving/downloading)
+                if ((e.ctrlKey || e.metaKey) && e.keyCode === 83) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+P or Cmd+P (Print Page)
+                if ((e.ctrlKey || e.metaKey) && e.keyCode === 80) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         </script>
     @endpush
 
@@ -1354,7 +1428,7 @@ if ($assign->questionBank->shuffle==1){
             @endif
 
             @if ($lesson->host == 'Self' || $lesson->host == 'Storage')
-                <video class="" id="video-id" controls autoplay>
+                <video class="" id="video-id" controls autoplay controlsList="nodownload" oncontextmenu="return false;">
                     <source src="{{assetPath($lesson->video_url) }}" type="video/mp4"/>
                     <source src="{{assetPath($lesson->video_url) }}" type="video/ogg">
                 </video>
@@ -1380,9 +1454,8 @@ if ($assign->questionBank->shuffle==1){
                 </div>
             @endif
             @if ($lesson->host == 'm3u8')
-                <video class="" id="video-id" controls autoplay
+                <video class="" id="video-id" controls autoplay controlsList="nodownload" oncontextmenu="return false;"
                        onended="lessonAutoComplete(course_id, {{ showPicName(Request::url()) }})">
-                >
                     <source src="{{ $lesson->video_url }}" type='application/x-mpegURL'/>
                 </video>
             @endif
@@ -1390,14 +1463,14 @@ if ($assign->questionBank->shuffle==1){
 
 
             @if ($lesson->host == 'URL')
-                <video class="" id="video-id" controls autoplay>
+                <video class="" id="video-id" controls autoplay controlsList="nodownload" oncontextmenu="return false;">
                     <source src="{{ $lesson->video_url }}" type="video/mp4">
                     <source src="{{ $lesson->video_url }}" type="video/ogg">
                     Your browser does not support the video.
                 </video>
             @endif
             @if ($lesson->host == 'AmazonS3')
-                <video class=" " id="video-id" controls>
+                <video class=" " id="video-id" controls controlsList="nodownload" oncontextmenu="return false;">
                     <source src="{{ $lesson->video_url }}" type="video/mp4"/>
 
                 </video>
