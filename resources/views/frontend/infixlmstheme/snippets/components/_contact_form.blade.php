@@ -40,10 +40,9 @@
                     <div class="contact-form-element contact-phone-wrapper has-content">
                         <input id="contactPhone" name="phone" type="tel"
                                class="primary_input"
-                               placeholder="{{__('frontend.Phone Number')}}"
                                onfocus="this.placeholder = ''"
                                value="{{old('phone')}}">
-                        {{-- Label removed because intl-tel-input breaks CSS sibling selectors for floating labels --}}
+                        <label class="primary_label">{{__('frontend.Phone Number')}}</label>
                         <input type="hidden" name="full_phone" id="contactFullPhone">
                         <span class="text-danger" role="alert">{{$errors->first('phone')}}</span>
                     </div>
@@ -146,9 +145,30 @@
         width: 100% !important;
         padding-left: 96px !important;
     }
-    .contact-phone-wrapper .iti .primary_input::placeholder {
-        color: #8e8e8e;
-        font-weight: 400;
+    /* Floating label fix for intl-tel-input wrapper */
+    .contact-phone-wrapper label.primary_label {
+        position: absolute;
+        left: 96px;
+        top: 13px;
+        color: #687083;
+        z-index: 1;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 0;
+        pointer-events: none;
+        transition: all 0.4s ease 0s;
+    }
+    .contact-phone-wrapper.has-content label.primary_label,
+    .contact-phone-wrapper.is-focused label.primary_label {
+        top: -10px;
+        font-size: 12px;
+        color: #828bb2;
+        left: 15px;
+        background: #fff;
+        padding: 0 5px;
+    }
+    .contact-phone-wrapper.is-focused label.primary_label {
+        color: var(--system_primery_color, #FB1159);
     }
     .contact-phone-wrapper .iti__country-container {
         z-index: 10;
@@ -180,6 +200,30 @@
                 separateDialCode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
             });
+
+            // Custom floating label logic for phone wrapper
+            const $phoneInput = $('#contactPhone');
+            const $phoneWrapper = $('.contact-phone-wrapper');
+            
+            function checkPhoneContent() {
+                if ($phoneInput.val().length > 0) {
+                    $phoneWrapper.addClass('has-content');
+                } else {
+                    $phoneWrapper.removeClass('has-content');
+                }
+            }
+            
+            $phoneInput.on('focus', function() {
+                $phoneWrapper.addClass('is-focused');
+            });
+            
+            $phoneInput.on('blur', function() {
+                $phoneWrapper.removeClass('is-focused');
+                checkPhoneContent();
+            });
+            
+            $phoneInput.on('keyup change', checkPhoneContent);
+            checkPhoneContent(); // Initialize state
 
             // Before form submit, set the full_phone hidden field with ISD + phone number
             var form = document.getElementById("myForm");

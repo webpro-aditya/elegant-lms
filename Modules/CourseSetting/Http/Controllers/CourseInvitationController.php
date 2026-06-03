@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Modules\CourseSetting\Entities\Category;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
+use Modules\CourseSetting\Entities\CourseEnrollmentLog;
 use Modules\Org\Entities\OrgBranch;
 use Modules\Org\Entities\OrgPosition;
 use Throwable;
@@ -339,6 +340,12 @@ class CourseInvitationController extends Controller
                 return '';
             })
 
+            ->addColumn('remove_student', function ($row) {
+                return '<button class="btn btn-sm unenroll-btn" data-user-id="' . $row->id . '" data-student-name="' . e($row->name) . '" title="' . trans('courses.Remove Student') . '">'
+                    . '<i class="ti-trash"></i>'
+                    . '</button>';
+            })
+
             ->rawColumns([
                 'status',
                 'progressbar',
@@ -348,6 +355,7 @@ class CourseInvitationController extends Controller
                 'student_name',
                 'enroll_start_date',
                 'enroll_end_date',
+                'remove_student',
             ])
             ->make(true);
     }
@@ -679,6 +687,18 @@ class CourseInvitationController extends Controller
             'end_date'                   => $endDate,
         ]);
 
+        // Log enrollment action
+        CourseEnrollmentLog::create([
+            'course_id'    => (int) $course_id,
+            'user_id'      => $request->user_id,
+            'performed_by' => Auth::id(),
+            'action'       => 'enrolled',
+            'details'      => json_encode([
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+            ]),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => trans('courses.Student enrolled successfully'),
@@ -705,6 +725,15 @@ class CourseInvitationController extends Controller
                 'message' => trans('courses.Enrollment not found'),
             ], 404);
         }
+
+        // Log removal action
+        CourseEnrollmentLog::create([
+            'course_id'    => (int) $course_id,
+            'user_id'      => $request->user_id,
+            'performed_by' => Auth::id(),
+            'action'       => 'removed',
+            'details'      => null,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -739,15 +768,138 @@ class CourseInvitationController extends Controller
             ? \Carbon\Carbon::parse($request->end_date)->toDateTimeString()
             : null;
 
+        // Capture old values before update
+        $oldStartDate = $enrollment->start_date;
+        $oldEndDate   = $enrollment->end_date;
+
         $enrollment->update([
             'start_date' => $startDate,
             'end_date'   => $endDate,
             'updated_at' => now(),
         ]);
 
+        // Log update action with old and new values
+        CourseEnrollmentLog::create([
+            'course_id'    => (int) $course_id,
+            'user_id'      => $request->user_id,
+            'performed_by' => Auth::id(),
+            'action'       => 'updated',
+            'details'      => json_encode([
+                'old_start_date' => $oldStartDate,
+                'old_end_date'   => $oldEndDate,
+                'new_start_date' => $startDate,
+                'new_end_date'   => $endDate,
+            ]),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => trans('courses.Enrollment updated successfully'),
         ]);
+    }
+
+    // -----------------------------------------------------------
+    // ENROLLMENT ACTIVITY LOG
+    // -----------------------------------------------------------
+
+    /**
+     * Show the enrollment activity log page for a course.
+     */
+    public function enrollmentActivityLog($course_id)
+    {
+        try {
+            $course = Course::findOrFail($course_id);
+            return view('coursesetting::enrollment_log', compact('course'));
+        } catch (Exception $e) {
+            Toastr::error(trans('common.Operation failed'), trans('common.Failed'));
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Return server-side DataTable data for the enrollment activity log.
+     */
+    public function getEnrollmentLogData(Request $request, $course_id)
+    {
+        $query = CourseEnrollmentLog::with(['user', 'performer'])
+            ->where('course_id', $course_id)
+            ->orderBy('created_at', 'desc');
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+
+            ->addColumn('student_info', function ($row) {
+                $avatar = '<div class="profile_info"><img src="'
+                    . getProfileImage($row->user->image ?? null, $row->user->name ?? 'Unknown')
+                    . '" alt="' . e($row->user->name ?? '') . '"></div>';
+                $name = '<span class="log-student-name">' . e($row->user->name ?? 'Deleted User') . '</span>';
+                $email = '<span class="log-student-email">' . e($row->user->email ?? '') . '</span>';
+                return '<div class="log-student-cell">' . $avatar . '<div>' . $name . $email . '</div></div>';
+            })
+
+            ->addColumn('action_badge', function ($row) {
+                $badges = [
+                    'enrolled' => '<span class="log-badge log-badge-enrolled"><i class="ti-plus"></i> Enrolled</span>',
+                    'updated'  => '<span class="log-badge log-badge-updated"><i class="ti-pencil"></i> Updated</span>',
+                    'removed'  => '<span class="log-badge log-badge-removed"><i class="ti-trash"></i> Removed</span>',
+                ];
+                return $badges[$row->action] ?? '<span class="log-badge">' . e($row->action) . '</span>';
+            })
+
+            ->addColumn('details_html', function ($row) {
+                $details = $row->decoded_details;
+                if (empty($details)) return '<span class="text-muted">—</span>';
+
+                $html = '';
+                if ($row->action === 'enrolled') {
+                    $start = $details['start_date'] ?? null;
+                    $end   = $details['end_date'] ?? null;
+                    if ($start) {
+                        $html .= '<div class="log-detail-row"><span class="log-detail-label">Start:</span> '
+                            . \Carbon\Carbon::parse($start)->format('d M Y, h:i A') . '</div>';
+                    }
+                    if ($end) {
+                        $html .= '<div class="log-detail-row"><span class="log-detail-label">End:</span> '
+                            . \Carbon\Carbon::parse($end)->format('d M Y, h:i A') . '</div>';
+                    }
+                    if (!$start && !$end) {
+                        $html = '<span class="text-muted">Lifetime access</span>';
+                    }
+                } elseif ($row->action === 'updated') {
+                    $oldStart = $details['old_start_date'] ?? null;
+                    $newStart = $details['new_start_date'] ?? null;
+                    $oldEnd   = $details['old_end_date'] ?? null;
+                    $newEnd   = $details['new_end_date'] ?? null;
+
+                    $fmtDate = function ($d) {
+                        return $d ? \Carbon\Carbon::parse($d)->format('d M Y, h:i A') : 'None';
+                    };
+
+                    if ($oldStart !== $newStart) {
+                        $html .= '<div class="log-detail-row"><span class="log-detail-label">Start:</span> '
+                            . $fmtDate($oldStart) . ' → ' . $fmtDate($newStart) . '</div>';
+                    }
+                    if ($oldEnd !== $newEnd) {
+                        $html .= '<div class="log-detail-row"><span class="log-detail-label">End:</span> '
+                            . $fmtDate($oldEnd) . ' → ' . $fmtDate($newEnd) . '</div>';
+                    }
+                    if (empty($html)) {
+                        $html = '<span class="text-muted">No date changes</span>';
+                    }
+                }
+
+                return $html ?: '<span class="text-muted">—</span>';
+            })
+
+            ->addColumn('performed_by_name', function ($row) {
+                return e($row->performer->name ?? 'System');
+            })
+
+            ->addColumn('log_date', function ($row) {
+                return '<span class="log-date">' . $row->created_at->format('d M Y, h:i A') . '</span>';
+            })
+
+            ->rawColumns(['student_info', 'action_badge', 'details_html', 'log_date'])
+            ->make(true);
     }
 }

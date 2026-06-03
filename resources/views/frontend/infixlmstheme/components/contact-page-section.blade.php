@@ -88,10 +88,9 @@
                                                         <div class="contact-phone-element mb_20">
                                                             <input id="contactPhoneComponent" name="phone" type="tel"
                                                                    class="primary_input"
-                                                                   placeholder="{{__('frontend.Phone Number')}}"
                                                                    onfocus="this.placeholder = ''"
-                                                                   onblur="this.placeholder = '{{__('frontend.Phone Number')}}'"
                                                                    value="{{old('phone')}}">
+                                                            <label class="primary_label">{{__('frontend.Phone Number')}}</label>
                                                             <input type="hidden" name="full_phone" id="contactFullPhoneComponent">
                                                         </div>
                                                         <span class="text-danger"
@@ -200,9 +199,30 @@
         width: 100% !important;
         padding-left: 96px !important;
     }
-    .contact-phone-element .iti .primary_input::placeholder {
-        color: #8e8e8e;
-        font-weight: 400;
+    /* Floating label fix for intl-tel-input wrapper */
+    .contact-phone-element label.primary_label {
+        position: absolute;
+        left: 96px;
+        top: 13px;
+        color: #687083;
+        z-index: 1;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 0;
+        pointer-events: none;
+        transition: all 0.4s ease 0s;
+    }
+    .contact-phone-element.has-content label.primary_label,
+    .contact-phone-element.is-focused label.primary_label {
+        top: -10px;
+        font-size: 12px;
+        color: #828bb2;
+        left: 15px;
+        background: #fff;
+        padding: 0 5px;
+    }
+    .contact-phone-element.is-focused label.primary_label {
+        color: var(--system_primery_color, #FB1159);
     }
     .contact-phone-element .iti__country-container {
         z-index: 10;
@@ -234,6 +254,30 @@
                 separateDialCode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
             });
+
+            // Custom floating label logic for phone wrapper
+            const $phoneInputComponent = $('#contactPhoneComponent');
+            const $phoneElement = $('.contact-phone-element');
+
+            function checkPhoneContentComponent() {
+                if ($phoneInputComponent.val().length > 0) {
+                    $phoneElement.addClass('has-content');
+                } else {
+                    $phoneElement.removeClass('has-content');
+                }
+            }
+
+            $phoneInputComponent.on('focus', function() {
+                $phoneElement.addClass('is-focused');
+            });
+
+            $phoneInputComponent.on('blur', function() {
+                $phoneElement.removeClass('is-focused');
+                checkPhoneContentComponent();
+            });
+
+            $phoneInputComponent.on('keyup change', checkPhoneContentComponent);
+            checkPhoneContentComponent(); // Initialize state
 
             // Before form submit, set the full_phone hidden field with ISD + phone number
             var form = document.getElementById("myForm");

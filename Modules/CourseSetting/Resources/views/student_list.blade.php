@@ -334,6 +334,81 @@
         .iep-feedback .alert-success { background: #edfaf3; color: #1a7a4a; }
         .iep-feedback .alert-danger  { background: #fff0f0; color: #c0392b; }
         .QA_section .QA_table td, .QA_section .QA_table th { padding: 12px 15px; }
+
+        /* ════════════════════════════════
+           UNENROLL BUTTON
+        ════════════════════════════════ */
+        .unenroll-btn {
+            background: none; border: 1.5px solid #ffe0e0; color: #e74c3c;
+            border-radius: 8px; width: 34px; height: 34px; padding: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer; transition: all .2s;
+        }
+        .unenroll-btn:hover {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(231,76,60,.3);
+            transform: translateY(-1px);
+        }
+        .unenroll-btn:active { transform: translateY(0); }
+
+        /* ── Unenroll confirmation modal ── */
+        #unenrollModal .modal-dialog   { max-width: 440px; }
+        #unenrollModal .modal-content  { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(231,76,60,.15); overflow: hidden; }
+        #unenrollModal .modal-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            padding: 18px 24px; border: none;
+        }
+        #unenrollModal .modal-header .modal-title {
+            font-size: 17px; font-weight: 700; color: #fff;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #unenrollModal .modal-header .title-icon {
+            width: 32px; height: 32px; background: rgba(255,255,255,.2);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px;
+        }
+        #unenrollModal .btn-close {
+            background: rgba(255,255,255,.15); border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border: none; color: #fff; font-size: 13px; transition: background .2s; padding: 0;
+        }
+        #unenrollModal .btn-close:hover { background: rgba(255,255,255,.3); }
+        #unenrollModal .btn-close i { color: #fff; }
+        #unenrollModal .modal-body { padding: 24px; text-align: center; }
+        #unenrollModal .unenroll-icon-wrap {
+            width: 64px; height: 64px; margin: 0 auto 16px;
+            background: #fff0f0; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: #e74c3c;
+        }
+        #unenrollModal .unenroll-msg {
+            font-size: 15px; color: #444; line-height: 1.6; margin-bottom: 6px;
+        }
+        #unenrollModal .unenroll-msg strong { color: #222; }
+        #unenrollModal .unenroll-sub {
+            font-size: 12px; color: #999; margin-bottom: 20px;
+        }
+        #unenrollModal .modal-actions {
+            display: flex; gap: 12px; justify-content: center;
+        }
+        .unenroll-btn-cancel {
+            background: none; border: 1.5px solid #e0e0e0; color: #777;
+            border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all .2s;
+        }
+        .unenroll-btn-cancel:hover { background: #f5f5f5; border-color: #ccc; }
+        .unenroll-btn-confirm {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff; border: none; border-radius: 10px; padding: 10px 24px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .unenroll-btn-confirm:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(231,76,60,.3); }
+        .unenroll-btn-confirm:disabled { background: #ddd; cursor: not-allowed; transform: none; box-shadow: none; opacity: 1; }
+        #unenroll-feedback { padding: 0 24px 16px; }
+        #unenroll-feedback .alert { border-radius: 10px; font-size: 13px; border: none; }
+        #unenroll-feedback .alert-success { background: #edfaf3; color: #1a7a4a; }
+        #unenroll-feedback .alert-danger  { background: #fff0f0; color: #c0392b; }
     </style>
 @endpush
 
@@ -353,10 +428,16 @@
                             <h3 class="mb-0 mr-30 mb_xs_15px mb_sm_20px" id="page_title">
                                 {{__('student.Students List')}} - {{$course->title}}
                             </h3>
-                            <button type="button" class="primary-btn fix-gr-bg"
-                                    data-bs-toggle="modal" data-bs-target="#enrollModal">
-                                <i class="ti-plus mr-1"></i> {{__('courses.Enroll Student')}}
-                            </button>
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="{{route('course.enrollment.log', $course->id)}}"
+                                   class="primary-btn tr-bg" style="display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="ti-clipboard mr-1"></i> Activity Log
+                                </a>
+                                <button type="button" class="primary-btn fix-gr-bg"
+                                        data-bs-toggle="modal" data-bs-target="#enrollModal">
+                                    <i class="ti-plus mr-1"></i> {{__('courses.Enroll Student')}}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -375,6 +456,7 @@
                                     <th>{{__('courses.Enrolled On')}}</th>
                                     <th>{{__('courses.Access Until')}}</th>
                                     <th>{{__('common.Action')}}</th>
+                                    <th>Remove</th>
                                 </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -556,6 +638,41 @@
                     </div>
                 </div>
 
+                {{-- ══ UNENROLL CONFIRMATION MODAL ══ --}}
+                <div class="modal fade" id="unenrollModal" tabindex="-1"
+                     aria-labelledby="unenrollModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="unenrollModalLabel">
+                                    <span class="title-icon"><i class="ti-na"></i></span>
+                                    Remove Student
+                                </h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="ti-close"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="unenroll-icon-wrap">
+                                    <i class="ti-alert"></i>
+                                </div>
+                                <p class="unenroll-msg">
+                                    Are you sure you want to remove<br>
+                                    <strong id="unenroll-student-name"></strong> from this course?
+                                </p>
+                                <p class="unenroll-sub">This action will revoke the student's access and progress data may be lost.</p>
+                                <div class="modal-actions">
+                                    <button type="button" class="unenroll-btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="unenroll-btn-confirm" id="unenroll-confirm-btn">
+                                        <i class="ti-trash"></i> Remove Student
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="unenroll-feedback" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -575,9 +692,10 @@
     @php
         $listUrl   = route('course.getAllStudentData', $course->id);
         $searchUrl = route('course.enroll.search',    $course->id);
-        $enrollUrl = route('course.enroll.store',     $course->id);
-        $updateUrl = route('course.enroll.update',    $course->id);
-        $csrfToken = csrf_token();
+        $enrollUrl   = route('course.enroll.store',     $course->id);
+        $unenrollUrl = route('course.enroll.destroy',   $course->id);
+        $updateUrl   = route('course.enroll.update',    $course->id);
+        $csrfToken   = csrf_token();
     @endphp
 
     <script>
@@ -594,6 +712,7 @@
         {data:'enroll_start_date', name:'enroll_start_date', orderable:false},
         {data:'enroll_end_date',   name:'enroll_end_date',   orderable:false},
         {data:'notify_user',       name:'notify_user',       orderable:false},
+        {data:'remove_student',    name:'remove_student',    orderable:false, searchable:false},
     ];
     dataTableOptions = updateColumnExportOption(dataTableOptions,[0,2,3,4,5,6]);
     var table = $('#lms_table').DataTable(dataTableOptions);
@@ -1064,6 +1183,79 @@
         var cell = e.target.closest('.edit-date-cell');
         if (!cell) return;
         openInlineEdit(cell);
+    });
+
+    /* ════════════════════════════════════════════════
+       UNENROLL / REMOVE STUDENT
+    ════════════════════════════════════════════════ */
+    var unenrollUserId   = null;
+    var unenrollConfirm  = document.getElementById('unenroll-confirm-btn');
+    var unenrollFeedback = document.getElementById('unenroll-feedback');
+    var unenrollNameEl   = document.getElementById('unenroll-student-name');
+
+    /* Open confirmation modal when trash button is clicked */
+    $('#lms_table').on('click', '.unenroll-btn', function(e){
+        e.stopPropagation();
+        var btn = e.target.closest('.unenroll-btn');
+        if (!btn) return;
+        unenrollUserId = btn.dataset.userId;
+        unenrollNameEl.textContent = btn.dataset.studentName;
+        unenrollFeedback.style.display = 'none';
+        unenrollFeedback.innerHTML = '';
+        unenrollConfirm.disabled = false;
+        unenrollConfirm.innerHTML = '<i class="ti-trash"></i> Remove Student';
+        $('#unenrollModal').modal('show');
+    });
+
+    /* Confirm unenroll */
+    unenrollConfirm.addEventListener('click', function(){
+        if (!unenrollUserId) return;
+        unenrollConfirm.disabled = true;
+        unenrollConfirm.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:14px;height:14px;border-width:2px;"></span> Removing…';
+
+        fetch('{!! $unenrollUrl !!}', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type':     'application/json',
+                'X-CSRF-TOKEN':     '{!! $csrfToken !!}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ user_id: unenrollUserId })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+            if (res.success){
+                table.ajax.reload(null, false);
+                showUnenrollFeedback(res.message, 'success');
+                setTimeout(function(){
+                    $('#unenrollModal').modal('hide');
+                    unenrollUserId = null;
+                }, 1200);
+            } else {
+                unenrollConfirm.disabled = false;
+                unenrollConfirm.innerHTML = '<i class="ti-trash"></i> Remove Student';
+                showUnenrollFeedback(res.message, 'danger');
+            }
+        })
+        .catch(function(){
+            unenrollConfirm.disabled = false;
+            unenrollConfirm.innerHTML = '<i class="ti-trash"></i> Remove Student';
+            showUnenrollFeedback('Something went wrong.', 'danger');
+        });
+    });
+
+    function showUnenrollFeedback(msg, type){
+        unenrollFeedback.style.display = 'block';
+        unenrollFeedback.innerHTML = '<div class="alert alert-'+type+'"><i class="'+(type==='success'?'ti-check-box':'ti-alert')+' mr-2"></i>'+escHtml(msg)+'</div>';
+        if (type === 'success')
+            setTimeout(function(){ unenrollFeedback.style.display='none'; unenrollFeedback.innerHTML=''; }, 1000);
+    }
+
+    /* Reset modal state on close */
+    $('#unenrollModal').on('hidden.bs.modal', function(){
+        unenrollUserId = null;
+        unenrollFeedback.style.display = 'none';
+        unenrollFeedback.innerHTML = '';
     });
 
     </script>

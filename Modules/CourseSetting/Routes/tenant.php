@@ -72,6 +72,12 @@ Route::group(['prefix' => 'admin/course', 'middleware' => ['auth', 'admin']], fu
 
         Route::put('/course/{course_id}/enroll', 'CourseInvitationController@updateEnrollment')
             ->name('course.enroll.update');
+
+        // Enrollment activity log
+        Route::get('/course/{course_id}/enrollment-log', 'CourseInvitationController@enrollmentActivityLog')
+            ->name('course.enrollment.log');
+        Route::get('/course/{course_id}/enrollment-log-data', 'CourseInvitationController@getEnrollmentLogData')
+            ->name('course.enrollment.logData');
     // New Added------------
 
     Route::get('/course-modal/{course_id}/{type}', 'CourseSettingController@courseModal')->name('courseModal')->middleware('RoutePermissionCheck:course.edit');

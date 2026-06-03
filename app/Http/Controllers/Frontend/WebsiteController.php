@@ -10,6 +10,7 @@ use App\LessonComplete;
 use App\Subscription;
 use App\Traits\GoogleAnalytics4;
 use App\Models\ContactMessage;
+use App\Rules\NoLinks;
 use App\Traits\SendNotification;
 use App\User;
 use Brian2694\Toastr\Facades\Toastr;
@@ -1621,7 +1622,7 @@ class WebsiteController extends Controller
     {
 
         if (saasEnv('NOCAPTCHA_FOR_CONTACT') == 'true') {
-            $validate_rules = [
+            $base_rules = [
                 'name' => 'required',
                 'email' => 'required|email',
                 'message' => 'required',
@@ -1630,7 +1631,7 @@ class WebsiteController extends Controller
                 'g-recaptcha-response' => 'required|captcha'
             ];
         } else {
-            $validate_rules = [
+            $base_rules = [
                 'name' => 'required',
                 'email' => 'required|email',
                 'message' => 'required',
@@ -1639,7 +1640,12 @@ class WebsiteController extends Controller
             ];
         }
 
-        $request->validate($validate_rules, validationMessage($validate_rules));
+        $validate_rules = $base_rules;
+        $validate_rules['name'] = ['required', new NoLinks];
+        $validate_rules['message'] = ['required', new NoLinks];
+        $validate_rules['subject'] = ['required', new NoLinks];
+
+        $request->validate($validate_rules, validationMessage($base_rules));
 
 
         $name = $request->get('name');
