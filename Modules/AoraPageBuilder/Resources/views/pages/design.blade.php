@@ -64,25 +64,6 @@
             padding-right: 80px !important;
         }
 
-        /* Background preset themes */
-        [data-bg-style="light-gray"] {
-            background-color: #f9fafb !important;
-        }
-        [data-bg-style="dark-slate"] {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
-        }
-        [data-bg-style="dark-slate"] p {
-            color: #d1d5db !important;
-        }
-        [data-bg-style="dark-slate"] h1,
-        [data-bg-style="dark-slate"] h2,
-        [data-bg-style="dark-slate"] h3,
-        [data-bg-style="dark-slate"] h4,
-        [data-bg-style="dark-slate"] h5,
-        [data-bg-style="dark-slate"] h6 {
-            color: #ffffff !important;
-        }
 
         /* Banner-specific text color presets inside a container */
         [data-banner-color="light"] .__banner,
