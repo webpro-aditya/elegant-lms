@@ -148,6 +148,36 @@
             padding: 0px !important;
         }
 
+        /* Custom Text Color — applied to all text elements inside the container */
+        [data-custom-text-color] h1,
+        [data-custom-text-color] h2,
+        [data-custom-text-color] h3,
+        [data-custom-text-color] h4,
+        [data-custom-text-color] h5,
+        [data-custom-text-color] h6,
+        [data-custom-text-color] p,
+        [data-custom-text-color] span,
+        [data-custom-text-color] a:not(.theme-btn):not(.primary-btn):not(.secondary-btn),
+        [data-custom-text-color] article,
+        [data-custom-text-color] label,
+        [data-custom-text-color] li,
+        [data-custom-text-color] .section_head h2,
+        [data-custom-text-color] .section_head h5,
+        [data-custom-text-color] .counter-content h4,
+        [data-custom-text-color] .counter-content article,
+        [data-custom-text-color] .counter-content span,
+        [data-custom-text-color] .counter-item h4,
+        [data-custom-text-color] .counter-item article,
+        [data-custom-text-color] .counter-item h4 article,
+        [data-custom-text-color] .featured-card h4,
+        [data-custom-text-color] .featured-card p,
+        [data-custom-text-color] .clients-area-title,
+        [data-custom-text-color] .cta-section-content h3,
+        [data-custom-text-color] .cta-section-content p,
+        [data-custom-text-color] .cta-section-content .meta {
+            color: attr(data-custom-text-color) !important;
+        }
+
         /* Ensure mobile-responsive padding for maximum readability */
         @media (max-width: 767px) {
             [data-type="container"]:not([data-padding-x="none"]):not([data-padding-x="standard"]) {
@@ -280,6 +310,26 @@
                                 </select>
                                 <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Set text color of the banner component within this row.</span>
                             </div>
+                            <hr style="border-color: #e5e7eb; margin: 20px 0;">
+                            <div style="margin-bottom: 6px; font-weight: 700; font-size: 14px; color: #111827;">🎨 Custom Colors</div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Section Text Color</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="color" id="container-custom-text-color" value="#1F2B40" style="width: 50px; height: 38px; border: 1px solid #d1d5db; border-radius: 6px; padding: 2px; cursor: pointer;">
+                                    <span id="container-custom-text-color-hex" style="font-size: 13px; color: #374151; font-family: monospace;">#1F2B40</span>
+                                    <button type="button" id="container-custom-text-color-reset" style="margin-left: auto; padding: 5px 12px; font-size: 12px; border-radius: 5px; border: 1px solid #d1d5db; background: #fff; color: #6b7280; cursor: pointer;">Reset</button>
+                                </div>
+                                <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Set a custom text color for ALL text elements (headings, paragraphs, counters, etc.) in this section.</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Section Background Color</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="color" id="container-custom-bg-color" value="#ffffff" style="width: 50px; height: 38px; border: 1px solid #d1d5db; border-radius: 6px; padding: 2px; cursor: pointer;">
+                                    <span id="container-custom-bg-color-hex" style="font-size: 13px; color: #374151; font-family: monospace;">#ffffff</span>
+                                    <button type="button" id="container-custom-bg-color-reset" style="margin-left: auto; padding: 5px 12px; font-size: 12px; border-radius: 5px; border: 1px solid #d1d5db; background: #fff; color: #6b7280; cursor: pointer;">Reset</button>
+                                </div>
+                                <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Set a custom background color for this entire section block.</span>
+                            </div>
                         </form>
                     `);
 
@@ -323,6 +373,65 @@
                             editor.options.onContentChanged();
                         }
                     });
+
+                    // Custom Text Color handler
+                    form.find('#container-custom-text-color').on('input change', function () {
+                        var container = editor.getSettingContainer();
+                        if (container) {
+                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
+                            var colorVal = $(this).val();
+                            innerContainer.attr('data-custom-text-color', colorVal);
+                            // Apply color to all text elements inside this container
+                            var textSelectors = 'h1,h2,h3,h4,h5,h6,p,span,a:not(.theme-btn):not(.primary-btn):not(.secondary-btn),article,label,li,.section_head h2,.section_head h5,.counter-content h4,.counter-content article,.counter-content span,.counter-item h4,.counter-item article,.counter-item h4 article,.featured-card h4,.featured-card p,.clients-area-title,.cta-section-content h3,.cta-section-content p,.cta-section-content .meta';
+                            innerContainer.find(textSelectors).css('color', colorVal + ' !important').each(function() {
+                                this.style.setProperty('color', colorVal, 'important');
+                            });
+                            form.find('#container-custom-text-color-hex').text(colorVal);
+                            editor.options.onContentChanged();
+                        }
+                    });
+
+                    // Custom Text Color reset
+                    form.find('#container-custom-text-color-reset').on('click', function () {
+                        var container = editor.getSettingContainer();
+                        if (container) {
+                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
+                            innerContainer.removeAttr('data-custom-text-color');
+                            var textSelectors = 'h1,h2,h3,h4,h5,h6,p,span,a,article,label,li';
+                            innerContainer.find(textSelectors).each(function() {
+                                this.style.removeProperty('color');
+                            });
+                            form.find('#container-custom-text-color').val('#1F2B40');
+                            form.find('#container-custom-text-color-hex').text('Default');
+                            editor.options.onContentChanged();
+                        }
+                    });
+
+                    // Custom Background Color handler
+                    form.find('#container-custom-bg-color').on('input change', function () {
+                        var container = editor.getSettingContainer();
+                        if (container) {
+                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
+                            var colorVal = $(this).val();
+                            innerContainer.attr('data-custom-bg-color', colorVal);
+                            innerContainer[0].style.setProperty('background-color', colorVal, 'important');
+                            form.find('#container-custom-bg-color-hex').text(colorVal);
+                            editor.options.onContentChanged();
+                        }
+                    });
+
+                    // Custom Background Color reset
+                    form.find('#container-custom-bg-color-reset').on('click', function () {
+                        var container = editor.getSettingContainer();
+                        if (container) {
+                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
+                            innerContainer.removeAttr('data-custom-bg-color');
+                            innerContainer[0].style.removeProperty('background-color');
+                            form.find('#container-custom-bg-color').val('#ffffff');
+                            form.find('#container-custom-bg-color-hex').text('Default');
+                            editor.options.onContentChanged();
+                        }
+                    });
                 },
                 containerSettingShowFunction: function (form, container, editor) {
                     var innerContainer = container.find('.aoraeditor-container-inner > div').first();
@@ -336,6 +445,26 @@
                     form.find('#container-padding-x').val(padX);
                     form.find('#container-bg').val(bgStyle);
                     form.find('#container-banner-color').val(bannerColor);
+
+                    // Populate custom text color
+                    var customTextColor = innerContainer.attr('data-custom-text-color');
+                    if (customTextColor) {
+                        form.find('#container-custom-text-color').val(customTextColor);
+                        form.find('#container-custom-text-color-hex').text(customTextColor);
+                    } else {
+                        form.find('#container-custom-text-color').val('#1F2B40');
+                        form.find('#container-custom-text-color-hex').text('Default');
+                    }
+
+                    // Populate custom background color
+                    var customBgColor = innerContainer.attr('data-custom-bg-color');
+                    if (customBgColor) {
+                        form.find('#container-custom-bg-color').val(customBgColor);
+                        form.find('#container-custom-bg-color-hex').text(customBgColor);
+                    } else {
+                        form.find('#container-custom-bg-color').val('#ffffff');
+                        form.find('#container-custom-bg-color-hex').text('Default');
+                    }
                 }
 
             });

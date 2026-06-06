@@ -170,6 +170,36 @@
                 padding-bottom: 40px;
             }
         }
+
+        /* Custom Text Color — applied to all text elements inside the section container */
+        [data-custom-text-color] h1,
+        [data-custom-text-color] h2,
+        [data-custom-text-color] h3,
+        [data-custom-text-color] h4,
+        [data-custom-text-color] h5,
+        [data-custom-text-color] h6,
+        [data-custom-text-color] p,
+        [data-custom-text-color] span,
+        [data-custom-text-color] a:not(.theme-btn):not(.primary-btn):not(.secondary-btn),
+        [data-custom-text-color] article,
+        [data-custom-text-color] label,
+        [data-custom-text-color] li,
+        [data-custom-text-color] .section_head h2,
+        [data-custom-text-color] .section_head h5,
+        [data-custom-text-color] .counter-content h4,
+        [data-custom-text-color] .counter-content article,
+        [data-custom-text-color] .counter-content span,
+        [data-custom-text-color] .counter-item h4,
+        [data-custom-text-color] .counter-item article,
+        [data-custom-text-color] .counter-item h4 article,
+        [data-custom-text-color] .featured-card h4,
+        [data-custom-text-color] .featured-card p,
+        [data-custom-text-color] .clients-area-title,
+        [data-custom-text-color] .cta-section-content h3,
+        [data-custom-text-color] .cta-section-content p,
+        [data-custom-text-color] .cta-section-content .meta {
+            color: inherit !important;
+        }
     </style>
 
     @php
