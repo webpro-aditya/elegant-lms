@@ -269,8 +269,9 @@
         }
 
         .counter-content h4 {
-            color: var(--system_secendory_color) !important;
-            margin-bottom: 0
+            color: #111827 !important;
+            margin-bottom: 0;
+            font-weight: 700;
         }
 
         .counter-content h4 span {
@@ -278,7 +279,9 @@
         }
 
         .counter-content article {
-            color: #32343CCC !important;
+            color: #4B5563 !important;
+            font-weight: 500;
+            margin-top: 5px;
         }
 
     </style>
@@ -287,7 +290,7 @@
         <div class="container">
             <div class="row" id="counters">
                 <div class="col-xl-3 col-md-6">
-                    <div class="counter-item bg-primary text-white">
+                    <div class="counter-item bg-primary">
                         <div class="counter-content">
                             <div class="counter-item-icon bg-primary">
                                 <svg width="37" height="37" viewBox="0 0 37 37" fill="none"
@@ -309,7 +312,7 @@
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="counter-item bg-sky text-white">
+                    <div class="counter-item bg-sky">
                         <div class="counter-content">
                             <div class="counter-item-icon bg-sky">
                                 <svg width="40" height="37" viewBox="0 0 40 37" fill="none"
@@ -337,7 +340,7 @@
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="counter-item bg-orange text-white">
+                    <div class="counter-item bg-orange">
                         <div class="counter-content">
                             <div class="counter-item-icon bg-orange">
                                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
@@ -362,7 +365,7 @@
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="counter-item bg-blue text-white">
+                    <div class="counter-item bg-blue">
                         <div class="counter-content">
                             <div class="counter-item-icon bg-blue">
                                 <svg width="40" height="36" viewBox="0 0 40 36" fill="none"
