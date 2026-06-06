@@ -3,7 +3,7 @@
 <div class="sponsor">
     @if(count($result)!=0)
         <div class="sponsor-title text-center">
-            <h4 class="fw-bold text-primary">{{__('frontend.Our Partner')}}</h4>
+            <h4 class="fw-bold text-white">{{__('frontend.Our Partner')}}</h4>
         </div>
         <div class="sponsor-slider owl-carousel">
             @foreach ($result as $sponsor)
