@@ -269,7 +269,7 @@
         }
 
         .counter-content h4 {
-            color: #111827;
+            color: #ffffff;
             margin-bottom: 0;
             font-weight: 700;
         }
@@ -279,7 +279,7 @@
         }
 
         .counter-content article {
-            color: #4B5563;
+            color: #ffffff;
             font-weight: 500;
             margin-top: 5px;
         }

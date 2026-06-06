@@ -131,7 +131,7 @@
         .counter-item h4,
         .counter-item h4.currentColor,
         .counter-item h4.currentColor span {
-            color: #111827;
+            color: #ffffff;
         }
 
         @media only screen and (min-width: 992px) and (max-width: 1279px) {
@@ -157,7 +157,7 @@
             font-size: 24px;
             line-height: 1.5;
             white-space: nowrap;
-            color: #4B5563;
+            color: #ffffff;
             font-weight: 500;
         }
 
