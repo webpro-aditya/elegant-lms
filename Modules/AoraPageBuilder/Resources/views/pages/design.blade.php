@@ -243,15 +243,7 @@
                                 </select>
                                 <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Choose how close content sits to the viewport boundaries.</span>
                             </div>
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Background Preset Style</label>
-                                <select id="container-bg" class="form-control" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px;">
-                                    <option value="transparent">Transparent / Default</option>
-                                    <option value="light-gray">Light Gray Accent</option>
-                                    <option value="dark-slate">Dark Slate Block</option>
-                                </select>
-                                <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 5px;">Change the background of this entire section block.</span>
-                            </div>
+
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Banner Text Color</label>
                                 <select id="container-banner-color" class="form-control" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px;">
@@ -301,16 +293,6 @@
                             var innerContainer = container.find('.aoraeditor-container-inner > div').first();
                             var val = $(this).val();
                             innerContainer.attr('data-padding-x', val);
-                            editor.options.onContentChanged();
-                        }
-                    });
-
-                    form.find('#container-bg').on('change', function () {
-                        var container = editor.getSettingContainer();
-                        if (container) {
-                            var innerContainer = container.find('.aoraeditor-container-inner > div').first();
-                            var val = $(this).val();
-                            innerContainer.attr('data-bg-style', val);
                             editor.options.onContentChanged();
                         }
                     });
@@ -389,12 +371,10 @@
                     
                     var padY = innerContainer.attr('data-padding-y') || 'large';
                     var padX = innerContainer.attr('data-padding-x') || 'comfortable';
-                    var bgStyle = innerContainer.attr('data-bg-style') || 'transparent';
                     var bannerColor = innerContainer.attr('data-banner-color') || 'default';
 
                     form.find('#container-padding-y').val(padY);
                     form.find('#container-padding-x').val(padX);
-                    form.find('#container-bg').val(bgStyle);
                     form.find('#container-banner-color').val(bannerColor);
 
                     // Populate custom text color
