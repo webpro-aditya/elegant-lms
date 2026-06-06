@@ -171,37 +171,6 @@
             }
         }
 
-        /* Custom Text Color — applied to all text elements inside the section container */
-        html body [data-custom-text-color] h1,
-        html body [data-custom-text-color] h2,
-        html body [data-custom-text-color] h3,
-        html body [data-custom-text-color] h4,
-        html body [data-custom-text-color] h5,
-        html body [data-custom-text-color] h6,
-        html body [data-custom-text-color] p,
-        html body [data-custom-text-color] span,
-        html body [data-custom-text-color] a:not(.theme-btn):not(.primary-btn):not(.secondary-btn),
-        html body [data-custom-text-color] article,
-        html body [data-custom-text-color] label,
-        html body [data-custom-text-color] li,
-        html body [data-custom-text-color] .section_head h2,
-        html body [data-custom-text-color] .section_head h5,
-        html body [data-custom-text-color] .counter-content h4,
-        html body [data-custom-text-color] .counter-content article,
-        html body [data-custom-text-color] .counter-content span,
-        html body [data-custom-text-color] .counter-item h4,
-        html body [data-custom-text-color] .counter-item h4.currentColor,
-        html body [data-custom-text-color] .counter-item h4.currentColor span,
-        html body [data-custom-text-color] .counter-item article,
-        html body [data-custom-text-color] .counter-item h4 article,
-        html body [data-custom-text-color] .featured-card h4,
-        html body [data-custom-text-color] .featured-card p,
-        html body [data-custom-text-color] .clients-area-title,
-        html body [data-custom-text-color] .cta-section-content h3,
-        html body [data-custom-text-color] .cta-section-content p,
-        html body [data-custom-text-color] .cta-section-content .meta {
-            color: inherit !important;
-        }
     </style>
 
     @php
@@ -232,6 +201,14 @@
 
     <script>
         $('.ui-resizable-resizer').remove()
+        
+        // Strip legacy text-white classes from counter items in saved HTML
+        // to prevent Bootstrap !important rules from overriding inline/custom colors
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.counter-item.text-white').forEach(function(el) {
+                el.classList.remove('text-white');
+            });
+        });
     </script>
 
 @endsection

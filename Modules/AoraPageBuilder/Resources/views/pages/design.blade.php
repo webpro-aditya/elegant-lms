@@ -148,38 +148,6 @@
             padding: 0px !important;
         }
 
-        /* Custom Text Color — applied to all text elements inside the container */
-        html body [data-custom-text-color] h1,
-        html body [data-custom-text-color] h2,
-        html body [data-custom-text-color] h3,
-        html body [data-custom-text-color] h4,
-        html body [data-custom-text-color] h5,
-        html body [data-custom-text-color] h6,
-        html body [data-custom-text-color] p,
-        html body [data-custom-text-color] span,
-        html body [data-custom-text-color] a:not(.theme-btn):not(.primary-btn):not(.secondary-btn),
-        html body [data-custom-text-color] article,
-        html body [data-custom-text-color] label,
-        html body [data-custom-text-color] li,
-        html body [data-custom-text-color] .section_head h2,
-        html body [data-custom-text-color] .section_head h5,
-        html body [data-custom-text-color] .counter-content h4,
-        html body [data-custom-text-color] .counter-content article,
-        html body [data-custom-text-color] .counter-content span,
-        html body [data-custom-text-color] .counter-item h4,
-        html body [data-custom-text-color] .counter-item h4.currentColor,
-        html body [data-custom-text-color] .counter-item h4.currentColor span,
-        html body [data-custom-text-color] .counter-item article,
-        html body [data-custom-text-color] .counter-item h4 article,
-        html body [data-custom-text-color] .featured-card h4,
-        html body [data-custom-text-color] .featured-card p,
-        html body [data-custom-text-color] .clients-area-title,
-        html body [data-custom-text-color] .cta-section-content h3,
-        html body [data-custom-text-color] .cta-section-content p,
-        html body [data-custom-text-color] .cta-section-content .meta {
-            color: attr(data-custom-text-color) !important;
-        }
-
         /* Ensure mobile-responsive padding for maximum readability */
         @media (max-width: 767px) {
             [data-type="container"]:not([data-padding-x="none"]):not([data-padding-x="standard"]) {
@@ -533,6 +501,12 @@
             $(window).on('resize', function () {
                 checkWindowSize();
             });
+            
+            // Strip legacy text-white classes from counter items to prevent Bootstrap
+            // !important rules from overriding editor inline/custom colors
+            setTimeout(function() {
+                $('.counter-item.text-white').removeClass('text-white');
+            }, 1000);
 
         });
 
