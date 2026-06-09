@@ -10,8 +10,8 @@
             background-repeat: no-repeat;
             background-size: 100%;
             background-position: top right;
-            padding-top: 190px;
-            padding-bottom: 290px
+            padding-top: 40px;
+            padding-bottom: 290px;
         }
 
         .banner-img {
