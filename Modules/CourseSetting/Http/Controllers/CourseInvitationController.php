@@ -783,7 +783,7 @@ class CourseInvitationController extends Controller
             'user_id'      => $request->user_id,
             'performed_by' => Auth::id(),
             'action'       => 'updated',
-            'details'      => ['note' => "Enrollment status $actionStr."],
+            'details'      => json_encode(['note' => "Enrollment status $actionStr."]),
         ]);
 
         return response()->json([
