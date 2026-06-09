@@ -88,6 +88,8 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
+    max-height: 400px;
+    overflow: auto;
 }
 
 /* BOX */
