@@ -74,11 +74,12 @@
 
                         @if($custom_field->show_phone)
                             <div class="col-12 mt_20">
-                                <div class="input-group custom_group_field">
-                                    <input type="text" class="form-control ps-0"
+                                <div class="input-group custom_group_field register-phone-wrapper">
+                                    <input type="tel" class="form-control ps-0" id="registerPhone"
                                            placeholder="{{__('common.Enter Phone Number')}} {{ $custom_field->required_phone ? '*' : ''}}"
                                            {{ $custom_field->required_phone ? 'required' : ''}}
-                                           aria-label="phone" name="phone" value="{{old('phone')}}">
+                                           aria-label="phone" value="{{old('phone')}}">
+                                    <input type="hidden" name="phone" id="registerFullPhone" value="{{old('phone')}}">
                                 </div>
                                 <span class="text-danger" role="alert">{{$errors->first('phone')}}</span>
                             </div>
@@ -298,6 +299,64 @@
         @include(theme('auth.login_wrapper_right'))
 
     </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+    <style>
+        .register-phone-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .register-phone-wrapper .iti {
+            width: 100%;
+            display: block;
+        }
+        .register-phone-wrapper .iti .form-control {
+            width: 100% !important;
+            padding-left: 96px !important;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .register-phone-wrapper .iti__country-container {
+            z-index: 10;
+        }
+        .register-phone-wrapper .iti__country-list {
+            z-index: 999;
+            max-height: 250px;
+            border-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            width: 100%; /* Ensure the list does not get squished */
+            min-width: 250px; /* Give it enough room */
+            white-space: normal;
+        }
+        /* Fix the overlap by ensuring proper flex layout in dropdown items */
+        .register-phone-wrapper .iti__country {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+        }
+        .register-phone-wrapper .iti__flag-box {
+            margin-right: 8px;
+        }
+        .register-phone-wrapper .iti__country-name {
+            margin-right: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1; /* allow it to take available space */
+        }
+        .register-phone-wrapper .iti__dial-code {
+            color: #999;
+            white-space: nowrap;
+        }
+        .register-phone-wrapper .iti__selected-country-primary {
+            padding-left: 12px;
+        }
+        .register-phone-wrapper .iti__selected-dial-code {
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
     <script>
         $(function () {
             $('#checkbox').click(function () {
@@ -312,6 +371,24 @@
 
                 }
             });
+
+            var phoneInput = document.querySelector("#registerPhone");
+            if (phoneInput && typeof window.intlTelInput === 'function') {
+                var iti = window.intlTelInput(phoneInput, {
+                    initialCountry: "in",
+                    preferredCountries: ["in", "us", "gb", "ae", "sa", "om"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+                });
+
+                var form = document.getElementById("regForm");
+                if (form) {
+                    form.addEventListener("submit", function () {
+                        var fullPhone = iti.getNumber();
+                        document.getElementById("registerFullPhone").value = fullPhone;
+                    });
+                }
+            }
         });
     </script>
 

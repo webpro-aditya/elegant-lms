@@ -55,11 +55,13 @@
                             <small>({{__('profile.With Country Code without plus')}}
                                 )</small>
                             <span class="required_mark">*</span></label>
-                        <input id="phone" name="phone" placeholder="{{__('common.Phone')}}"
-                               onfocus="this.placeholder = ''"
-                               onblur="this.placeholder = '{{__('common.Phone')}}'"
-                               class="primary_input" {{$errors->first('phone') ? 'autofocus' : ''}}
-                               value="{{old("phone")??@$user->phone }}" type="text">
+                        <div class="register-phone-wrapper">
+                            <input id="phone" name="phone" placeholder="{{__('common.Phone')}}"
+                                   onfocus="this.placeholder = ''"
+                                   onblur="this.placeholder = '{{__('common.Phone')}}'"
+                                   class="primary_input" {{$errors->first('phone') ? 'autofocus' : ''}}
+                                   value="{{old("phone")??@$user->phone }}" type="tel" readonly>
+                        </div>
                         <span class="text-danger" role="alert">{{$errors->first('phone')}}</span>
                     </div>
 
@@ -156,3 +158,40 @@
         })
     </script>
 </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+<style>
+    .register-phone-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .register-phone-wrapper .iti {
+        width: 100%;
+        display: block;
+    }
+    .register-phone-wrapper .iti .primary_input {
+        width: 100% !important;
+        padding-left: 96px !important;
+    }
+    .register-phone-wrapper .iti__selected-country-primary {
+        padding-left: 12px;
+    }
+    .register-phone-wrapper .iti__selected-dial-code {
+        font-size: 14px;
+        font-weight: 500;
+        margin-left: 6px;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var phoneInput = document.querySelector("#phone");
+        if (phoneInput && typeof window.intlTelInput === 'function') {
+            window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                allowDropdown: false, // Prevent changing country code
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+            });
+        }
+    });
+</script>

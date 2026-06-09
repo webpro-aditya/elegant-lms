@@ -637,6 +637,9 @@ class ProfileController extends Controller
             ],
         ];
 
+        if ($user->role_id == 3) {
+            unset($rules['phone']);
+        }
 
         $request->validate($rules, validationMessage($rules));
 
@@ -650,7 +653,9 @@ class ProfileController extends Controller
             $user->name = $request->name;
             $user->identification_number = $request->identification_number;
             $user->email = $request->email;
-            $user->phone = $request->phone != "" ? $request->phone : null;
+            if ($user->role_id != 3) {
+                $user->phone = $request->phone != "" ? $request->phone : null;
+            }
             $user->currency_id = $request->currency;
 
             $language = Language::find($request->language);

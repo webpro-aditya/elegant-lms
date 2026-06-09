@@ -44,12 +44,12 @@
 
 
                                     <div class="col-lg-6 col-md-6 mt_20">
-                                        <div class="single_input ">
+                                        <div class="single_input register-phone-wrapper">
                                             <span class="primary_label2">{{__('student.Phone Number')}} </span>
-                                            <input type="text" placeholder="{{__('student.Phone Number')}}"
+                                            <input type="tel" id="studentPhone" placeholder="{{__('student.Phone Number')}}"
                                                    class="primary_input  {{ @$errors->has('phone') ? ' is-invalid' : '' }}"
                                                    value="{{$profile->phone !=""? @$profile->phone:old('phone')}}"
-                                                   name="phone" {{$errors->first('phone') ? 'autofocus' : ''}}>
+                                                   name="phone" {{$errors->first('phone') ? 'autofocus' : ''}} readonly>
                                             <span class="text-danger" role="alert">{{$errors->first('phone')}}</span>
                                         </div>
 
@@ -434,3 +434,47 @@
         </div>
     </div>
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+<style>
+    .register-phone-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .register-phone-wrapper .iti {
+        width: 100%;
+        display: block;
+    }
+    .register-phone-wrapper .iti .primary_input {
+        width: 100% !important;
+        padding-left: 96px !important;
+    }
+    .register-phone-wrapper .iti__selected-country-primary {
+        padding-left: 12px;
+    }
+    .register-phone-wrapper .iti__selected-dial-code {
+        font-size: 14px;
+        font-weight: 500;
+        margin-left: 6px;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var phoneInput = document.querySelector("#studentPhone");
+        if (phoneInput && typeof window.intlTelInput === 'function') {
+            
+            // If the phone number doesn't have a plus but is supposed to be E164, intl-tel-input might not parse the country.
+            // But since we are making it readonly, we just initialize it.
+            var iti = window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                allowDropdown: false, // Prevent changing country code
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+            });
+            
+            // If the input value doesn't start with '+', we can optionally prepend it so the plugin parses it.
+            // But we leave it as is to preserve the exact value in the DB since it's readonly.
+        }
+    });
+</script>
