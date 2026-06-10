@@ -1845,6 +1845,25 @@ if ($assign->questionBank->shuffle==1){
                 touch-action: none;
             }
         }
+
+        .pdf-draw-layer {
+            position: absolute;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .pdf-page-wrapper.draw-mode .pdf-draw-layer {
+            pointer-events: auto;
+            cursor: crosshair;
+        }
+        .pdf-pen-btn {
+            border: 2px solid transparent;
+            margin: 0 2px;
+        }
+        .pdf-pen-btn.active-pen {
+            border-color: #333;
+            transform: scale(1.1);
+        }
     </style>
 
     <div class="pdftoolbar-toggle-wrapper">
@@ -1871,24 +1890,50 @@ if ($assign->questionBank->shuffle==1){
                 <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFit" title="Fit page"><i class="fa fa-expand"></i></button>
             </div>
 
-            <div class="col-12 my-1 pdf-search-wrap">
-                <input type="text" id="pdfSearchInput" placeholder="Search in PDF…" autocomplete="off">
-                <button type="button" class="theme_btn small_btn_icon" id="pdfSearchBtn" title="Search"><i class="fa fa-search"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfSearchPrev" title="Prev match"><i class="fa fa-angle-up"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfSearchNext" title="Next match"><i class="fa fa-angle-down"></i></button>
-                <span id="pdfSearchCount"></span>
+            <div class="col-12 my-1 pdf-search-wrap" style="row-gap: 10px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
+                    <input type="text" id="pdfSearchInput" placeholder="Search in PDF…" autocomplete="off">
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchBtn" title="Search"><i class="fa fa-search"></i></button>
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchPrev" title="Prev match"><i class="fa fa-angle-up"></i></button>
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchNext" title="Next match"><i class="fa fa-angle-down"></i></button>
+                    <span id="pdfSearchCount"></span>
+                </div>
 
-                <span class="pdf-toolbar-sep"></span>
-                <span style="font-size:12px;color:#555;vertical-align:middle;">Highlight:</span>
-                <button type="button" class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
-                <button type="button" class="pdf-hl-btn" data-color="green" title="Green"></button>
-                <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
-                <button type="button" class="pdf-hl-btn" data-color="pink" title="Pink"></button>
+                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
+                
+                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
+                    <span style="font-size:12px;color:#555;vertical-align:middle;">Highlight:</span>
+                    <button type="button" class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
+                    <button type="button" class="pdf-hl-btn" data-color="green" title="Green"></button>
+                    <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
+                    <button type="button" class="pdf-hl-btn" data-color="pink" title="Pink"></button>
+                </div>
 
-                <span class="pdf-toolbar-sep"></span>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfCommentModeBtn" title="Add Comment">
-                    <i class="fa fa-comment-alt"></i>
-                </button>
+                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
+                
+                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfCommentModeBtn" title="Add Comment">
+                        <i class="fa fa-comment-alt"></i>
+                    </button>
+                </div>
+
+                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
+                
+                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
+                    <span style="font-size:12px;color:#555;vertical-align:middle;">Pen:</span>
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfPenModeBtn" title="Draw Mode">
+                        <i class="fa fa-pen"></i>
+                    </button>
+                    <button type="button" class="pdf-pen-btn active-pen" data-pen-color="black" title="Black" style="background:black; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
+                    <button type="button" class="pdf-pen-btn" data-pen-color="red" title="Red" style="background:red; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
+                    <button type="button" class="pdf-pen-btn" data-pen-color="blue" title="Blue" style="background:blue; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfEraserModeBtn" title="Eraser Tool" style="margin-left:5px;">
+                        <i class="fa fa-eraser"></i>
+                    </button>
+                    <button type="button" class="theme_btn small_btn_icon" id="pdfClearDrawingsBtn" title="Clear All Drawings" style="color:red;">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1920,8 +1965,9 @@ if ($assign->questionBank->shuffle==1){
             const ZOOMS = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
 
             let pdfDoc = null, scale = 1.5, totalPages = 0, rendered = {};
-            let highlights = [], comments = [];
+            let highlights = [], comments = [], drawings = [];
             let hlColor = 'yellow', commentMode = false, pendingCmt = null, editingCmt = null;
+            let penMode = false, eraserMode = false, penColor = 'black', isDrawing = false, currentPath = [];
             let searchMatches = [], searchIdx = -1, lastSearchQuery = '';
 
             const outerCont = document.getElementById('pdfOuterContainer');
@@ -1960,6 +2006,13 @@ if ($assign->questionBank->shuffle==1){
                     x: typeof c.x !== 'undefined' ? parseFloat(c.x) : parseFloat(c.pos_x || 0),
                     y: typeof c.y !== 'undefined' ? parseFloat(c.y) : parseFloat(c.pos_y || 0)
                 })).filter(c => c.annot_id > 0);
+
+                drawings = (drawings || []).map(d => ({
+                    ...d,
+                    annot_id: parseInt(d.annot_id || d.id || 0, 10),
+                    pageNum: parseInt(d.pageNum || d.page_num || 1, 10),
+                    rects: Array.isArray(d.rects) ? d.rects : (typeof d.rects === 'string' ? safeJsonParse(d.rects, []) : [])
+                })).filter(d => d.annot_id > 0);
             }
 
             function safeJsonParse(value, fallback) {
@@ -2016,6 +2069,7 @@ if ($assign->questionBank->shuffle==1){
                     if (!d || !d.success) return;
                     highlights = d.highlights || [];
                     comments = d.comments || [];
+                    drawings = d.drawings || [];
                     normalizeLoadedAnnotations();
                     redrawAll();
                 })
@@ -2155,13 +2209,26 @@ if ($assign->questionBank->shuffle==1){
                 annotDiv.style.width = `${viewport.width}px`;
                 annotDiv.style.height = `${viewport.height}px`;
 
+                const drawCanvas = document.createElement('canvas');
+                drawCanvas.className = 'pdf-draw-layer';
+                drawCanvas.dataset.drawPage = pageNum;
+                drawCanvas.style.width = `${viewport.width}px`;
+                drawCanvas.style.height = `${viewport.height}px`;
+                drawCanvas.width = Math.floor(viewport.width * outputScale);
+                drawCanvas.height = Math.floor(viewport.height * outputScale);
+                const drawCtx = drawCanvas.getContext('2d');
+                drawCtx.scale(outputScale, outputScale);
+
                 wrap.style.width = `${viewport.width}px`;
                 wrap.style.height = `${viewport.height}px`;
                 wrap.innerHTML = '';
 
                 wrap.appendChild(canvas);
+                wrap.appendChild(drawCanvas);
                 wrap.appendChild(textDiv);
                 wrap.appendChild(annotDiv);
+
+                setupDrawCanvas(drawCanvas, pageNum, viewport.width, viewport.height);
 
                 await page.render({
                     canvasContext: ctx,
@@ -2175,6 +2242,7 @@ if ($assign->questionBank->shuffle==1){
                 wrap.addEventListener('mouseup', e => onMouseUp(e, wrap, pageNum));
 
                 if (commentMode) wrap.classList.add('comment-mode');
+                if (penMode || eraserMode) wrap.classList.add('draw-mode');
                 drawAnnotsForPage(pageNum);
             }
             
@@ -2293,6 +2361,170 @@ if ($assign->questionBank->shuffle==1){
 
                     annotDiv.appendChild(pin);
                 });
+
+                const drawCanvas = pagesCont.querySelector(`.pdf-draw-layer[data-draw-page="${pageNum}"]`);
+                if (drawCanvas) {
+                    const ctx = drawCanvas.getContext('2d');
+                    const cw = parseFloat(drawCanvas.style.width);
+                    const ch = parseFloat(drawCanvas.style.height);
+                    const outputScale = window.devicePixelRatio || 1;
+                    
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                    ctx.restore();
+                    
+                    drawings.filter(d => parseInt(d.pageNum, 10) === pageNum).forEach(d => {
+                        if (!d.rects || !d.rects.length) return;
+                        ctx.beginPath();
+                        ctx.lineJoin = 'round';
+                        ctx.lineCap = 'round';
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = d.color || 'black';
+                        d.rects.forEach((pt, i) => {
+                            if (i === 0) ctx.moveTo(pt.x * cw, pt.y * ch);
+                            else ctx.lineTo(pt.x * cw, pt.y * ch);
+                        });
+                        ctx.stroke();
+                    });
+                }
+            }
+
+            function setupDrawCanvas(canvas, pageNum, w, h) {
+                const ctx = canvas.getContext('2d');
+                
+                function getPos(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return {
+                        x: (clientX - rect.left) / rect.width,
+                        y: (clientY - rect.top) / rect.height
+                    };
+                }
+                
+                function dist2(v, w) { return Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2); }
+                function distToSegmentSquared(p, v, w) {
+                    var l2 = dist2(v, w);
+                    if (l2 == 0) return dist2(p, v);
+                    var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+                    t = Math.max(0, Math.min(1, t));
+                    return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+                }
+                
+                function startDraw(e) {
+                    if (!penMode && !eraserMode) return;
+                    e.preventDefault();
+                    isDrawing = true;
+                    currentPath = [getPos(e)];
+                    if (eraserMode) draw(e); // Trigger erase immediately on click
+                }
+                
+                function draw(e) {
+                    if (!isDrawing) return;
+                    if (!penMode && !eraserMode) return;
+                    e.preventDefault();
+                    const pt = getPos(e);
+                    
+                    if (eraserMode) {
+                        const thresholdSq = Math.pow(0.02, 2); // 2% distance
+                        let deletedAny = false;
+                        for (let i = drawings.length - 1; i >= 0; i--) {
+                            const d = drawings[i];
+                            if (parseInt(d.pageNum, 10) !== pageNum) continue;
+                            if (!d.rects || !d.rects.length) continue;
+                            
+                            let hit = false;
+                            if (d.rects.length === 1) {
+                                if (dist2(pt, d.rects[0]) < thresholdSq) hit = true;
+                            } else {
+                                for (let j = 0; j < d.rects.length - 1; j++) {
+                                    if (distToSegmentSquared(pt, d.rects[j], d.rects[j+1]) < thresholdSq) {
+                                        hit = true; break;
+                                    }
+                                }
+                            }
+                            
+                            if (hit) {
+                                apiSave({
+                                    action: 'delete_drawing',
+                                    lesson_id: LESSON_ID,
+                                    course_id: COURSE_ID,
+                                    annot_id: d.annot_id
+                                });
+                                drawings.splice(i, 1);
+                                deletedAny = true;
+                            }
+                        }
+                        if (deletedAny) {
+                            const outputScale = window.devicePixelRatio || 1;
+                            ctx.save();
+                            ctx.setTransform(1, 0, 0, 1, 0, 0);
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.restore();
+                            drawAnnotsForPage(pageNum);
+                        }
+                        return;
+                    }
+                    
+                    currentPath.push(pt);
+                    
+                    const outputScale = window.devicePixelRatio || 1;
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+                    
+                    drawAnnotsForPage(pageNum);
+                    
+                    ctx.beginPath();
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = penColor;
+                    currentPath.forEach((p, i) => {
+                        if (i === 0) ctx.moveTo(p.x * w, p.y * h);
+                        else ctx.lineTo(p.x * w, p.y * h);
+                    });
+                    ctx.stroke();
+                }
+                
+                async function endDraw(e) {
+                    if (!isDrawing) return;
+                    if (!penMode && !eraserMode) return;
+                    isDrawing = false;
+                    if (penMode && currentPath.length > 1) {
+                        const annotId = makeAnnotId();
+                        drawings.push({
+                            annot_id: annotId,
+                            pageNum: pageNum,
+                            rects: currentPath,
+                            color: penColor
+                        });
+                        drawAnnotsForPage(pageNum);
+                        
+                        await apiSave({
+                            action: 'drawing',
+                            lesson_id: LESSON_ID,
+                            course_id: COURSE_ID,
+                            annot_id: annotId,
+                            pageNum: pageNum,
+                            rects: currentPath,
+                            color: penColor
+                        });
+                    }
+                    currentPath = [];
+                }
+                
+                canvas.addEventListener('mousedown', startDraw);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', endDraw);
+                canvas.addEventListener('mouseout', endDraw);
+                
+                canvas.addEventListener('touchstart', startDraw, {passive: false});
+                canvas.addEventListener('touchmove', draw, {passive: false});
+                canvas.addEventListener('touchend', endDraw);
+                canvas.addEventListener('touchcancel', endDraw);
             }
 
             function redrawAll() {
@@ -2371,8 +2603,73 @@ if ($assign->questionBank->shuffle==1){
 
             cmBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
+                if (penMode) document.getElementById('pdfPenModeBtn').click();
+                if (eraserMode) document.getElementById('pdfEraserModeBtn').click();
                 if (commentMode) exitCommentMode();
                 else enterCommentMode();
+            });
+
+            document.getElementById('pdfPenModeBtn').addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (commentMode) exitCommentMode();
+                if (eraserMode) {
+                    eraserMode = false;
+                    document.getElementById('pdfEraserModeBtn').style.background = '';
+                    document.getElementById('pdfEraserModeBtn').style.color = '';
+                }
+                penMode = !penMode;
+                if (penMode) {
+                    this.style.background = 'linear-gradient(90deg, #3c7cff, #1aafff)';
+                    this.style.color = '#fff';
+                    pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.add('draw-mode'));
+                } else {
+                    this.style.background = '';
+                    this.style.color = '';
+                    pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.remove('draw-mode'));
+                }
+            });
+
+            document.getElementById('pdfEraserModeBtn').addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (commentMode) exitCommentMode();
+                if (penMode) {
+                    penMode = false;
+                    document.getElementById('pdfPenModeBtn').style.background = '';
+                    document.getElementById('pdfPenModeBtn').style.color = '';
+                }
+                eraserMode = !eraserMode;
+                if (eraserMode) {
+                    this.style.background = 'linear-gradient(90deg, #3c7cff, #1aafff)';
+                    this.style.color = '#fff';
+                    pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.add('draw-mode'));
+                } else {
+                    this.style.background = '';
+                    this.style.color = '';
+                    pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.remove('draw-mode'));
+                }
+            });
+
+            document.querySelectorAll('.pdf-pen-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    document.querySelectorAll('.pdf-pen-btn').forEach(b => b.classList.remove('active-pen'));
+                    this.classList.add('active-pen');
+                    penColor = this.dataset.penColor;
+                    if (!penMode) document.getElementById('pdfPenModeBtn').click();
+                });
+            });
+
+            document.getElementById('pdfClearDrawingsBtn').addEventListener('click', async function(e) {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to clear all drawings?')) {
+                    await apiSave({
+                        action: 'clear_drawings',
+                        lesson_id: LESSON_ID,
+                        course_id: COURSE_ID
+                    });
+                    drawings = [];
+                    redrawAll();
+                }
             });
 
             outerCont.addEventListener('click', function (e) {

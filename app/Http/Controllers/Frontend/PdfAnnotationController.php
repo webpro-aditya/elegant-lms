@@ -85,6 +85,76 @@ class PdfAnnotationController extends Controller
                     'annot_id' => $annotId,
                 ]);
 
+            case 'drawing':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
+                PdfAnnotation::updateOrCreate(
+                    [
+                        'user_id'   => $userId,
+                        'lesson_id' => $lessonId,
+                        'course_id' => $courseId,
+                        'type'      => 'drawing',
+                        'annot_id'  => $annotId,
+                    ],
+                    [
+                        'page_num' => (int) ($data['pageNum'] ?? 1),
+                        'rects'    => is_array($data['rects'] ?? null)
+                            ? json_encode($data['rects'])
+                            : ($data['rects'] ?? '[]'),
+                        'color'    => preg_replace('/[^a-z0-9#]/i', '', (string) ($data['color'] ?? 'black')),
+                    ]
+                );
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
+
+            case 'delete_drawing':
+                $annotId = (int) ($data['annot_id'] ?? 0);
+
+                if ($annotId <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Missing annot_id'
+                    ], 422);
+                }
+
+                PdfAnnotation::where([
+                    'user_id'   => $userId,
+                    'lesson_id' => $lessonId,
+                    'course_id' => $courseId,
+                    'type'      => 'drawing',
+                    'annot_id'  => $annotId,
+                ])->delete();
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                    'annot_id' => $annotId,
+                ]);
+
+            case 'clear_drawings':
+                PdfAnnotation::where([
+                    'user_id'   => $userId,
+                    'lesson_id' => $lessonId,
+                    'course_id' => $courseId,
+                    'type'      => 'drawing',
+                ])->delete();
+
+                return response()->json([
+                    'success'  => true,
+                    'action'   => $action,
+                ]);
+
             case 'comment':
                 $annotId = (int) ($data['annot_id'] ?? 0);
 
@@ -191,6 +261,7 @@ class PdfAnnotationController extends Controller
 
         $highlights = [];
         $comments   = [];
+        $drawings   = [];
 
         foreach ($rows as $row) {
             if ($row->type === 'highlight') {
@@ -209,6 +280,13 @@ class PdfAnnotationController extends Controller
                     'y'       => (float)$row->pos_y,
                     'text'    => $row->text,
                 ];
+            } elseif ($row->type === 'drawing') {
+                $drawings[] = [
+                    'id'      => $row->annot_id,
+                    'pageNum' => $row->page_num,
+                    'rects'   => json_decode($row->rects, true) ?? [],
+                    'color'   => $row->color,
+                ];
             }
         }
 
@@ -216,6 +294,7 @@ class PdfAnnotationController extends Controller
             'success'    => true,
             'highlights' => $highlights,
             'comments'   => $comments,
+            'drawings'   => $drawings,
         ]);
     }
 }
