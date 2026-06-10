@@ -115,6 +115,11 @@
                                 <a href="{{route('SendPasswordResetLink')}}"
                                    class="forgot_pass">{{__('common.Forgot Password ?')}}</a>
                             </div>
+                            @if(Settings('allow_force_logout'))
+                                <div class="mt-2 text-start" style="font-size: 12px; color: #687083; line-height: 1.4;">
+                                    <i class="fas fa-info-circle me-1"></i> Select <strong>Force login</strong> to automatically log out from your other devices if you've reached your device limit.
+                                </div>
+                            @endif
                         </div>
                         <div class="col-12">
 
