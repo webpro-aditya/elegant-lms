@@ -1,0 +1,100 @@
+/* ============================================================
+   ELEGANT LMS — Content Protection CSS Shield v2.0
+   ============================================================
+   • Blocks printing (blanks page during print)
+   • Disables text selection on protected areas
+   • Hides content from print preview
+   ============================================================ */
+
+/* ─── 1. PRINT MEDIA — blank the entire page ─────────────── */
+@media print {
+    html, body {
+        visibility: hidden !important;
+        background: #fff !important;
+    }
+    
+    /* Completely hide all content when printing */
+    body * {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Show a watermark message instead */
+    body::after {
+        content: "⚠ This content is protected and cannot be printed.";
+        display: block !important;
+        visibility: visible !important;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.6rem;
+        color: #999;
+        font-family: 'Jost', Arial, sans-serif;
+        text-align: center;
+        z-index: 999999;
+    }
+}
+
+/* ─── 2. DURING beforeprint EVENT — body class toggle ─────── */
+body.content-protection-printing * {
+    visibility: hidden !important;
+}
+
+body.content-protection-printing::after {
+    content: "⚠ Printing is disabled.";
+    visibility: visible !important;
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6rem;
+    color: #aaa;
+    font-family: 'Jost', Arial, sans-serif;
+    text-align: center;
+}
+
+/* ─── 3. TEXT SELECTION PROTECTION ────────────────────────── */
+/* Applied globally on student-facing pages via Blade include */
+.content-protected,
+.content-protected * {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
+
+/* Re-enable selection in form fields and code editors */
+.content-protected input,
+.content-protected textarea,
+.content-protected [contenteditable="true"],
+.content-protected .note-editable,
+.content-protected .note-editor {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* ─── 4. DISABLE IMAGE DRAGGING ──────────────────────────── */
+.content-protected img {
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    pointer-events: auto;
+}
+
+/* ─── 5. DISABLE RIGHT-CLICK VISUAL CUE (optional) ──────── */
+.content-protected ::selection {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+.content-protected ::-moz-selection {
+    background: transparent !important;
+    color: inherit !important;
+}

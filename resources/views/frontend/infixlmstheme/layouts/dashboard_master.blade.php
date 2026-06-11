@@ -1,6 +1,8 @@
 @include(theme('partials._header'))
 
-<div class="dashboard_main_wrapper">
+<!-- Content Protection for Student Dashboard -->
+<link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme/css/content-protection.css') }}">
+<div class="dashboard_main_wrapper content-protected">
     @include(theme('partials._sidebar'))
 
     <section
@@ -12,3 +14,6 @@
 @include('preloader')
 <input type="hidden" name="app_debug" class="app_debug" value="{{env('APP_DEBUG') }}">
 @include(theme('partials._footer'))
+
+<!-- Content Protection for Student Dashboard -->
+<script src="{{ assetPath('frontend/infixlmstheme/js/content-protection.js') }}"></script>

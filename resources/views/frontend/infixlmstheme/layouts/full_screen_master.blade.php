@@ -37,6 +37,7 @@
 
     <link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme') }}/css/app.css">
     <link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme') }}/css/fontawesome.css ">
+    <link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme/css/content-protection.css') }}">
     <link rel="stylesheet" href="{{assetPath('backend/css/themify-icons.css')}}"/>
     @if(isRtl())
         <link rel="stylesheet" href="{{ assetPath('frontend/infixlmstheme') }}/css/frontend_style_rtl.css">
@@ -71,7 +72,7 @@
     </script>
 </head>
 
-<body>
+<body class="content-protected">
 
 @include('preloader')
 
@@ -157,6 +158,7 @@
     }, 0);
 </script>
 {!! Toastr::message() !!}
+<script src="{{ assetPath('frontend/infixlmstheme/js/content-protection.js') }}"></script>
 @stack('js')
 </body>
 </html>

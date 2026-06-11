@@ -168,6 +168,6 @@
     <x-analytics-tool/>
 </head>
 
-<body>
+<body class="">
 
 @include('secret_login')
