@@ -1335,8 +1335,10 @@ if ($assign->questionBank->shuffle==1){
                     }
                 @endphp
 
-                <div id="video-id" data-plyr-provider="{{strtolower($lesson->host)}}"
-                     data-plyr-embed-id="{{$video_id}}"></div>
+                <div class="plyr__video-embed video_iframe" id="video-id">
+                    <iframe src="https://player.vimeo.com/video/{{$video_id}}?loop=false&amp;byline=false&amp;portrait=false&amp;title=false&amp;speed=true&amp;transparent=0&amp;gesture=media"
+                            allowfullscreen allowtransparency allow="autoplay; fullscreen; picture-in-picture"></iframe>
+                </div>
 
             @endif
 
