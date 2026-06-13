@@ -67,6 +67,9 @@ Route::group(['prefix' => 'setting', 'middleware' => ['auth', 'admin']], functio
     Route::get('/activation', 'SettingController@activation')->name('setting.activation')->middleware('RoutePermissionCheck:setting.activation');
     Route::get('/general-settings', 'SettingController@general_settings')->name('setting.general_settings')->middleware('RoutePermissionCheck:setting.general_settings');
     Route::get('/email-configaration', 'SettingController@email_setup')->name('setting.email_setup')->middleware('RoutePermissionCheck:setting.email_setup');
+    Route::get('/floating-icon-setup', 'SettingController@floating_icon_setup')->name('setting.floating_icon_setup')->middleware('RoutePermissionCheck:setting.floating_icon_setup');
+    Route::post('/floating-icon-setup', 'SettingController@floating_icon_setup_update')->name('setting.floating_icon_setup_update')->middleware('RoutePermissionCheck:setting.floating_icon_setup');
+
     Route::get('/seo-setup', 'SettingController@seo_setting')->name('setting.seo_setting')->middleware('RoutePermissionCheck:setting.seo_setting');
     Route::get('/payment-setup', 'SettingController@paymentSetup')->name('setting.paymentSetup')->middleware('RoutePermissionCheck:route_name');
     Route::get('/social-login-setup', 'SettingController@social_login_setup')->name('setting.social_login_setup')->middleware('RoutePermissionCheck:setting.social_login_setup');

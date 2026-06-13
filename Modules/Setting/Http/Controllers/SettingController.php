@@ -70,6 +70,41 @@ class SettingController extends Controller
         return view('setting::email_setup2', compact('emailSettings', 'send_mail_setting', 'smtp_mail_setting', 'send_grid_mail_setting'));
     }
 
+    public function floating_icon_setup()
+    {
+        return view('setting::floating_icon_setup');
+    }
+
+    public function floating_icon_setup_update(Request $request)
+    {
+        if (demoCheck()) {
+            return redirect()->back();
+        }
+
+        $request->validate([
+            'floating_whatsapp' => 'nullable|string',
+            'floating_email' => 'nullable|email',
+            'floating_phone' => 'nullable|string',
+        ]);
+
+        $settings = [
+            'floating_whatsapp' => $request->floating_whatsapp,
+            'floating_email' => $request->floating_email,
+            'floating_phone' => $request->floating_phone,
+        ];
+
+        foreach ($settings as $key => $value) {
+            GeneralSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
+        }
+
+        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+        return redirect()->back();
+    }
+
+
     public function seo_setting()
     {
         return view('setting::seo_setting');
