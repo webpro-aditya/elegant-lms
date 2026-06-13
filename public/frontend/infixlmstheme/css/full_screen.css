@@ -1841,3 +1841,37 @@ Due to the split circle of progress-left and progress right, we must use the ani
 .fs-14 {
     font-size: 14px !important;
 }
+
+/* Fix for Plyr Vimeo Fullscreen Black Screen Issue */
+.plyr:-webkit-full-screen.plyr--vimeo .plyr__video-wrapper {
+    height: 100% !important;
+    top: 0 !important;
+    transform: none !important;
+}
+.plyr:-moz-full-screen.plyr--vimeo .plyr__video-wrapper {
+    height: 100% !important;
+    top: 0 !important;
+    transform: none !important;
+}
+.plyr:-ms-fullscreen.plyr--vimeo .plyr__video-wrapper {
+    height: 100% !important;
+    top: 0 !important;
+    transform: none !important;
+}
+.plyr:fullscreen.plyr--vimeo .plyr__video-wrapper {
+    height: 100% !important;
+    top: 0 !important;
+    transform: none !important;
+}
+.plyr:-webkit-full-screen.plyr--vimeo .plyr__video-wrapper iframe {
+    height: 100% !important;
+}
+.plyr:-moz-full-screen.plyr--vimeo .plyr__video-wrapper iframe {
+    height: 100% !important;
+}
+.plyr:-ms-fullscreen.plyr--vimeo .plyr__video-wrapper iframe {
+    height: 100% !important;
+}
+.plyr:fullscreen.plyr--vimeo .plyr__video-wrapper iframe {
+    height: 100% !important;
+}
