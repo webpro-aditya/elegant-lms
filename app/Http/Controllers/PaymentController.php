@@ -1395,6 +1395,103 @@ class PaymentController extends Controller
                     return \redirect()->back();
                 }
 
+            } elseif ($request->payment_method == "Skiply") {
+
+                $client_id = getPaymentEnv('SKIPLY_CLIENT_ID');
+                $client_secret = getPaymentEnv('SKIPLY_CLIENT_SECRET');
+                $environment = getPaymentEnv('SKIPLY_ENVIRONMENT');
+                $base_url = $environment == 'Production' ? 'https://skiply.ae' : 'https://qa.skiply.ae';
+
+                // Get token
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-userprofile/oauth/token");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, "Grant-Type=client_credentials");
+                curl_setopt($ch, CURLOPT_USERPWD, $client_id . ":" . $client_secret);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $headers = array("Content-Type: application/x-www-form-urlencoded");
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                $result = curl_exec($ch);
+                curl_close($ch);
+                
+                $token_response = json_decode($result, true);
+                if (!isset($token_response['access_token'])) {
+                    Toastr::error("Failed to authenticate with Skiply", trans('common.Error'));
+                    return redirect()->back();
+                }
+                $access_token = $token_response['access_token'];
+
+                // Generate OTT
+                $ottVerifier = bin2hex(random_bytes(16));
+                $salt = getPaymentEnv('SKIPLY_SALT'); 
+                $input = $ottVerifier . "-" . $salt;
+                $hashBytes = hash("sha256", $input, true);
+                $ottChallenge = base64_encode($hashBytes);
+
+                // Create Order
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-payment/checkout/authorize");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                $payload = json_encode([
+                    "ottExpiry" => 10080,
+                    "ottChallenge" => $ottChallenge,
+                    "redirectUrl" => str_replace("http://", "https://", route('skiply.success', ['checkout' => $checkout_info->id])),
+                    "payload" => [
+                        "orderInfo" => [
+                            "orderId" => "ORDER_" . time() . "_" . $checkout_info->id,
+                            "currency" => "AED",
+                            "items" => [
+                                [
+                                    "title" => "Course Purchase",
+                                    "quantity" => 1,
+                                    "description" => "Course Purchase",
+                                    "amount" => (float)$amount
+                                ]
+                            ],
+                            "subTotal" => (float)$amount,
+                            "vat" => 0,
+                            "miscellaneousCharges" => [
+                                [
+                                    "title" => "Processing Fee",
+                                    "amount" => 0
+                                ]
+                            ],
+                            "netTransactionAmount" => (float)$amount
+                        ],
+                        "customerInfo" => [
+                            "name" => Auth::user()->name,
+                            "email" => Auth::user()->email,
+                            "additionalFields" => [
+                                [
+                                    "title" => "Customer ID",
+                                    "value" => (string)Auth::id()
+                                ]
+                            ]
+                        ]
+                    ]
+                ]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+                $headers = array();
+                $headers[] = "Authorization: Bearer " . $access_token;
+                $headers[] = "Grant-Type: client_credentials";
+                $headers[] = "Content-Type: application/json";
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                $result = curl_exec($ch);
+                curl_close($ch);
+                $response = json_decode($result, true);
+                if (isset($response['body']['url'])) {
+                    $redirectUrl = $response['body']['url'] . $ottVerifier;
+                    return redirect($redirectUrl);
+                } else {
+                    \Log::error("Skiply checkout failed", ['response' => $response, 'result' => $result]);
+                    Toastr::error("Failed to initiate Skiply checkout", trans('common.Error'));
+                    return redirect()->back();
+                }
+
             } elseif ($request->payment_method == 'Authorize.Net') {
                 $authorizeNet = new  AuthorizeNetRepository();
                 $response = $authorizeNet->payNow($request, $request->deposit_amount);
@@ -1702,6 +1799,39 @@ class PaymentController extends Controller
             return redirect('/');
         }
         return $this->redirectToDashboard();
+    }
+
+    public function skiplySuccess(Request $request)
+    {
+        if ($request->input('checkout')) {
+            $checkout = Checkout::find($request->input('checkout'));
+            if (!$checkout) {
+                Toastr::error(trans('common.Something Went Wrong'));
+                return $this->redirectToDashboard();
+            }
+
+            if ($checkout->status != 0){
+                Toastr::error(trans('common.Already Enrolled'));
+                return $this->redirectToDashboard();
+            }
+            $payWithGateway = $this->payWithGateWay(json_encode($request->all()), "Skiply", $user = null, session()->get('invoice'));
+            if ($payWithGateway) {
+                Toastr::success(trans('frontend.Payment done successfully'), trans('common.Success'));
+                if (Settings('frontend_active_theme') == 'tvt') {
+                    return redirect('/');
+                }
+                return $this->redirectToDashboard();
+            } else {
+                Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
+                if (Settings('frontend_active_theme') == 'tvt') {
+                    return redirect('/');
+                }
+                return $this->redirectToDashboard();
+            }
+        } else {
+            Toastr::error(trans('frontend.Transaction is declined'));
+            return redirect()->back();
+        }
     }
 
     public function giftEnrollment($checkout_info, $user, $discount, $cart, $carts, $courseType, $gateWayName = null)

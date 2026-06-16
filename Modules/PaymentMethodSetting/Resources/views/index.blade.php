@@ -2660,6 +2660,113 @@
 
 
                                                     </div>
+                                                @elseif($payment_method->method == 'Skiply')
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="row">
+                                                                <div class="col-lg-4 col-md-4">
+                                                                    <div class='input-effect mb-25'>
+                                                                        <label class="mb-2"
+                                                                               for="SKIPLY_CLIENT_ID{{$payment_method->id}}">
+                                                                            <span>{{ __("setting.Client ID")}}</span>
+                                                                        </label>
+                                                                        <input type="text"
+                                                                               id='SKIPLY_CLIENT_ID{{$payment_method->id}}'
+                                                                               value="{{ !empty(getPaymentEnv('SKIPLY_CLIENT_ID')) ? getPaymentEnv('SKIPLY_CLIENT_ID'):'' }}"
+                                                                               class="primary-input-field form-control"
+                                                                               name="SKIPLY_CLIENT_ID">
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-4 col-md-4">
+                                                                    <div class='input-effect mb-25'>
+                                                                        <label class="mb-2"
+                                                                               for="SKIPLY_CLIENT_SECRET{{$payment_method->id}}">
+                                                                            <span>{{ __("setting.Client Secret")}}</span>
+                                                                        </label>
+                                                                        <input type="text"
+                                                                               id='SKIPLY_CLIENT_SECRET{{$payment_method->id}}'
+                                                                               value="{{ !empty(getPaymentEnv('SKIPLY_CLIENT_SECRET')) ? getPaymentEnv('SKIPLY_CLIENT_SECRET'):'' }}"
+                                                                               class="primary-input-field form-control"
+                                                                               name="SKIPLY_CLIENT_SECRET">
+
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-4 col-md-4">
+                                                                    <div class='input-effect mb-25'>
+                                                                        <label class="mb-2"
+                                                                               for="SKIPLY_SALT{{$payment_method->id}}">
+                                                                            <span>{{ __("Salt")}}</span>
+                                                                        </label>
+                                                                        <input type="text"
+                                                                               id='SKIPLY_SALT{{$payment_method->id}}'
+                                                                               value="{{ !empty(getPaymentEnv('SKIPLY_SALT')) ? getPaymentEnv('SKIPLY_SALT'):'' }}"
+                                                                               class="primary-input-field form-control"
+                                                                               name="SKIPLY_SALT">
+
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-4 col-md-4">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <label class="mb-2"
+                                                                                   for=" Env{{$payment_method->id}}">
+                                                                                <span>{{ __("setting.Environment")}}</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 ps-0 pt-3">
+                                                                            <div class="input-effect">
+                                                                                <div class="">
+                                                                                    <div
+                                                                                        class="text-start float-start">
+                                                                                        <label
+                                                                                            class="primary_checkbox d-flex mr-12"
+                                                                                            for="SKIPLY_ENVIRONMENT_0{{$payment_method->id}}">
+                                                                                            <input type="radio"
+                                                                                                   name="SKIPLY_ENVIRONMENT"
+                                                                                                   @if(getPaymentEnv('SKIPLY_ENVIRONMENT')!="Production")
+                                                                                                       checked
+                                                                                                   @endif
+                                                                                                   id="SKIPLY_ENVIRONMENT_0{{$payment_method->id}}"
+                                                                                                   value="Sandbox"
+                                                                                                   class="common-radio relationButton read-only-input">
+                                                                                            <span
+                                                                                                class="checkmark me-2"></span> {{__('common.Sandbox')}}
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6 ps-0 pt-3">
+                                                                            <div class="input-effect">
+                                                                                <div class="">
+                                                                                    <div
+                                                                                        class="text-start float-start">
+                                                                                        <label
+                                                                                            class="primary_checkbox d-flex mr-12"
+                                                                                            for="SKIPLY_ENVIRONMENT_1{{$payment_method->id}}">
+                                                                                            <input type="radio"
+                                                                                                   name="SKIPLY_ENVIRONMENT"
+                                                                                                   @if(getPaymentEnv('SKIPLY_ENVIRONMENT')=="Production")
+                                                                                                       checked
+                                                                                                   @endif
+                                                                                                   id="SKIPLY_ENVIRONMENT_1{{$payment_method->id}}"
+                                                                                                   value="Production"
+                                                                                                   class="common-radio relationButton read-only-input">
+                                                                                            <span
+                                                                                                class="checkmark me-2"></span> {{__('common.Live')}}
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 @endif
                                                 @if($payment_method->method!="Bank Payment" && $payment_method->method!="Offline Payment" && $payment_method->method!="Wallet")
 
