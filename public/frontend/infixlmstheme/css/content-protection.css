@@ -66,12 +66,20 @@ body.content-protection-printing::after {
     -webkit-touch-callout: none !important;
 }
 
-/* Re-enable selection in form fields and code editors */
+/* Re-enable selection in form fields, code editors, and PDF viewer */
 .content-protected input,
 .content-protected textarea,
 .content-protected [contenteditable="true"],
 .content-protected .note-editable,
-.content-protected .note-editor {
+.content-protected .note-editor,
+.content-protected #pdfOuterContainer,
+.content-protected #pdfOuterContainer *,
+.content-protected .pdf-text-layer,
+.content-protected .pdf-text-layer *,
+.content-protected .pdftoolbar,
+.content-protected .pdftoolbar *,
+.content-protected .pdf-search-wrap,
+.content-protected .pdf-search-wrap * {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
     -ms-user-select: text !important;
@@ -97,4 +105,30 @@ body.content-protection-printing::after {
 .content-protected ::-moz-selection {
     background: transparent !important;
     color: inherit !important;
+}
+
+/* Allow visible selection inside PDF viewer areas (needed for search highlights) */
+.content-protected #pdfOuterContainer ::selection,
+.content-protected .pdf-text-layer ::selection {
+    background: rgba(0, 0, 255, .2) !important;
+    color: transparent !important;
+}
+
+.content-protected #pdfOuterContainer ::-moz-selection,
+.content-protected .pdf-text-layer ::-moz-selection {
+    background: rgba(0, 0, 255, .2) !important;
+    color: transparent !important;
+}
+
+/* Ensure PDF search match highlights are visible */
+.content-protected .pdf-search-match {
+    background: rgba(255, 200, 0, .6) !important;
+    color: transparent !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+}
+
+.content-protected .pdf-search-match.active-match {
+    background: rgba(255, 100, 0, .75) !important;
+    outline: 2px solid #e67e22 !important;
 }

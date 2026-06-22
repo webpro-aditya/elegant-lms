@@ -287,16 +287,20 @@
 
     }, true);
 
-    // ─── HELPER: Check if element is a real form field ───────
+    // ─── HELPER: Check if element is a real form field or PDF area ───────
     function isInsideFormField(el) {
         if (!el) return false;
         var tag = (el.tagName || '').toLowerCase();
         // Only allow actual input/textarea elements
         if (tag === 'input' || tag === 'textarea') return true;
-        // Check for Summernote editor specifically
+        // Check for Summernote editor or PDF containers
         var p = el;
-        for (var i = 0; i < 8 && p; i++) {
+        for (var i = 0; i < 10 && p; i++) {
             if (p.classList && p.classList.contains('note-editable')) return true;
+            if (p.id === 'pdfOuterContainer') return true;
+            if (p.classList && p.classList.contains('pdf-text-layer')) return true;
+            if (p.classList && p.classList.contains('pdftoolbar')) return true;
+            if (p.classList && p.classList.contains('pdf-search-wrap')) return true;
             p = p.parentElement;
         }
         return false;
@@ -400,9 +404,13 @@
     }, true);
 
     // ─── 4b. BLOCK TEXT SELECTION at source ──────────────────
-    // Prevents any text from being selected (except in form fields)
+    // Prevents any text from being selected (except in form fields and PDF areas)
     document.addEventListener('selectstart', function (e) {
         if (isInsideFormField(e.target)) {
+            return true;
+        }
+        // Also allow selection inside PDF text layer for search highlighting
+        if (isInsidePdfArea(e.target)) {
             return true;
         }
         e.preventDefault();
@@ -432,6 +440,21 @@
     enforceNoSelect();
     document.addEventListener('DOMContentLoaded', enforceNoSelect);
 
+    // ─── HELPER: Check if element is inside a PDF viewer area ───────
+    function isInsidePdfArea(el) {
+        if (!el) return false;
+        var p = (el.nodeType === 1) ? el : el.parentElement;
+        for (var i = 0; i < 12 && p; i++) {
+            if (p.id === 'pdfOuterContainer') return true;
+            if (p.classList && p.classList.contains('pdf-text-layer')) return true;
+            if (p.classList && p.classList.contains('pdftoolbar')) return true;
+            if (p.classList && p.classList.contains('pdf-search-wrap')) return true;
+            if (p.classList && p.classList.contains('pdftoolbar-slide-container')) return true;
+            p = p.parentElement;
+        }
+        return false;
+    }
+
     // ─── 4e. CONTINUOUSLY CLEAR any accidental selection ────
     // If something manages to get selected, nuke it immediately
     document.addEventListener('selectionchange', function () {
@@ -445,6 +468,8 @@
             if (parent) {
                 var tag = (parent.tagName || '').toLowerCase();
                 if (tag === 'input' || tag === 'textarea' || parent.isContentEditable) return;
+                // Allow selections inside PDF text layer (needed for search)
+                if (isInsidePdfArea(parent)) return;
                 // Walk up a few levels to check for editable containers
                 var p = parent;
                 for (var i = 0; i < 5 && p; i++) {

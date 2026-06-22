@@ -476,63 +476,10 @@
             var completeRequest = false;
         </script>
         <script>
-            // Prevent Right-Click / Context Menu
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
-
-            // Prevent Copy and Cut events
-            document.addEventListener('copy', function(e) {
-                e.preventDefault();
-            });
-            document.addEventListener('cut', function(e) {
-                e.preventDefault();
-            });
-
-            // Prevent Drag and Drop (prevents dragging images/videos to desktop/new tab to save)
-            document.addEventListener('dragstart', function(e) {
-                e.preventDefault();
-            });
-
-            // Prevent DevTools Keyboard Shortcuts
-            document.addEventListener('keydown', function(e) {
-                // F12 key
-                if (e.keyCode === 123) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+Shift+I or Cmd+Opt+I (Chrome, Firefox, Safari DevTools)
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 73) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+Shift+J or Cmd+Opt+J (Console)
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 74) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+Shift+C or Cmd+Opt+C (Inspect Element)
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 67) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+U or Cmd+Opt+U (View Source)
-                if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+S or Cmd+S (Save Page - prevents page saving/downloading)
-                if ((e.ctrlKey || e.metaKey) && e.keyCode === 83) {
-                    e.preventDefault();
-                    return false;
-                }
-                // Ctrl+P or Cmd+P (Print Page)
-                if ((e.ctrlKey || e.metaKey) && e.keyCode === 80) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
+            // Content protection is handled by content-protection.js
+            // loaded in full_screen_master.blade.php
         </script>
+
     @endpush
 
     @php
