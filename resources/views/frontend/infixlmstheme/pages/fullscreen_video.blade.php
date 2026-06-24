@@ -447,6 +447,16 @@
         -ms-user-select: text !important;
         user-select: text !important;
     }
+
+    /* Ensure the PDF comment popup and its children are fully interactive */
+    #pdfCommentPopup,
+    #pdfCommentPopup * {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
+        pointer-events: auto !important;
+    }
     </style>
 @endsection
 
@@ -1612,7 +1622,7 @@ if ($assign->questionBank->shuffle==1){
         #pdfCommentPopup {
             display: none;
             position: fixed;
-            z-index: 99999;
+            z-index: 2147483647;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -1620,6 +1630,7 @@ if ($assign->questionBank->shuffle==1){
             min-width: 240px;
             max-width: 300px;
             box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+            isolation: isolate;
         }
 
         #pdfCommentPopup textarea {
@@ -1631,6 +1642,11 @@ if ($assign->questionBank->shuffle==1){
             resize: vertical;
             font-family: inherit;
             color: #333;
+            -webkit-user-select: text !important;
+            user-select: text !important;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 1;
         }
 
         #pdfCommentPopup textarea:focus {
@@ -2662,6 +2678,12 @@ if ($assign->questionBank->shuffle==1){
                 popup.style.left = Math.max(4, left) + 'px';
                 popup.style.top = Math.max(4, top) + 'px';
 
+                // Ensure the textarea has explicit interactive styles
+                // to override any content-protection inline styles on body
+                popupText.style.userSelect = 'text';
+                popupText.style.webkitUserSelect = 'text';
+                popupText.style.pointerEvents = 'auto';
+
                 if (existing) {
                     popupText.value = existing.text || '';
                     editingCmt = existing;
@@ -2672,7 +2694,14 @@ if ($assign->questionBank->shuffle==1){
                     popupDel.style.display = 'none';
                 }
 
-                setTimeout(() => popupText.focus(), 50);
+                // Focus the textarea with a delay to ensure DOM is ready
+                // and a fallback to handle content-protection timing
+                setTimeout(() => { popupText.focus(); }, 100);
+                setTimeout(() => {
+                    if (document.activeElement !== popupText) {
+                        popupText.focus();
+                    }
+                }, 250);
             }
 
             popupSave.addEventListener('click', async function () {

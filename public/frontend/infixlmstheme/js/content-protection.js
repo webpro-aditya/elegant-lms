@@ -298,6 +298,7 @@
         for (var i = 0; i < 10 && p; i++) {
             if (p.classList && p.classList.contains('note-editable')) return true;
             if (p.id === 'pdfOuterContainer') return true;
+            if (p.id === 'pdfCommentPopup') return true;
             if (p.classList && p.classList.contains('pdf-text-layer')) return true;
             if (p.classList && p.classList.contains('pdftoolbar')) return true;
             if (p.classList && p.classList.contains('pdf-search-wrap')) return true;
@@ -446,6 +447,7 @@
         var p = (el.nodeType === 1) ? el : el.parentElement;
         for (var i = 0; i < 12 && p; i++) {
             if (p.id === 'pdfOuterContainer') return true;
+            if (p.id === 'pdfCommentPopup') return true;
             if (p.classList && p.classList.contains('pdf-text-layer')) return true;
             if (p.classList && p.classList.contains('pdftoolbar')) return true;
             if (p.classList && p.classList.contains('pdf-search-wrap')) return true;

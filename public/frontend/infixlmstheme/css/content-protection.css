@@ -66,7 +66,7 @@ body.content-protection-printing::after {
     -webkit-touch-callout: none !important;
 }
 
-/* Re-enable selection in form fields, code editors, and PDF viewer */
+/* Re-enable selection in form fields, code editors, PDF viewer, and comment popup */
 .content-protected input,
 .content-protected textarea,
 .content-protected [contenteditable="true"],
@@ -74,6 +74,8 @@ body.content-protection-printing::after {
 .content-protected .note-editor,
 .content-protected #pdfOuterContainer,
 .content-protected #pdfOuterContainer *,
+.content-protected #pdfCommentPopup,
+.content-protected #pdfCommentPopup *,
 .content-protected .pdf-text-layer,
 .content-protected .pdf-text-layer *,
 .content-protected .pdftoolbar,
@@ -107,15 +109,17 @@ body.content-protection-printing::after {
     color: inherit !important;
 }
 
-/* Allow visible selection inside PDF viewer areas (needed for search highlights) */
+/* Allow visible selection inside PDF viewer areas and comment popup */
 .content-protected #pdfOuterContainer ::selection,
-.content-protected .pdf-text-layer ::selection {
+.content-protected .pdf-text-layer ::selection,
+.content-protected #pdfCommentPopup ::selection {
     background: rgba(0, 0, 255, .2) !important;
     color: transparent !important;
 }
 
 .content-protected #pdfOuterContainer ::-moz-selection,
-.content-protected .pdf-text-layer ::-moz-selection {
+.content-protected .pdf-text-layer ::-moz-selection,
+.content-protected #pdfCommentPopup ::-moz-selection {
     background: rgba(0, 0, 255, .2) !important;
     color: transparent !important;
 }
