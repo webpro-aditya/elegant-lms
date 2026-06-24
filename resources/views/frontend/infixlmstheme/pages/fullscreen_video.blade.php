@@ -1819,7 +1819,7 @@ if ($assign->questionBank->shuffle==1){
         }
         .pdf-page-wrapper.draw-mode .pdf-draw-layer {
             pointer-events: auto;
-            cursor: crosshair;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 21l1.65-3.8L17.68 4.17a2 2 0 0 1 2.83 0l-.34.34.34-.34a2 2 0 0 1 0 2.83L7.48 20.03 3 21z' fill='%23333' stroke='%23fff' stroke-width='1'/%3E%3Cpath d='M14.5 7.5l2 2' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E") 2 22, crosshair;
         }
         .pdf-pen-btn {
             border: 2px solid transparent;
