@@ -1429,6 +1429,9 @@ class PaymentController extends Controller
                 $hashBytes = hash("sha256", $input, true);
                 $ottChallenge = base64_encode($hashBytes);
 
+                $skiply_token = bin2hex(random_bytes(16));
+                session()->put('skiply_token_' . $checkout_info->id, $skiply_token);
+
                 // Create Order
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-payment/checkout/authorize");
@@ -1437,7 +1440,7 @@ class PaymentController extends Controller
                 $payload = json_encode([
                     "ottExpiry" => 10080,
                     "ottChallenge" => $ottChallenge,
-                    "redirectUrl" => str_replace("http://", "https://", route('skiply.success', ['checkout' => $checkout_info->id])),
+                    "redirectUrl" => str_replace("http://", "https://", route('skiply.success', ['checkout' => $checkout_info->id, 'token' => $skiply_token])),
                     "payload" => [
                         "orderInfo" => [
                             "orderId" => "ORDER_" . time() . "_" . $checkout_info->id,
@@ -1803,8 +1806,17 @@ class PaymentController extends Controller
 
     public function skiplySuccess(Request $request)
     {
-        if ($request->input('checkout')) {
-            $checkout = Checkout::find($request->input('checkout'));
+        if ($request->input('checkout') && $request->input('token')) {
+            $checkout_id = $request->input('checkout');
+            $token = $request->input('token');
+
+            if (session()->get('skiply_token_' . $checkout_id) !== $token) {
+                Toastr::error(trans('common.Invalid Token or Transaction'));
+                return $this->redirectToDashboard();
+            }
+            session()->forget('skiply_token_' . $checkout_id);
+
+            $checkout = Checkout::find($checkout_id);
             if (!$checkout) {
                 Toastr::error(trans('common.Something Went Wrong'));
                 return $this->redirectToDashboard();
