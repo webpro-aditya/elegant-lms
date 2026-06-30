@@ -48,7 +48,7 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['verify']);
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
@@ -181,6 +181,8 @@ class VerificationController extends Controller
         if (Auth::check()) {
             Auth::user()->update([
                 'is_login_into_web' => 1,
+                'status' => 1,
+                'is_active' => 1,
             ]);
             send_email(Auth::user(), 'New_Student_Reg', [
                 'time' => Carbon::now()->translatedFormat('d-M-Y, g:i A'),

@@ -253,6 +253,13 @@ class LoginController extends Controller
 
 
 
+            if (Settings('email_verification') == 1 && empty(Auth::user()->email_verified_at)) {
+                Auth::logout();
+
+                Toastr::error(trans('api.Please verify your email address'), trans('common.Failed'));
+                return back();
+            }
+
             if (Auth::user()->status == 0) {
                 Auth::logout();
 

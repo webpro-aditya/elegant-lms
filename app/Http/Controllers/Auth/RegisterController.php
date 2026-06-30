@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use App\Repositories\UserRepositoryInterface;
 use App\StudentCustomField;
 use App\User;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
@@ -119,6 +120,15 @@ class RegisterController extends Controller
 
         event(new Registered($user));
 
+        if (Settings('email_verification') == 1 && empty($user->email_verified_at)) {
+            Toastr::success(trans('api.Please verify your email address'), trans('common.Success'));
+            return redirect()->route('login');
+        }
+
+        if ($user->status == 0) {
+            Toastr::error(trans('frontend.Your account is inactive.') . ' ' . trans('frontend.Contact the administrator for assistance.'), trans('common.Failed'));
+            return redirect()->route('login');
+        }
 
         $this->guard()->login($user);
 
