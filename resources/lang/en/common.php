@@ -46,6 +46,7 @@
     "Live" => "Live",
     "Sandbox" => "Sandbox",
     "Something Went Wrong" => "Something Went Wrong",
+    "Invalid Token or Transaction" => "Invalid Token or Transaction",
     "Description" => "Description",
     "Model" => "Model",
     "Attempted At" => "Attempted At",
