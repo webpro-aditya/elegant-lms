@@ -1984,6 +1984,22 @@ if ($assign->questionBank->shuffle==1){
         .pdf-toolbar-input:focus {
             border-color: #3c7cff;
         }
+        
+        #pdfCommentModeBtn {
+            font-size: 15px;
+            width: 34px;
+            height: 34px;
+            background: #f0f4ff;
+            color: #3c7cff;
+            border: 1px solid #cce0ff;
+            border-radius: 6px;
+            margin-left: auto; /* Pushes to extreme right if flex container has space */
+            box-shadow: 0 2px 5px rgba(60,124,255,0.15);
+        }
+        
+        #pdfCommentModeBtn:hover {
+            background: #e0ebff;
+        }
         .pdf-page-info {
             font-size: 13px;
             color: #555;
@@ -2055,14 +2071,7 @@ if ($assign->questionBank->shuffle==1){
                 <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
                 <button type="button" class="pdf-hl-btn" data-color="pink" title="Pink"></button>
                 
-                <div class="pdf-toolbar-divider"></div>
-                
-                <span class="pdf-toolbar-group-title">Comment</span>
-                <button type="button" class="pdf-toolbar-btn" id="pdfCommentModeBtn" title="Add Comment">
-                    <i class="fa fa-comment-alt"></i>
-                </button>
-                
-                <div class="pdf-toolbar-divider"></div>
+                <div class="pdf-toolbar-divider" style="margin-left: 25px; margin-right: 25px; width: 2px; background: #ddd; height: 24px;"></div>
 
                 <span class="pdf-toolbar-group-title">Pen</span>
                 <button type="button" class="pdf-toolbar-btn" id="pdfPenModeBtn" title="Draw Mode">
@@ -2076,6 +2085,13 @@ if ($assign->questionBank->shuffle==1){
                 </button>
                 <button type="button" class="pdf-toolbar-btn" id="pdfClearDrawingsBtn" title="Clear All Drawings" style="color:#ff4d4f;">
                     <i class="fa fa-trash"></i>
+                </button>
+                
+                <div class="pdf-toolbar-divider" style="margin-left: auto;"></div>
+                
+                <span class="pdf-toolbar-group-title">Comment</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfCommentModeBtn" title="Add Comment">
+                    <i class="fa fa-comment-alt"></i>
                 </button>
             </div>
 
