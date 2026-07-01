@@ -1984,8 +1984,7 @@ if ($assign->questionBank->shuffle==1){
         .pdf-toolbar-input:focus {
             border-color: #3c7cff;
         }
-        
-        #pdfCommentModeBtn {
+        #pdfCommentModeBtn, #pdfPenModeBtn {
             font-size: 15px;
             width: 34px;
             height: 34px;
@@ -1993,12 +1992,22 @@ if ($assign->questionBank->shuffle==1){
             color: #3c7cff;
             border: 1px solid #cce0ff;
             border-radius: 6px;
-            margin-left: auto; /* Pushes to extreme right if flex container has space */
             box-shadow: 0 2px 5px rgba(60,124,255,0.15);
         }
         
-        #pdfCommentModeBtn:hover {
+        #pdfCommentModeBtn {
+            margin-left: auto; /* Pushes to extreme right */
+        }
+        
+        #pdfCommentModeBtn:hover, #pdfPenModeBtn:hover {
             background: #e0ebff;
+        }
+
+        #pdfCommentModeBtn.comment-active, #pdfPenModeBtn.pen-active {
+            background: linear-gradient(90deg, #3c7cff, #1aafff) !important;
+            color: #fff !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 8px rgba(60, 124, 255, 0.4) !important;
         }
         .pdf-page-info {
             font-size: 13px;
@@ -2818,12 +2827,10 @@ if ($assign->questionBank->shuffle==1){
                 }
                 penMode = !penMode;
                 if (penMode) {
-                    this.style.background = 'linear-gradient(90deg, #3c7cff, #1aafff)';
-                    this.style.color = '#fff';
+                    this.classList.add('pen-active');
                     pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.add('draw-mode'));
                 } else {
-                    this.style.background = '';
-                    this.style.color = '';
+                    this.classList.remove('pen-active');
                     pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.remove('draw-mode'));
                 }
             });
@@ -2833,8 +2840,7 @@ if ($assign->questionBank->shuffle==1){
                 if (commentMode) exitCommentMode();
                 if (penMode) {
                     penMode = false;
-                    document.getElementById('pdfPenModeBtn').style.background = '';
-                    document.getElementById('pdfPenModeBtn').style.color = '';
+                    document.getElementById('pdfPenModeBtn').classList.remove('pen-active');
                 }
                 eraserMode = !eraserMode;
                 if (eraserMode) {
