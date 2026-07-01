@@ -393,7 +393,7 @@
     .pdftoolbar-slide-container {
         width: 100%;
         overflow: hidden;
-        max-height: 120px;  /* ← was 80px, increase to fit both rows */
+        max-height: 120px;
         transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                     opacity 0.3s ease;
         opacity: 1;
@@ -403,6 +403,7 @@
         /* max-height: 0 !important; */
         opacity: 0;
     }
+
     @media (max-width: 767px) {
         .pdftoolbar-toggle-wrapper {
             display: flex;
@@ -411,6 +412,7 @@
             max-height: 0 !important;
         }
     }
+    
     /* DESKTOP FIX */
     @media (min-width: 768px) {
         .course_fullview_wrapper {
@@ -1777,12 +1779,22 @@ if ($assign->questionBank->shuffle==1){
 
             #pdfOuterContainer {
                 height: calc(100vh - 170px);
+                overflow-x: hidden; /* Prevent sideways scrolling */
             }
 
             #pdfPagesContainer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+                display: block;
+            }
+            
+            .pdf-page-wrapper {
+                margin: 0 auto 16px auto !important;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .pdf-canvas, .pdf-draw-layer, .pdf-text-layer, .pdf-annot-layer {
+                max-width: 100% !important;
+                height: auto !important;
             }
         }
 
@@ -1829,6 +1841,156 @@ if ($assign->questionBank->shuffle==1){
             border-color: #333;
             transform: scale(1.1);
         }
+
+        /* New PDF Toolbar Styling */
+        .pdf-toolbar-container {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 6px 12px;
+            display: flex !important;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Mobile Tabs Styling */
+        .pdf-mobile-tabs {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            display: none;
+            width: 100%;
+        }
+        .pdf-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px 0;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .pdf-tab-btn i {
+            font-size: 14px;
+        }
+        .pdf-tab-btn.active {
+            color: #3c7cff;
+            border-bottom-color: #3c7cff;
+        }
+
+        @media (max-width: 767px) {
+            .pdf-mobile-tabs {
+                display: flex;
+            }
+            .pdf-toolbar-container {
+                display: block !important;
+                padding: 0 !important;
+                background: #f8f9fa;
+            }
+            .pdf-toolbar-group {
+                display: none !important;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding: 10px !important;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+            .pdf-toolbar-group::-webkit-scrollbar {
+                display: none;
+            }
+            .pdf-toolbar-group.active-group {
+                display: flex !important;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .pdf-toolbar-container {
+                justify-content: space-between;
+            }
+        }
+        .pdf-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+        }
+        .pdf-toolbar-group-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-right: 4px;
+            display: none;
+        }
+        @media (min-width: 576px) {
+            .pdf-toolbar-group-title {
+                display: block;
+            }
+        }
+        .pdf-toolbar-btn {
+            background: transparent;
+            border: none;
+            color: #555;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+        .pdf-toolbar-btn:hover {
+            background: #f0f0f0;
+            color: #222;
+        }
+        .pdf-toolbar-btn.active {
+            background: #eef2ff;
+            color: #3c7cff;
+        }
+        .pdf-toolbar-input {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            width: 120px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .pdf-toolbar-input:focus {
+            border-color: #3c7cff;
+        }
+        .pdf-page-info {
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+            min-width: 40px;
+            text-align: center;
+        }
+        .pdf-toolbar-divider {
+            width: 1px;
+            height: 16px;
+            background: #ddd;
+            margin: 0 2px;
+        }
     </style>
 
     <div class="pdftoolbar-toggle-wrapper">
@@ -1838,70 +2000,109 @@ if ($assign->questionBank->shuffle==1){
     </div>
 
     <div class="pdftoolbar-slide-container pdftoolbar-hidden" id="pdftoolbarSlideContainer">
-        <div class="pdftoolbar text-center row m-0 p-0">
-            <div class="col-12 my-1">
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFirst" title="First page"><i class="fa fa-step-backward"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnPrev" title="Previous"><i class="fa fa-angle-left"></i></button>
-                <span class="pageno" id="pdfPageNo" style="margin:0 6px;">-/-</span>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnNext" title="Next"><i class="fa fa-angle-right"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnLast" title="Last page"><i class="fa fa-step-forward"></i></button>
+        
+        <!-- Mobile Tabs -->
+        <div class="pdf-mobile-tabs">
+            <button type="button" class="pdf-tab-btn active" data-target="search-group"><i class="fa fa-search"></i> Search</button>
+            <button type="button" class="pdf-tab-btn" data-target="page-group"><i class="fa fa-file-alt"></i> Pages</button>
+            <button type="button" class="pdf-tab-btn" data-target="zoom-group"><i class="fa fa-search-plus"></i> View</button>
+            <button type="button" class="pdf-tab-btn" data-target="annot-group"><i class="fa fa-pen"></i> Draw</button>
+        </div>
 
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnZoomOut" title="Zoom out"><i class="fa fa-search-minus"></i></button>
-                <span class="zoomval" id="pdfZoomVal" style="margin:0 4px;">100%</span>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnZoomIn" title="Zoom in"><i class="fa fa-search-plus"></i></button>
-
-                <button type="button" class="theme_btn small_btn_icon ms-3" id="pdfBtnFitW" title="Fit width"><i class="fa fa-arrows-alt-h"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFitH" title="Fit height"><i class="fa fa-arrows-alt-v"></i></button>
-                <button type="button" class="theme_btn small_btn_icon" id="pdfBtnFit" title="Fit page"><i class="fa fa-expand"></i></button>
+        <div class="pdf-toolbar-container pdftoolbar">
+            
+            <!-- Search Group -->
+            <div class="pdf-toolbar-group active-group" id="search-group">
+                <input type="text" class="pdf-toolbar-input" id="pdfSearchInput" placeholder="Search in PDF…" autocomplete="off">
+                <button type="button" class="pdf-toolbar-btn" id="pdfSearchBtn" title="Search"><i class="fa fa-search"></i></button>
+                <div class="pdf-toolbar-divider"></div>
+                <button type="button" class="pdf-toolbar-btn" id="pdfSearchPrev" title="Prev match"><i class="fa fa-angle-up"></i></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfSearchNext" title="Next match"><i class="fa fa-angle-down"></i></button>
+                <span id="pdfSearchCount" style="font-size: 12px; color: #777; margin-left: 4px;"></span>
             </div>
 
-            <div class="col-12 my-1 pdf-search-wrap" style="row-gap: 10px;">
-                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
-                    <input type="text" id="pdfSearchInput" placeholder="Search in PDF…" autocomplete="off">
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchBtn" title="Search"><i class="fa fa-search"></i></button>
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchPrev" title="Prev match"><i class="fa fa-angle-up"></i></button>
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfSearchNext" title="Next match"><i class="fa fa-angle-down"></i></button>
-                    <span id="pdfSearchCount"></span>
-                </div>
-
-                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
-                
-                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
-                    <span style="font-size:12px;color:#555;vertical-align:middle;">Highlight:</span>
-                    <button type="button" class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
-                    <button type="button" class="pdf-hl-btn" data-color="green" title="Green"></button>
-                    <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
-                    <button type="button" class="pdf-hl-btn" data-color="pink" title="Pink"></button>
-                </div>
-
-                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
-                
-                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfCommentModeBtn" title="Add Comment">
-                        <i class="fa fa-comment-alt"></i>
-                    </button>
-                </div>
-
-                <span class="pdf-toolbar-sep d-none d-md-inline-block"></span>
-                
-                <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
-                    <span style="font-size:12px;color:#555;vertical-align:middle;">Pen:</span>
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfPenModeBtn" title="Draw Mode">
-                        <i class="fa fa-pen"></i>
-                    </button>
-                    <button type="button" class="pdf-pen-btn active-pen" data-pen-color="black" title="Black" style="background:black; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
-                    <button type="button" class="pdf-pen-btn" data-pen-color="red" title="Red" style="background:red; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
-                    <button type="button" class="pdf-pen-btn" data-pen-color="blue" title="Blue" style="background:blue; width:20px;height:20px;border-radius:50%;cursor:pointer;vertical-align:middle;"></button>
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfEraserModeBtn" title="Eraser Tool" style="margin-left:5px;">
-                        <i class="fa fa-eraser"></i>
-                    </button>
-                    <button type="button" class="theme_btn small_btn_icon" id="pdfClearDrawingsBtn" title="Clear All Drawings" style="color:red;">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </div>
+            <!-- Pagination Group -->
+            <div class="pdf-toolbar-group" id="page-group">
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnFirst" title="First page"><i class="fa fa-step-backward"></i></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnPrev" title="Previous"><i class="fa fa-angle-left"></i></button>
+                <span class="pdf-page-info pageno" id="pdfPageNo">-/-</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnNext" title="Next"><i class="fa fa-angle-right"></i></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnLast" title="Last page"><i class="fa fa-step-forward"></i></button>
             </div>
+
+            <!-- Zoom & Fit Group -->
+            <div class="pdf-toolbar-group" id="zoom-group">
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnZoomOut" title="Zoom out"><i class="fa fa-search-minus"></i></button>
+                <span class="pdf-page-info zoomval" id="pdfZoomVal">100%</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnZoomIn" title="Zoom in"><i class="fa fa-search-plus"></i></button>
+                <div class="pdf-toolbar-divider"></div>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnFitW" title="Fit width"><i class="fa fa-arrows-alt-h"></i></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnFitH" title="Fit height"><i class="fa fa-arrows-alt-v"></i></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfBtnFit" title="Fit page"><i class="fa fa-expand"></i></button>
+            </div>
+
+            <!-- Annotations Group -->
+            <div class="pdf-toolbar-group" id="annot-group">
+                <span class="pdf-toolbar-group-title">Highlight</span>
+                <button type="button" class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
+                <button type="button" class="pdf-hl-btn" data-color="green" title="Green"></button>
+                <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
+                <button type="button" class="pdf-hl-btn" data-color="pink" title="Pink"></button>
+                
+                <div class="pdf-toolbar-divider"></div>
+                
+                <span class="pdf-toolbar-group-title">Comment</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfCommentModeBtn" title="Add Comment">
+                    <i class="fa fa-comment-alt"></i>
+                </button>
+                
+                <div class="pdf-toolbar-divider"></div>
+
+                <span class="pdf-toolbar-group-title">Pen</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfPenModeBtn" title="Draw Mode">
+                    <i class="fa fa-pen"></i>
+                </button>
+                <button type="button" class="pdf-pen-btn active-pen" data-pen-color="black" title="Black" style="background:black; width:18px;height:18px;border-radius:50%;cursor:pointer;"></button>
+                <button type="button" class="pdf-pen-btn" data-pen-color="red" title="Red" style="background:red; width:18px;height:18px;border-radius:50%;cursor:pointer;"></button>
+                <button type="button" class="pdf-pen-btn" data-pen-color="blue" title="Blue" style="background:blue; width:18px;height:18px;border-radius:50%;cursor:pointer;"></button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfEraserModeBtn" title="Eraser Tool">
+                    <i class="fa fa-eraser"></i>
+                </button>
+                <button type="button" class="pdf-toolbar-btn" id="pdfClearDrawingsBtn" title="Clear All Drawings" style="color:#ff4d4f;">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.pdf-tab-btn');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    if (window.innerWidth >= 768) return; // Only active on mobile
+                    
+                    // Remove active from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Hide all groups
+                    document.querySelectorAll('.pdf-toolbar-group').forEach(g => {
+                        g.classList.remove('active-group');
+                    });
+                    
+                    // Show target group
+                    const targetId = this.getAttribute('data-target');
+                    const targetGroup = document.getElementById(targetId);
+                    if(targetGroup) {
+                        targetGroup.classList.add('active-group');
+                    }
+                });
+            });
+        });
+    </script>
 
     <div id="pdfOuterContainer">
         <div id="pdfPagesContainer"></div>
@@ -1929,7 +2130,7 @@ if ($assign->questionBank->shuffle==1){
             const COLORS = { yellow: '#ffe066', green: '#90ee90', blue: '#90c8f0', pink: '#f0a8c8' };
             const ZOOMS = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
 
-            let pdfDoc = null, scale = 1.5, totalPages = 0, rendered = {};
+            let pdfDoc = null, scale = 1.5, totalPages = 0, rendered = {}, currentRenderTask = {};
             let highlights = [], comments = [], drawings = [];
             let hlColor = 'yellow', commentMode = false, pendingCmt = null, editingCmt = null;
             let penMode = false, eraserMode = false, penColor = 'black', isDrawing = false, currentPath = [];
@@ -2050,10 +2251,13 @@ if ($assign->questionBank->shuffle==1){
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => setTimeout(resolve, 60));
 
-                const containerWidth = outerCont.clientWidth || outerCont.getBoundingClientRect().width;
+                let containerWidth = outerCont.clientWidth || outerCont.getBoundingClientRect().width;
+                if (!containerWidth && window.innerWidth) {
+                    containerWidth = window.innerWidth;
+                }
                 if (!containerWidth) return;
 
-                const horizontalPadding = window.innerWidth < 768 ? 20 : 32;
+                const horizontalPadding = window.innerWidth < 768 ? 16 : 32;
                 const targetWidth = Math.max(100, containerWidth - horizontalPadding);
                 const fitScale = targetWidth / vp.width;
 
@@ -2141,10 +2345,17 @@ if ($assign->questionBank->shuffle==1){
                 if (rendered[pageNum] || !pdfDoc) return;
                 rendered[pageNum] = true;
 
+                const renderId = Date.now() + Math.random();
+                currentRenderTask[pageNum] = renderId;
+
                 const wrap = pagesCont.querySelector(`[data-page="${pageNum}"]`);
                 if (!wrap) return;
 
                 const page = await pdfDoc.getPage(pageNum);
+                
+                // Abort if a new render was requested while we were waiting for the page
+                if (currentRenderTask[pageNum] !== renderId) return;
+
                 const viewport = page.getViewport({ scale });
 
                 const outputScale = window.devicePixelRatio || 1;
@@ -2259,6 +2470,7 @@ if ($assign->questionBank->shuffle==1){
             async function rerenderAll() {
                 clearSearch(true);
                 rendered = {};
+                currentRenderTask = {};
 
                 pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => {
                     const ph = document.createElement('div');
