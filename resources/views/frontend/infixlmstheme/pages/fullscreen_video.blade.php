@@ -1779,16 +1779,22 @@ if ($assign->questionBank->shuffle==1){
 
             #pdfOuterContainer {
                 height: calc(100vh - 170px);
-                overflow-x: hidden; /* Prevent sideways scrolling */
+                width: 100vw !important;
+                max-width: 100vw !important;
+                overflow-x: hidden !important; /* Prevent sideways scrolling */
+                box-sizing: border-box;
             }
 
             #pdfPagesContainer {
-                display: block;
+                display: block !important;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
             }
             
             .pdf-page-wrapper {
                 margin: 0 auto 16px auto !important;
-                max-width: 100%;
+                max-width: 100% !important;
                 overflow: hidden;
             }
 
@@ -2261,7 +2267,7 @@ if ($assign->questionBank->shuffle==1){
                 const targetWidth = Math.max(100, containerWidth - horizontalPadding);
                 const fitScale = targetWidth / vp.width;
 
-                scale = Math.max(0.5, Math.min(3.0, Math.round(fitScale * 100) / 100));
+                scale = Math.max(0.1, Math.min(3.0, Math.round(fitScale * 100) / 100));
                 zoomValEl.textContent = Math.round(scale * 100) + '%';
 
                 await rerenderAll();
