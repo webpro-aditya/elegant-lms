@@ -1431,6 +1431,7 @@ class PaymentController extends Controller
 
                 $skiply_token = bin2hex(random_bytes(16));
                 session()->put('skiply_token_' . $checkout_info->id, $skiply_token);
+                session()->save();
 
                 // Create Order
                 $ch = curl_init();
@@ -1808,7 +1809,8 @@ class PaymentController extends Controller
     {
         if ($request->input('checkout') && $request->input('token')) {
             $checkout_id = $request->input('checkout');
-            $token = $request->input('token');
+            // The token should be exactly 32 characters. Skiply might append extra parameters to it.
+            $token = substr($request->input('token'), 0, 32);
 
             if (session()->get('skiply_token_' . $checkout_id) !== $token) {
                 Toastr::error(trans('common.Invalid Token or Transaction'));
