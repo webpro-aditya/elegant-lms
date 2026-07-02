@@ -1431,6 +1431,7 @@ class PaymentController extends Controller
 
                 $skiply_token = bin2hex(random_bytes(16));
                 session()->put('skiply_token_' . $checkout_info->id, $skiply_token);
+                session()->put('skiply_ott_' . $checkout_info->id, $ottVerifier);
                 session()->save();
 
                 // Create Order
@@ -1809,8 +1810,12 @@ class PaymentController extends Controller
     {
         if ($request->input('checkout') && $request->input('token')) {
             $checkout_id = $request->input('checkout');
-            // The token should be exactly 32 characters. Skiply might append extra parameters to it.
             $token = substr($request->input('token'), 0, 32);
+
+            if ($request->input('status') === 'failure' || $request->input('status') === 'declined') {
+                Toastr::error(trans('frontend.Transaction is declined'));
+                return $this->redirectToDashboard();
+            }
 
             if (session()->get('skiply_token_' . $checkout_id) !== $token) {
                 Toastr::error(trans('common.Invalid Token or Transaction'));
@@ -1828,6 +1833,70 @@ class PaymentController extends Controller
                 Toastr::error(trans('common.Already Enrolled'));
                 return $this->redirectToDashboard();
             }
+
+            // Verify status via Skiply API
+            $ottVerifier = session()->get('skiply_ott_' . $checkout_id);
+            if ($ottVerifier) {
+                $client_id = getPaymentEnv('SKIPLY_CLIENT_ID');
+                $client_secret = getPaymentEnv('SKIPLY_CLIENT_SECRET');
+                $environment = getPaymentEnv('SKIPLY_ENVIRONMENT');
+                $base_url = $environment == 'Production' ? 'https://skiply.ae' : 'https://qa.skiply.ae';
+
+                // Get API token
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-userprofile/oauth/token");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, "Grant-Type=client_credentials");
+                curl_setopt($ch, CURLOPT_USERPWD, $client_id . ":" . $client_secret);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $headers = array("Content-Type: application/x-www-form-urlencoded");
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                $result = curl_exec($ch);
+                curl_close($ch);
+                
+                $token_response = json_decode($result, true);
+                if (isset($token_response['access_token'])) {
+                    $access_token = $token_response['access_token'];
+                    
+                    // Call Status endpoint
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-payment/checkout/" . $ottVerifier . "/status");
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $headers = array();
+                    $headers[] = "Authorization: Bearer " . $access_token;
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    $status_result = curl_exec($ch);
+                    curl_close($ch);
+                    
+                    $status_response = json_decode($status_result, true);
+                    session()->forget('skiply_ott_' . $checkout_id);
+
+                    $is_success = false;
+                    if (isset($status_response['status'])) {
+                        $code = strtoupper($status_response['status']['code']);
+                        // Y or S or 00 indicates success. N indicates failure.
+                        if ($code === 'S' || $code === 'Y' || $code === '00' || $code === '000') {
+                            $is_success = true;
+                        }
+                    }
+
+                    if (!$is_success) {
+                        \Log::error("Skiply Transaction Failed", ['response' => $status_response]);
+                        Toastr::error(trans('frontend.Transaction is declined'));
+                        return $this->redirectToDashboard();
+                    }
+                } else {
+                    \Log::error("Skiply API Auth Failed for verification", ['result' => $result]);
+                    Toastr::error("Failed to verify transaction with Skiply");
+                    return $this->redirectToDashboard();
+                }
+            } else {
+                Toastr::error(trans('common.Invalid Token or Transaction'));
+                return $this->redirectToDashboard();
+            }
+
             $payWithGateway = $this->payWithGateWay(json_encode($request->all()), "Skiply", $user = null, session()->get('invoice'));
             if ($payWithGateway) {
                 Toastr::success(trans('frontend.Payment done successfully'), trans('common.Success'));
