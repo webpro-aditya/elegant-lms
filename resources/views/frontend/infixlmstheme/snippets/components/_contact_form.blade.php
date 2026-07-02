@@ -37,7 +37,7 @@
 
                 {{-- Phone Number with ISD Code --}}
                 <div class="col-md-6">
-                    <div class="contact-form-element contact-phone-wrapper has-content">
+                    <div class="contact-form-element contact-phone-wrapper">
                         <input id="contactPhone" name="phone" type="tel"
                                class="primary_input"
                                onfocus="this.placeholder = ''"
@@ -148,27 +148,26 @@
     /* Floating label fix for intl-tel-input wrapper */
     .contact-phone-wrapper label.primary_label {
         position: absolute;
-        left: 96px;
-        top: 13px;
-        color: #687083;
-        z-index: 1;
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 0;
+        margin: 0;
+        line-height: 1;
+        left: 113px;
         pointer-events: none;
-        transition: all 0.4s ease 0s;
+        transition: all .4s ease-in-out;
+        font-size: 18px;
+        top: 22px;
     }
     .contact-phone-wrapper.has-content label.primary_label,
     .contact-phone-wrapper.is-focused label.primary_label {
-        top: -10px;
-        font-size: 12px;
-        color: #828bb2;
-        left: 15px;
+        top: 0;
+        transform: none;
+        font-size: 14px;
+        color: #7e7e7e;
+        left: 20px;
         background: #fff;
-        padding: 0 5px;
+        padding: 2px 4px;
     }
     .contact-phone-wrapper.is-focused label.primary_label {
-        color: var(--system_primery_color, #FB1159);
+        color: var(--system_primery_gredient1, var(--system_primery_color, #FB1159));
     }
     .contact-phone-wrapper .iti__country-container {
         z-index: 10;
@@ -195,8 +194,9 @@
         var phoneInput = document.querySelector("#contactPhone");
         if (phoneInput && typeof window.intlTelInput === 'function') {
             var iti = window.intlTelInput(phoneInput, {
-                initialCountry: "in",
-                preferredCountries: ["in", "us", "gb", "ae", "sa", "om"],
+                initialCountry: "ae",
+                preferredCountries: ["ae", "in", "us", "gb", "sa", "om"],
+                autoPlaceholder: "off",
                 separateDialCode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
             });

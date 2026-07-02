@@ -375,8 +375,8 @@
             var phoneInput = document.querySelector("#registerPhone");
             if (phoneInput && typeof window.intlTelInput === 'function') {
                 var iti = window.intlTelInput(phoneInput, {
-                    initialCountry: "in",
-                    preferredCountries: ["in", "us", "gb", "ae", "sa", "om"],
+                    initialCountry: "ae",
+                    preferredCountries: ["ae", "in", "us", "gb", "sa", "om"],
                     separateDialCode: true,
                     utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
                 });
