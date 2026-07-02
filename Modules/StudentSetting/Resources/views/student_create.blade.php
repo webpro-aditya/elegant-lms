@@ -2,6 +2,12 @@
 @extends('backend.master')
 @push('styles')
     <link rel="stylesheet" href="{{assetPath('backend/css/student_list.css')}}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+    <style>
+        .iti { width: 100%; display: block; }
+        .iti .primary_input_field { width: 100% !important; }
+        .iti__country-list { z-index: 999; max-height: 200px; border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    </style>
 @endpush
 @php
     $table_name='users';
@@ -85,7 +91,7 @@
                                                        value="{{ old('phone',isset($user)?$user->phone:'') }}"
                                                        name="phone" id="addPhone"
                                                        placeholder="-"
-                                                       type="number" {{$errors->first('phone') ? 'autofocus' : ''}}>
+                                                       type="tel" {{$errors->first('phone') ? 'autofocus' : ''}}>
                                             </div>
                                         </div>
                                     </div>
@@ -289,5 +295,28 @@
 @push('scripts')
 
     <script src="{{assetPath('backend/js/student_list.js')}}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+    <script>
+        $(function () {
+            var phoneInput = document.querySelector("#addPhone");
+            if (phoneInput && typeof window.intlTelInput === 'function') {
+                var iti = window.intlTelInput(phoneInput, {
+                    initialCountry: "ae",
+                    preferredCountries: ["ae", "in", "us", "gb", "sa", "om"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+                });
+                
+                var form = phoneInput.closest("form");
+                if (form) {
+                    form.addEventListener("submit", function () {
+                        // Set the full number including dial code before submit if not empty
+                        if (phoneInput.value.trim() !== "") {
+                            phoneInput.value = iti.getNumber();
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 @endpush
