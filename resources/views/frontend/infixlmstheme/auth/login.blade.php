@@ -8,6 +8,14 @@
                 </a>
             </div>
             <div class="login_wrapper_content">
+                @if(session()->has('email_verify'))
+                    <div class="alert alert-success alert-dismissible fade show mb-25" role="alert">
+                        {{ session('email_verify') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
                 <h4>{{__('frontend.Welcome back. Please login')}} <br>{{__('frontend.to your account')}} </h4>
 
                 <div class="socail_links">

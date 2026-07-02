@@ -121,7 +121,7 @@ class RegisterController extends Controller
         event(new Registered($user));
 
         if (Settings('email_verification') == 1 && empty($user->email_verified_at)) {
-            Toastr::success(trans('api.Please verify your email address'), trans('common.Success'));
+            session()->flash('email_verify', trans('api.Please verify your email address'));
             return redirect()->route('login');
         }
 
