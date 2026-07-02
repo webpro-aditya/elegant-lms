@@ -1,4 +1,12 @@
 @extends('backend.master')
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+    <style>
+        .iti { width: 100%; display: block; }
+        .iti .primary_input_field { width: 100% !important; }
+        .iti__country-list { z-index: 999; max-height: 200px; border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    </style>
+@endpush
 @section('mainContent')
 
     {!! generateBreadcrumb() !!}
@@ -34,9 +42,9 @@
                                 <div class="col-xl-6 employee_id_div">
                                     <div class="primary_input mb-25">
                                         <label class="primary_input_label" for="">{{ __('common.Phone') }}</label>
-                                        <input name="phone" id="phone" class="primary_input_field name"
+                                        <input name="phone" id="phone" class="primary_input_field name phoneNumberInput"
                                                placeholder="{{ __('common.Phone') }}" value="{{ $staff->phone }}"
-                                               type="text">
+                                               type="tel">
                                         <span class="text-danger">{{$errors->first('phone')}}</span>
                                     </div>
                                 </div>
@@ -304,6 +312,29 @@
 
 @endsection
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+    <script>
+        $(function () {
+            var phoneInput = document.querySelector("#phone");
+            if (phoneInput && typeof window.intlTelInput === 'function') {
+                var iti = window.intlTelInput(phoneInput, {
+                    initialCountry: "ae",
+                    preferredCountries: ["ae", "in", "us", "gb", "sa", "om"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+                });
+                
+                var form = phoneInput.closest("form");
+                if (form) {
+                    form.addEventListener("submit", function () {
+                        if (phoneInput.value.trim() !== "") {
+                            phoneInput.value = iti.getNumber();
+                        }
+                    });
+                }
+            }
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function () {
             getField();

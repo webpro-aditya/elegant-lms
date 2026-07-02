@@ -1,4 +1,12 @@
 @extends('backend.master')
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+    <style>
+        .iti { width: 100%; display: block; }
+        .iti .primary_input_field { width: 100% !important; }
+        .iti__country-list { z-index: 999; max-height: 200px; border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    </style>
+@endpush
 @section('mainContent')
 
     {!! generateBreadcrumb() !!}
@@ -43,7 +51,7 @@
                                 <div class="col-xl-4">
                                     <div class="primary_input mb-25">
                                         <label class="primary_input_label" for="">{{ __('common.Phone') }}</label>
-                                        <input type="number" class="primary_input_field user_id name phoneNumberInput"
+                                        <input type="tel" id="addPhone" class="primary_input_field user_id name phoneNumberInput"
                                                placeholder="{{ __('common.Phone') }}" name="username"
                                                value="{{old('username')}}">
                                         <span class="text-danger">{{$errors->first('username')}}</span>
@@ -312,6 +320,29 @@
 
 @endsection
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+    <script>
+        $(function () {
+            var phoneInput = document.querySelector("#addPhone");
+            if (phoneInput && typeof window.intlTelInput === 'function') {
+                var iti = window.intlTelInput(phoneInput, {
+                    initialCountry: "ae",
+                    preferredCountries: ["ae", "in", "us", "gb", "sa", "om"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js",
+                });
+                
+                var form = phoneInput.closest("form");
+                if (form) {
+                    form.addEventListener("submit", function () {
+                        if (phoneInput.value.trim() !== "") {
+                            phoneInput.value = iti.getNumber();
+                        }
+                    });
+                }
+            }
+        });
+    </script>
     <script type="text/javascript">
         function getField() {
             var employment_type = $('#employment_type').val();
