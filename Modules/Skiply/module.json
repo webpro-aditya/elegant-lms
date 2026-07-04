@@ -1,0 +1,11 @@
+{
+    "name": "Skiply",
+    "alias": "skiply",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Skiply\\Providers\\SkiplyServiceProvider"
+    ],
+    "files": []
+}

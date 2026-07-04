@@ -244,8 +244,7 @@ Route::group(['prefix' => 'order', 'middleware' => ['auth']], function () {
     Route::get('stripe/failed', 'PaymentController@stripeFailed')->name('stripeFailed');
     Route::post('stripe/create-session', [PaymentController::class, 'createStripeSession'])->name('stripe.create.session');
 
-    //skiply url
-    Route::get('skiply/success', 'PaymentController@skiplySuccess')->name('skiply.success');
+
 
 });
 //deposit
