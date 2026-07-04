@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\PaymentMethodSetting\Entities\PaymentMethod;
-use App\Models\Checkout;
+use Modules\Payment\Entities\Checkout;
 use Illuminate\Support\Facades\Log;
 
 class SkiplyController extends Controller
