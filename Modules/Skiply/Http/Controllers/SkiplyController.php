@@ -189,6 +189,7 @@ class SkiplyController extends Controller
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     $status_result = curl_exec($ch);
+                    $curl_err = curl_error($ch);
                     curl_close($ch);
                     
                     $status_response = json_decode($status_result, true);
@@ -204,7 +205,11 @@ class SkiplyController extends Controller
                     }
 
                     if (!$is_success) {
-                        \Log::error("Skiply Transaction Failed", ['response' => $status_response]);
+                        \Log::error("Skiply Transaction Failed", [
+                            'response' => $status_response,
+                            'raw_result' => $status_result,
+                            'curl_error' => $curl_err
+                        ]);
                         Toastr::error(trans('frontend.Transaction is declined'));
                         return $this->redirectToDashboard();
                     }
