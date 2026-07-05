@@ -186,6 +186,9 @@ class SkiplyController extends Controller
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     $headers = array();
                     $headers[] = "Authorization: Bearer " . $access_token;
+                    $headers[] = "Grant-Type: client_credentials";
+                    $headers[] = "Accept: application/json";
+                    $headers[] = "Content-Type: application/json";
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     $status_result = curl_exec($ch);
