@@ -113,7 +113,7 @@ class PaymentMethodSettingController extends Controller
                     $method_setup->IS_LOCALHOST = $value3;
                     $method_setup->save();
                 } catch (Throwable $th) {
-                                    Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
+                    Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
 
                     return redirect()->back();
                 }

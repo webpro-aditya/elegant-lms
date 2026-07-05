@@ -127,6 +127,8 @@ class SkiplyController extends Controller
 
     public function skiplySuccess(Request $request)
     {
+        \Log::info('Skiply Callback URL:', $request->all());
+
         if ($request->input('checkout') && $request->input('token')) {
             $checkout_id = $request->input('checkout');
             $token = substr($request->input('token'), 0, 32);
