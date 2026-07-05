@@ -115,7 +115,10 @@ class SkiplyController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
         $response = json_decode($result, true);
-        if (isset($response['body']['url'])) {
+        if (isset($response['body']['url']) && isset($response['body']['ott'])) {
+            session()->put('skiply_returned_ott_' . $checkout_info->id, $response['body']['ott']);
+            session()->save();
+
             $redirectUrl = $response['body']['url'] . $ottVerifier;
             return redirect($redirectUrl);
         } else {
@@ -156,8 +159,8 @@ class SkiplyController extends Controller
             }
 
             // Verify status via Skiply API
-            $ottVerifier = session()->get('skiply_ott_' . $checkout_id);
-            if ($ottVerifier) {
+            $skiply_ott = session()->get('skiply_returned_ott_' . $checkout_id);
+            if ($skiply_ott) {
                 $client_id = getPaymentEnv('SKIPLY_CLIENT_ID');
                 $client_secret = getPaymentEnv('SKIPLY_CLIENT_SECRET');
                 $environment = getPaymentEnv('SKIPLY_ENVIRONMENT');
@@ -182,7 +185,7 @@ class SkiplyController extends Controller
                     
                     // Call Status endpoint
                     $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-payment/checkout/" . $ottVerifier . "/status");
+                    curl_setopt($ch, CURLOPT_URL, $base_url . "/skiply-payment/checkout/" . $skiply_ott . "/status");
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     $headers = array();
                     $headers[] = "Authorization: Bearer " . $access_token;
@@ -196,14 +199,21 @@ class SkiplyController extends Controller
                     curl_close($ch);
                     
                     $status_response = json_decode($status_result, true);
+                    session()->forget('skiply_returned_ott_' . $checkout_id);
                     session()->forget('skiply_ott_' . $checkout_id);
 
                     $is_success = false;
                     if (isset($status_response['status'])) {
                         $code = strtoupper($status_response['status']['code']);
-                        // Y or S or 00 indicates success. N indicates failure.
+                        // Y or S or 00 indicates success for the API call itself.
                         if ($code === 'S' || $code === 'Y' || $code === '00' || $code === '000') {
-                            $is_success = true;
+                            // Now check the actual payment status
+                            if (isset($status_response['body']['paymentStatus'])) {
+                                $paymentStatus = strtoupper($status_response['body']['paymentStatus']);
+                                if ($paymentStatus === 'SUCCESS' || $paymentStatus === 'COMPLETED' || $paymentStatus === 'PAID') {
+                                    $is_success = true;
+                                }
+                            }
                         }
                     }
 
