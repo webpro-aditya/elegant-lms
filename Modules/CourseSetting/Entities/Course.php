@@ -441,7 +441,12 @@ class Course extends Model
         if (!$user) {
             return '';
         }
-        $enrollment = $this->enrolls->where('user_id', $user->id)->first();
+        
+        $enrollment = \Modules\CourseSetting\Entities\CourseEnrolled::where('course_id', $this->id)
+            ->where('user_id', $user->id)
+            ->orderBy('id', 'desc')
+            ->first();
+
         if ($enrollment) {
             if (!$enrollment->end_date) {
                 return __('student.Lifetime Access');
