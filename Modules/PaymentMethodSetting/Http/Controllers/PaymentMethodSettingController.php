@@ -134,7 +134,7 @@ class PaymentMethodSettingController extends Controller
                     $method_setup->PESAPAL_CALLBACK = url('pesapal/success');
                     $method_setup->save();
                 } catch (Throwable $th) {
-                                    Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
+                    Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
 
                     return redirect()->back();
                 }

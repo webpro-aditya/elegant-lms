@@ -144,6 +144,11 @@ return [
     'Institute List'=>'Institute List',
     'Congratulations!' => 'Congratulations!',
     'No Product Purchased Yet!' => 'No Product Purchased Yet!',
+    'Remaining Time' => 'Remaining Time',
+    'Course Time Left' => 'Course Time Left',
+    'Lifetime Access' => 'Lifetime Access',
+    'Expired' => 'Expired',
+    'Left' => 'Left',
 
 
 ];

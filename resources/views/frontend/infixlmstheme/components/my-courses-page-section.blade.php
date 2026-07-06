@@ -160,6 +160,9 @@
                                                              aria-valuemax="100">
                                                         </div>
                                                     </div>
+                                                    <div class="d-flex justify-content-start mt-2">
+                                                        <span class="font_12 text-muted"><i class="ti-time"></i> {{ $course->remaining_time }}</span>
+                                                    </div>
                                                 </div>
 
 
@@ -192,6 +195,9 @@
                                                 @if ($SingleCourse->pathway_id != null)
                                                     <x-my-course-pathway-info :enrolld="$SingleCourse"/>
                                                 @endif
+                                                <div class="d-flex justify-content-start mt-2">
+                                                    <span class="font_12 text-muted"><i class="ti-time"></i> {{ $course->remaining_time }}</span>
+                                                </div>
 
                                             </div>
                                         </div>
@@ -242,6 +248,9 @@
                                                              aria-valuenow="25" aria-valuemin="0"
                                                              aria-valuemax="100">
                                                         </div>
+                                                    </div>
+                                                    <div class="d-flex justify-content-start mt-2">
+                                                        <span class="font_12 text-muted"><i class="ti-time"></i> {{ $course->remaining_time }}</span>
                                                     </div>
                                                 </div>
 

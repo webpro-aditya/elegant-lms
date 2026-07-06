@@ -534,7 +534,9 @@
                                     <div class="input-group-prepend2 ps-3 ">
                                         <a class="headerTitle"
                                            href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}">
-                                            <h4 class="headerTitle">{{ $course->title }}</h4>
+                                            <h4 class="headerTitle">{{ $course->title }}
+                                                <span class="badge bg-primary ms-2" style="font-size: 12px; font-weight: normal; margin-left: 10px; vertical-align: middle;">{{ $course->remaining_time }}</span>
+                                            </h4>
                                         </a>
                                     </div>
                                 </div>
@@ -4090,5 +4092,16 @@ if ($assign->questionBank->shuffle==1){
                 if (window.innerWidth < 768) menu.classList.remove('show');
             });
         })();
+
+        @if($course->remaining_time)
+        $(document).ready(function() {
+            setTimeout(function() {
+                toastr.info("{{ __('student.Remaining Time') }}: {{ $course->remaining_time }}", "{{ __('student.Course Time Left') }}", {
+                    timeOut: 10000,
+                    progressBar: true,
+                });
+            }, 1000);
+        });
+        @endif
     </script>
 @endpush

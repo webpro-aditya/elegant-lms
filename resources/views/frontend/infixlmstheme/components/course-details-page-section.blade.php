@@ -1658,6 +1658,11 @@
                                                 @if ($isEnrolled)
                                                     <a href="{{route('continueCourse',[$course->slug])}}"
                                                        class="theme_btn d-block text-center height_50 grid-column-span2">{{__('common.Continue Watch')}}</a>
+                                                    @if($course->remaining_time)
+                                                        <div class="mt-2 text-center text-muted">
+                                                            <i class="ti-time"></i> {{ $course->remaining_time }}
+                                                        </div>
+                                                    @endif
                                                 @else
                                                     @if($isFree)
 

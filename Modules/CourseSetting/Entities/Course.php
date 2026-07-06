@@ -432,6 +432,35 @@ class Course extends Model
         return false;
     }
 
+    public function getRemainingTimeAttribute()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            $user = Auth::guard('api')->user();
+        }
+        if (!$user) {
+            return '';
+        }
+        $enrollment = $this->enrolls->where('user_id', $user->id)->first();
+        if ($enrollment) {
+            if (!$enrollment->end_date) {
+                return __('student.Lifetime Access');
+            }
+            $now = \Carbon\Carbon::now();
+            $endDate = \Carbon\Carbon::parse($enrollment->end_date);
+            if ($now->gt($endDate)) {
+                return __('student.Expired');
+            }
+            return $now->diffForHumans($endDate, [
+                'parts' => 2,
+                'join' => ' ',
+                'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE
+            ]) . ' ' . __('student.Left');
+        }
+        return '';
+    }
+
+
     public function hasEnrollForClass()
     {
         $user = Auth::user();

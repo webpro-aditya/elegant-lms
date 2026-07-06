@@ -175,4 +175,17 @@
         load_more_review(reviewPage);
     </script>
 
+    @if(isset($isEnrolled) && $isEnrolled && $course->remaining_time)
+        <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                toastr.info("{{ __('student.Remaining Time') }}: {{ $course->remaining_time }}", "{{ __('student.Course Time Left') }}", {
+                    timeOut: 10000,
+                    progressBar: true,
+                });
+            }, 1000);
+        });
+        </script>
+    @endif
+
 @endsection
