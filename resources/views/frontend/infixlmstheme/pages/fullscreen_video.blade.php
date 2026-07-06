@@ -4093,14 +4093,36 @@ if ($assign->questionBank->shuffle==1){
             });
         })();
 
-        @if($course->remaining_time)
+        @if($course->remaining_time && (!session()->has('course_time_shown_'.$course->id) || session('course_time_shown_'.$course->id) != date('Y-m-d')))
+        @php session(['course_time_shown_'.$course->id => date('Y-m-d')]) @endphp
         $(document).ready(function() {
             setTimeout(function() {
-                toastr.info("{{ __('student.Remaining Time') }}: {{ $course->remaining_time }}", "{{ __('student.Course Time Left') }}", {
-                    timeOut: 10000,
-                    progressBar: true,
-                });
-            }, 1000);
+                var showSwal = function() {
+                    Swal.fire({
+                        title: '<h3 style="color: var(--system_primery_color); font-weight: 600; margin-bottom: 0;">{{ __("student.Course Time Left") }}</h3>',
+                        html: '<p style="font-size: 16px; color: #687083; margin-top: 10px;">{{ __("student.Remaining Time") }}: <strong style="color: #202e3b; font-size: 18px;">{{ $course->remaining_time }}</strong></p>',
+                        icon: 'info',
+                        iconColor: 'var(--system_primery_color)',
+                        background: '#ffffff',
+                        padding: '2rem',
+                        confirmButtonText: '{{ __("common.Continue") }}',
+                        customClass: {
+                            confirmButton: 'theme_btn',
+                            popup: 'rounded-3 shadow-lg'
+                        },
+                        buttonsStyling: false
+                    });
+                };
+                
+                if (typeof Swal === 'undefined') {
+                    var script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+                    script.onload = showSwal;
+                    document.head.appendChild(script);
+                } else {
+                    showSwal();
+                }
+            }, 500);
         });
         @endif
     </script>
