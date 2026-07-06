@@ -2005,7 +2005,7 @@ if ($assign->questionBank->shuffle==1){
             background: #e0ebff;
         }
 
-        #pdfCommentModeBtn.comment-active, #pdfPenModeBtn.pen-active {
+        #pdfCommentModeBtn.comment-active, #pdfPenModeBtn.pen-active, #pdfHighlightModeBtn.highlight-active {
             background: linear-gradient(90deg, #3c7cff, #1aafff) !important;
             color: #fff !important;
             border-color: transparent !important;
@@ -2077,6 +2077,9 @@ if ($assign->questionBank->shuffle==1){
             <!-- Annotations Group -->
             <div class="pdf-toolbar-group" id="annot-group">
                 <span class="pdf-toolbar-group-title">Highlight</span>
+                <button type="button" class="pdf-toolbar-btn" id="pdfHighlightModeBtn" title="Highlight Mode">
+                    <i class="fa fa-highlighter"></i>
+                </button>
                 <button type="button" class="pdf-hl-btn active-hl" data-color="yellow" title="Yellow"></button>
                 <button type="button" class="pdf-hl-btn" data-color="green" title="Green"></button>
                 <button type="button" class="pdf-hl-btn" data-color="blue" title="Blue"></button>
@@ -2744,7 +2747,7 @@ if ($assign->questionBank->shuffle==1){
             }
 
             async function onMouseUp(e, wrap, pageNum) {
-                if (commentMode) return;
+                if (commentMode || !highlightMode) return;
 
                 const sel = window.getSelection();
                 if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
@@ -2811,10 +2814,27 @@ if ($assign->questionBank->shuffle==1){
                 pagesCont.querySelectorAll('.pdf-page-wrapper').forEach(w => w.classList.remove('comment-mode'));
             }
 
+            let highlightMode = false;
+
+            document.getElementById('pdfHighlightModeBtn').addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (commentMode) exitCommentMode();
+                if (penMode) document.getElementById('pdfPenModeBtn').click();
+                if (eraserMode) document.getElementById('pdfEraserModeBtn').click();
+                
+                highlightMode = !highlightMode;
+                if (highlightMode) {
+                    this.classList.add('highlight-active');
+                } else {
+                    this.classList.remove('highlight-active');
+                }
+            });
+
             cmBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 if (penMode) document.getElementById('pdfPenModeBtn').click();
                 if (eraserMode) document.getElementById('pdfEraserModeBtn').click();
+                if (highlightMode) document.getElementById('pdfHighlightModeBtn').click();
                 if (commentMode) exitCommentMode();
                 else enterCommentMode();
             });
@@ -2822,6 +2842,7 @@ if ($assign->questionBank->shuffle==1){
             document.getElementById('pdfPenModeBtn').addEventListener('click', function (e) {
                 e.stopPropagation();
                 if (commentMode) exitCommentMode();
+                if (highlightMode) document.getElementById('pdfHighlightModeBtn').click();
                 if (eraserMode) {
                     eraserMode = false;
                     document.getElementById('pdfEraserModeBtn').style.background = '';
@@ -2840,6 +2861,7 @@ if ($assign->questionBank->shuffle==1){
             document.getElementById('pdfEraserModeBtn').addEventListener('click', function (e) {
                 e.stopPropagation();
                 if (commentMode) exitCommentMode();
+                if (highlightMode) document.getElementById('pdfHighlightModeBtn').click();
                 if (penMode) {
                     penMode = false;
                     document.getElementById('pdfPenModeBtn').classList.remove('pen-active');
