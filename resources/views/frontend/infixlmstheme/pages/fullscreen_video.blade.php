@@ -464,7 +464,7 @@
 
 @section('mainContent')
     @php
-        $video_lesson_hosts=['Iframe','Image','PDF','Word','Excel','PowerPoint','Text','Zip','GoogleDrive','H5P','Editor'];
+        $video_lesson_hosts=['Iframe','Image','PDF','Word','Excel','PowerPoint','Text','Zip','GoogleDrive','H5P','Editor','Link'];
     @endphp
     @push('js')
         <script>
@@ -1488,6 +1488,15 @@ if ($assign->questionBank->shuffle==1){
 
             @if ($lesson->host == 'Image')
                 <img src="{{assetPath($lesson->video_url) }}" alt="" class="w-100  h-100">
+            @endif
+
+            @if ($lesson->host == 'Link')
+                <div class="d-flex justify-content-center align-items-center h-100 w-100 flex-column" style="min-height: 400px; background: #000;">
+                    <h4 class="mb-4 text-white">{{ $lesson->name }}</h4>
+                    <a href="{{ $lesson->video_url }}" target="_blank" class="theme_btn">
+                        {{ $lesson->description ?? __('common.Click Here to View') }} <i class="fas fa-external-link-alt ml-2"></i>
+                    </a>
+                </div>
             @endif
 
             @if ($lesson->host == 'PDF')

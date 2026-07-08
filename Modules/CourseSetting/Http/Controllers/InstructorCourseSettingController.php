@@ -260,6 +260,9 @@ class InstructorCourseSettingController extends Controller
                             $lesson->video_url = $request->video_url;
                         } elseif ($request->get('host') == "Iframe") {
                             $lesson->video_url = $request->iframe_url;
+                        } elseif ($request->get('host') == "Link") {
+                            $lesson->video_url = $request->link_url;
+                            $lesson->description = $request->link_text;
                         } elseif ($request->get('host') == "Self") {
 
                             $file = $this->getPublicPathFromServerId($request->get('file'));
@@ -601,6 +604,9 @@ class InstructorCourseSettingController extends Controller
                     $rules['bunny'] = 'required';
                 } elseif ($request->get('host') == "Iframe") {
                     $rules['iframe_url'] = 'required';
+                } elseif ($request->get('host') == "Link") {
+                    $rules['link_url'] = 'required|url';
+                    $rules['link_text'] = 'required';
                 } elseif ($request->get('host') == "Youtube" || $request->get('host') == "URL" || $request->get('host') == "m3u8") {
                     $rules['video_url'] = 'required';
                 } elseif ($request->get('host') == "ImagePreview") {
@@ -863,6 +869,9 @@ class InstructorCourseSettingController extends Controller
                             $lesson->video_url = $request->video_url;
                         } elseif ($request->get('host') == "Iframe") {
                             $lesson->video_url = $request->iframe_url;
+                        } elseif ($request->get('host') == "Link") {
+                            $lesson->video_url = $request->link_url;
+                            $lesson->description = $request->link_text;
                         } elseif ($request->get('host') == "Self") {
 
                             $file = $this->getPublicPathFromServerId($request->get('file'));

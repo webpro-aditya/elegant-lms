@@ -115,6 +115,10 @@
                                             Iframe embed
                                         </option>
                                         <option
+                                            value="Link" {{isset($editLesson) ? $editLesson->host=='Link'? 'selected':'':'' }} >
+                                            Link
+                                        </option>
+                                        <option
                                             value="Image" {{isset($editLesson) ? $editLesson->host=='Image'? 'selected':'':'' }} >
                                             Image
                                         </option>
@@ -236,6 +240,40 @@
                                     @if ($errors->has('video_url'))
                                         <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $errors->first('video_url') }}</strong>
+                                            </span>
+                                    @endif
+                                </div>
+
+                                <div class="input-effect mt-2 pt-1"
+                                     id="linkUrlBox{{isset($editSection)?'_edit_':''}}{{isset($editLesson)? $editLesson->id:$key}}"
+                                     style="display:@if((isset($editLesson) && ($editLesson->host=="Link"))) @else none @endif">
+                                    <label class="primary_input_label mt-1">{{__('common.Link')}} URL
+                                        <span class="required_mark">*</span></label>
+                                    <input
+                                        class="primary_input_field name{{ $errors->has('link_url') ? ' is-invalid' : '' }}"
+                                        type="url" name="link_url"
+                                        placeholder="https://example.com"
+                                        autocomplete="off"
+                                        value="@if(isset($editLesson)) @if($editLesson->host=="Link"){{$editLesson->video_url}} @endif @endif">
+                                    <span class="focus-border"></span>
+                                    @if ($errors->has('link_url'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('link_url') }}</strong>
+                                            </span>
+                                    @endif
+
+                                    <label class="primary_input_label mt-3">{{__('common.Link')}} Text
+                                        <span class="required_mark">*</span></label>
+                                    <input
+                                        class="primary_input_field name{{ $errors->has('link_text') ? ' is-invalid' : '' }}"
+                                        type="text" name="link_text"
+                                        placeholder="{{ __('common.Click Here to View') }}"
+                                        autocomplete="off"
+                                        value="@if(isset($editLesson)) @if($editLesson->host=="Link"){{$editLesson->description}} @endif @endif">
+                                    <span class="focus-border"></span>
+                                    @if ($errors->has('link_text'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('link_text') }}</strong>
                                             </span>
                                     @endif
                                 </div>
@@ -407,6 +445,7 @@
       ($editLesson->host=="Iframe")||
                                                 $editLesson->host == 'Storage' ||
                                                 $editLesson->host == 'm3u8' ||
+                                                $editLesson->host == 'Link' ||
 
         ($editLesson->host=="URL")) ) ||
          !isset($editLesson)) none  @endif">

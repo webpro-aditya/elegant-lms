@@ -382,6 +382,7 @@
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
                     $("#VdoCipherUrl").hide();
+                    $("#linkUrl").hide();
 
                 } else if ((category_id === 'Self') || (category_id === 'Zip') || (category_id ===
                     'GoogleDrive') || (category_id === 'PowerPoint') || (category_id === 'Excel') || (
@@ -405,6 +406,7 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
 
                 } else if (category_id === 'Vimeo') {
@@ -417,6 +419,7 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
                 } else if (category_id === 'VdoCipher') {
                     $("#iframeBox").hide();
@@ -428,6 +431,7 @@
                     $("#VdoCipherUrl").show();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
                 } else if (category_id === 'Iframe') {
 
@@ -440,6 +444,7 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
 
                 } else if (category_id === 'BunnyStorage') {
@@ -453,6 +458,7 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").show();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
                 } else if (category_id === 'Storage') {
                     $("#iframeBox").hide();
@@ -464,6 +470,19 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").show();
+                    $("#linkUrl").hide();
+
+                } else if (category_id === 'Link') {
+                    $("#iframeBox").hide();
+                    $("#videoUrl").hide();
+                    $("#vimeoUrl").hide();
+                    $("#vimeoVideo").val('');
+                    $("#youtubeVideo").val('');
+                    $("#fileupload").hide();
+                    $("#VdoCipherUrl").hide();
+                    $("#bunnyStreamUrl").hide();
+                    $("#media_upload").hide();
+                    $("#linkUrl").show();
 
                 } else {
                     $("#iframeBox").hide();
@@ -475,6 +494,7 @@
                     $("#VdoCipherUrl").hide();
                     $("#bunnyStreamUrl").hide();
                     $("#media_upload").hide();
+                    $("#linkUrl").hide();
 
                 }
 

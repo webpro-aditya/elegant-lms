@@ -231,6 +231,10 @@
                                                     Editor
                                                 </option>
                                                 <option
+                                                    value="Link" {{($edit->host??'')=='Link'? 'selected':'' }} >
+                                                    Link
+                                                </option>
+                                                <option
                                                     value="Image" {{($edit->host??'')=='Image'? 'selected':''}} >
                                                     Image
                                                 </option>
@@ -341,6 +345,40 @@
                                                 <span class="required_mark">*</span></label>
                                             <textarea name="editor" id="lms_editor" cols="30"
                                                       rows="10">{!! $edit->editor??"" !!}</textarea>
+                                        </div>
+
+                                        <div class="input-effect mt-2 pt-1"
+                                             id="linkUrlBox{{isset($edit)?'_edit_':''}}{{$edit->id??""}}"
+                                             style="display:@if((isset($edit) && ($edit->host=="Link"))) @else none @endif">
+                                            <label class="primary_input_label mt-1">{{__('common.Link')}} URL
+                                                <span class="required_mark">*</span></label>
+                                            <input
+                                                class="primary_input_field name{{ $errors->has('link_url') ? ' is-invalid' : '' }}"
+                                                type="url" name="link_url"
+                                                placeholder="https://example.com"
+                                                autocomplete="off"
+                                                value="@if(isset($edit)) @if(($edit->host??'')=="Link"){{$edit->video_url}} @endif @endif">
+                                            <span class="focus-border"></span>
+                                            @if ($errors->has('link_url'))
+                                                <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('link_url') }}</strong>
+                                            </span>
+                                            @endif
+
+                                            <label class="primary_input_label mt-3">{{__('common.Link')}} Text
+                                                 <span class="required_mark">*</span></label>
+                                            <input
+                                                 class="primary_input_field name{{ $errors->has('link_text') ? ' is-invalid' : '' }}"
+                                                 type="text" name="link_text"
+                                                 placeholder="{{ __('common.Click Here to View') }}"
+                                                 autocomplete="off"
+                                                 value="@if(isset($edit)) @if(($edit->host??'')=="Link"){{$edit->description}} @endif @endif">
+                                            <span class="focus-border"></span>
+                                            @if ($errors->has('link_text'))
+                                                 <span class="invalid-feedback" role="alert">
+                                                 <strong>{{ $errors->first('link_text') }}</strong>
+                                             </span>
+                                            @endif
                                         </div>
 
                                         <div class="input-effect mt-2 pt-1"
@@ -531,6 +569,7 @@
       (($edit->host??'')=="Iframe")||
                                                 $edit->host == 'Storage' ||
                                                 $edit->host == 'm3u8' ||
+                                                $edit->host == 'Link' ||
 
         (($edit->host??'')=="URL")) ) ||
          !isset($edit)) none  @endif">
@@ -657,6 +696,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
         } else if ((category_id === 'Self') || (category_id === 'Zip') || (category_id === 'GoogleDrive') || (category_id === 'PowerPoint') || (category_id === 'Excel') || (category_id === 'Text') || (category_id === 'Word') || (category_id === 'PDF') || (category_id === 'Image') || (category_id === 'AmazonS3') || (category_id === 'SCORM') || (category_id === 'SCORM-AwsS3') || (category_id === 'XAPI') || (category_id === 'XAPI-AwsS3') || (category_id === 'H5P')) {
 
@@ -670,6 +710,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
         } else if (category_id === 'Vimeo') {
             $("#iframeBox" + key).hide();
@@ -682,6 +723,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
         } else if (category_id === 'VdoCipher') {
             $("#iframeBox" + key).hide();
@@ -694,6 +736,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
         } else if (category_id === 'Iframe') {
             $("#iframeBox" + key).show();
@@ -706,6 +749,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
         } else if (category_id === 'BunnyStorage') {
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
@@ -717,6 +761,7 @@
             $("#VdoCipherUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
         } else if (category_id === 'Storage') {
             $("#iframeBox" + key).hide();
@@ -729,6 +774,7 @@
             $("#VdoCipherUrl" + key).hide();
             $("#media_upload" + key).show();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
         } else if (category_id === 'Editor') {
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
@@ -740,6 +786,19 @@
             $("#VdoCipherUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).show();
+            $("#linkUrlBox" + key).hide();
+        } else if (category_id === 'Link') {
+            $("#iframeBox" + key).hide();
+            $("#videoUrl" + key).hide();
+            $("#vimeoUrl" + key).hide();
+            $("#bunnyStreamUrl" + key).hide();
+            $("#vimeoVideo" + key).val('');
+            $("#youtubeVideo" + key).val('');
+            $("#fileupload" + key).hide();
+            $("#VdoCipherUrl" + key).hide();
+            $("#media_upload" + key).hide();
+            $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).show();
         } else {
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
@@ -751,6 +810,7 @@
             $("#bunnyStreamUrl" + key).hide();
             $("#media_upload" + key).hide();
             $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
 
 
         }
