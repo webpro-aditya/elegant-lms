@@ -558,6 +558,9 @@
                                                 <span class="ps-2 text-nowrap">{{ __('frontend.Auto Next') }}</span>
                                             </div>
                                             <div class="pl-20 text-end ms-3 d-flex align-items-center flex-row">
+                                                <a href="{{ route('practice-quiz.setup', $course->id) }}" class="header__common_btn text-nowrap px-3 mr-2 bg-info border-info text-white" target="_blank" title="Practice Quiz">
+                                                    <i class="fas fa-layer-group"></i> Practice
+                                                </a>
                                                 @php
                                                     $last_key = array_key_last($lesson_ids);
                                                     $last_previous_one = array_key_last($lesson_ids) - 1;

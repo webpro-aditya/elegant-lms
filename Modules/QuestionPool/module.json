@@ -1,0 +1,13 @@
+{
+    "name": "QuestionPool",
+    "alias": "questionpool",
+    "description": "Question Pool Module for Elegant LMS",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\QuestionPool\\Providers\\QuestionPoolServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

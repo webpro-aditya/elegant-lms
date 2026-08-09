@@ -1,0 +1,4 @@
+course_title,chapter_name,lesson_name,type,question,marks,explanation,option_a,option_b,option_c,option_d,correct_option
+"Laravel Basics","Introduction","What is Laravel?","M","Which design pattern does Laravel follow?",1,"Laravel follows the Model-View-Controller design pattern.","MVC","MVVM","Singleton","Factory","A"
+"Laravel Basics","Introduction","What is Laravel?","T","Laravel is a JavaScript framework.",1,"Laravel is a PHP framework, not JavaScript.","","","","","F"
+"Laravel Basics","Routing","Basic Routing","F","The standard file to define web routes in Laravel is ____.php",2,"","","","","","web"

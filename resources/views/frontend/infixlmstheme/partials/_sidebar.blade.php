@@ -100,6 +100,15 @@
                             <span>{{__('common.My Quizzes')}}</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{route('practice-quiz.history')}}"
+                           class=" d-flex align-items-center {{ routeIs('practice-quiz.*')  ? 'active' : '' }}">
+                            <div class="menu_icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <span>Practice Quizzes</span>
+                        </a>
+                    </li>
                 @endif
                 @if (permissionCheck('myClasses'))
 
