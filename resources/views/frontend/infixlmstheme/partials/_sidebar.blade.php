@@ -100,6 +100,8 @@
                             <span>{{__('common.My Quizzes')}}</span>
                         </a>
                     </li>
+                @endif
+                @if(Route::has('practice-quiz.history'))
                     <li>
                         <a href="{{route('practice-quiz.history')}}"
                            class=" d-flex align-items-center {{ routeIs('practice-quiz.*')  ? 'active' : '' }}">
