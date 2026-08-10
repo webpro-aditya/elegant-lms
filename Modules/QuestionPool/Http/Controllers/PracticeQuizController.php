@@ -41,7 +41,7 @@ class PracticeQuizController extends Controller
     public function availableCount(Request $request)
     {
         try {
-            $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id);
+            $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
             
             if ($request->scope == 'lesson' && $request->lesson_id) {
                 $query->where('lesson_id', $request->lesson_id);
@@ -71,7 +71,7 @@ class PracticeQuizController extends Controller
         try {
             $user = Auth::user();
             
-            $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id);
+            $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
             if ($request->scope == 'lesson') {
                 $query->where('lesson_id', $request->lesson_id);
             } elseif ($request->scope == 'chapter') {

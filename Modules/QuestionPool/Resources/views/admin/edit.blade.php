@@ -65,7 +65,6 @@
                                             <option data-display="Select Type" value="">Select Type</option>
                                             <option value="M" {{ $question->type == 'M' ? 'selected' : '' }}>Multiple Choice</option>
                                             <option value="T" {{ $question->type == 'T' ? 'selected' : '' }}>True/False</option>
-                                            <option value="F" {{ $question->type == 'F' ? 'selected' : '' }}>Fill in the blanks</option>
                                         </select>
                                     </div>
                                 </div>

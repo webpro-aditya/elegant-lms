@@ -1,15 +1,40 @@
 @extends('frontend.infixlmstheme.layouts.dashboard_master')
 @section('title')Practice Quiz Attempt @endsection
 @section('mainContent')
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+    .question_block {
+        scroll-margin-top: 120px;
+    }
+    .nav-not-attempted { background-color: #dc3545 !important; border-color: #dc3545 !important; color: #fff !important; }
+    .nav-skipped { background-color: #ffc107 !important; border-color: #ffc107 !important; color: #fff !important; }
+    .nav-answered { background-color: #28a745 !important; border-color: #28a745 !important; color: #fff !important; }
+    
+    @media (max-width: 768px) {
+        .dashboard_white_box.p-4 { padding: 15px !important; }
+        .question_body { font-size: 1.1rem !important; }
+        .answer_section .primary_radio { padding: 15px !important; }
+        #timer_display { font-size: 1.25rem !important; }
+        .section__title3 h4 { font-size: 1.2rem; }
+        .timer-icon-svg { width: 20px; height: 20px; }
+    }
+    @media (min-width: 769px) {
+        .timer-icon-svg { width: 28px; height: 28px; }
+    }
+</style>
 <div class="main_content_iner main_content_padding">
     <div class="dashboard_lg_card">
         <div class="container-fluid no-gutters">
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm">
-                        <h4 class="mb-0 text-primary">Practice Quiz In Progress</h4>
+                        <h4 class="mb-0 text-primary" style="font-weight: 600;">Practice Quiz In Progress</h4>
                         <div class="d-flex align-items-center">
-                            <i class="ti-timer text-danger mr-2" style="font-size: 24px;"></i>
+                            <svg class="timer-icon-svg text-danger mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             <h3 class="mb-0 text-danger font-weight-bold timer_display" id="timer_display">
                                 {{ sprintf("%02d:00", $quiz->estimated_time) }}
                             </h3>
@@ -61,8 +86,8 @@
                                         <span class="ml-2 h6">False</span>
                                     </label>
                                 @elseif($detail->question->type == 'F')
-                                    <div class="primary_input">
-                                        <input class="primary_input3" type="text" name="answer_{{ $detail->id }}" placeholder="Type your answer here...">
+                                    <div class="primary_input" style="position: relative; z-index: 2147483647;">
+                                        <input class="primary_input3 fill-in-the-blanks-input" type="text" name="answer_{{ $detail->id }}" placeholder="Type your answer here..." style="position: relative !important; z-index: 2147483647 !important; pointer-events: auto !important; cursor: text !important; user-select: auto !important; background-color: #fff !important;" onmousedown="event.stopPropagation(); this.focus();" onclick="event.stopPropagation(); this.focus();">
                                     </div>
                                 @endif
                             </div>
@@ -78,9 +103,16 @@
                     <div class="col-xl-3 d-none d-xl-block">
                         <div class="dashboard_white_box p-4 sticky-top" style="top: 20px;">
                             <h5 class="mb-3">Quiz Navigation</h5>
+                            
+                            <div class="d-flex justify-content-between mb-3" style="font-size: 12px; font-weight: 600;">
+                                <div class="d-flex align-items-center"><span style="width: 12px; height: 12px; background: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Answered</div>
+                                <div class="d-flex align-items-center"><span style="width: 12px; height: 12px; background: #ffc107; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Skipped</div>
+                                <div class="d-flex align-items-center"><span style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Unseen</div>
+                            </div>
+                            
                             <div class="d-flex flex-wrap">
                                 @for($i = 1; $i <= $quiz->total_questions; $i++)
-                                    <a href="#question_{{ $i }}" class="btn btn-outline-secondary m-1 rounded-circle" style="width: 40px; height: 40px; line-height: 26px;">{{ $i }}</a>
+                                    <a href="#question_{{ $i }}" id="nav_link_{{ $i }}" class="btn m-1 rounded-circle nav-not-attempted" style="width: 40px; height: 40px; line-height: 26px; font-weight: bold; padding: 6px 0; text-align: center;">{{ $i }}</a>
                                 @endfor
                             </div>
                         </div>
@@ -122,6 +154,60 @@
                 clearInterval(timerInterval);
                 $('#quiz_submit_form').submit();
             }
+        });
+
+        // Question Navigation Status Tracking
+        const answeredQuestions = new Set();
+        
+        // Listen to radio changes (Multiple Choice / True-False)
+        $('.question_block input[type="radio"]').on('change', function() {
+            let questionId = $(this).closest('.question_block').attr('id').split('_')[1];
+            $('#nav_link_' + questionId).removeClass('nav-not-attempted nav-skipped').addClass('nav-answered');
+            answeredQuestions.add(questionId);
+        });
+
+        // Listen to text inputs (Fill in the blanks)
+        $('.question_block input[type="text"]').on('input', function() {
+            let questionId = $(this).closest('.question_block').attr('id').split('_')[1];
+            if($(this).val().trim() !== '') {
+                $('#nav_link_' + questionId).removeClass('nav-not-attempted nav-skipped').addClass('nav-answered');
+                answeredQuestions.add(questionId);
+            } else {
+                answeredQuestions.delete(questionId);
+                // If it's deleted, it goes back to skipped (yellow) because they already visited it!
+                $('#nav_link_' + questionId).removeClass('nav-answered nav-not-attempted').addClass('nav-skipped');
+            }
+        });
+
+        // Intersection observer to track skipped (visited but not answered)
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        let questionId = entry.target.id.split('_')[1];
+                        // If it hasn't been answered, mark it as skipped/visited
+                        if (!answeredQuestions.has(questionId)) {
+                            $('#nav_link_' + questionId).removeClass('nav-not-attempted').addClass('nav-skipped');
+                        }
+                    }
+                });
+            }, { threshold: 0.5 }); // Trigger when 50% of the question block is visible
+
+            // Observe all question blocks
+            document.querySelectorAll('.question_block').forEach(block => {
+                observer.observe(block);
+            });
+        }
+
+        // Anti-piracy script bypass for Fill in the Blanks inputs
+        var textInputs = document.querySelectorAll('.fill-in-the-blanks-input');
+        var eventsToStop = ['selectstart', 'copy', 'paste', 'cut', 'contextmenu', 'keydown', 'keyup', 'keypress'];
+        textInputs.forEach(function(input) {
+            eventsToStop.forEach(function(ev) {
+                input.addEventListener(ev, function(e) {
+                    e.stopPropagation();
+                }, false);
+            });
         });
     });
 </script>

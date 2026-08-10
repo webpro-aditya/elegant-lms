@@ -59,7 +59,6 @@
                                             <option data-display="Select Type" value="">Select Type</option>
                                             <option value="M">Multiple Choice</option>
                                             <option value="T">True/False</option>
-                                            <option value="F">Fill in the blanks</option>
                                         </select>
                                     </div>
                                 </div>

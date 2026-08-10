@@ -1,6 +1,17 @@
 @extends('frontend.infixlmstheme.layouts.dashboard_master')
 @section('title')Practice Quiz Result @endsection
 @section('mainContent')
+<style>
+    @media (max-width: 768px) {
+        .dashboard_white_box.p-4 { padding: 15px !important; }
+        .section__title3 h3 { font-size: 1.5rem !important; }
+        .score-grid .col-6 { padding-left: 10px; padding-right: 10px; }
+        .score-grid .p-3 { padding: 10px !important; }
+        .score-grid h4 { font-size: 1.1rem; }
+        .score-grid h2 { font-size: 1.5rem; }
+    }
+    .svg-icon-sm { width: 18px; height: 18px; display: inline-block; vertical-align: text-bottom; margin-right: 4px; }
+</style>
 <div class="main_content_iner main_content_padding">
     <div class="dashboard_lg_card">
         <div class="container-fluid no-gutters">
@@ -25,27 +36,27 @@
                             {{ $quiz->pass == 1 ? 'PASSED!' : 'FAILED' }}
                         </h2>
                         
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="p-3 bg-light rounded">
+                        <div class="row score-grid">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                                <div class="p-3 bg-light rounded h-100">
                                     <h4 class="text-secondary">Score</h4>
                                     <h2 class="text-primary">{{ $quiz->percentage }}%</h2>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-light rounded">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                                <div class="p-3 bg-light rounded h-100">
                                     <h4 class="text-secondary">Marks</h4>
                                     <h2 class="text-info">{{ $quiz->obtained_marks }} / {{ $quiz->total_marks }}</h2>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-light rounded">
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 bg-light rounded h-100">
                                     <h4 class="text-secondary">Correct</h4>
                                     <h2 class="text-success">{{ $quiz->correct_answers }}</h2>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-light rounded">
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 bg-light rounded h-100">
                                     <h4 class="text-secondary">Wrong</h4>
                                     <h2 class="text-danger">{{ $quiz->wrong_answers }}</h2>
                                 </div>
@@ -53,8 +64,8 @@
                         </div>
 
                         <div class="mt-4">
-                            <a href="{{ route('practice-quiz.setup', $quiz->course_id) }}" class="theme_btn mr-2">Take Another Quiz</a>
-                            <a href="{{ url('my-practice-quizzes') }}" class="theme_btn_outline">View History</a>
+                            <a href="{{ route('practice-quiz.setup', $quiz->course_id) }}" class="theme_btn mr-2 mb-2">Take Another Quiz</a>
+                            <a href="{{ url('my-practice-quizzes') }}" class="theme_btn_outline mb-2">View History</a>
                         </div>
                     </div>
                 </div>
@@ -69,9 +80,9 @@
                         <div class="d-flex justify-content-between mb-3">
                             <h5 class="text-secondary">Question {{ $index + 1 }}</h5>
                             @if($detail->is_correct)
-                                <span class="badge badge-success px-3 py-2"><i class="ti-check"></i> Correct (+{{ $detail->marks_obtained }})</span>
+                                <span class="badge badge-success px-3 py-2"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> Correct (+{{ $detail->marks_obtained }})</span>
                             @else
-                                <span class="badge badge-danger px-3 py-2"><i class="ti-close"></i> Wrong (0)</span>
+                                <span class="badge badge-danger px-3 py-2"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> Wrong (0)</span>
                             @endif
                         </div>
                         
@@ -123,7 +134,7 @@
                         
                         @if(!empty(strip_tags($detail->question->explanation)))
                         <div class="mt-4 p-3 bg-info-light rounded" style="background-color: #e3f2fd;">
-                            <strong class="d-block mb-2 text-info"><i class="ti-info-alt"></i> Explanation:</strong>
+                            <strong class="d-block mb-2 text-info"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Explanation:</strong>
                             <div class="text-dark">
                                 {!! $detail->question->explanation !!}
                             </div>
