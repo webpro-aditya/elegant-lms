@@ -4,23 +4,26 @@
 
     <section class="admin-visitor-area up_st_admin_visitor">
         <div class="container-fluid p-0">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <div class="box_header common_table_header">
-                        <div class="main-title d-md-flex">
-                            <h3 class="mb-0 mr-30 mb_xs_15px mb_sm_20px">Question Pool</h3>
+            <div class="white-box">
+                <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="main-title d-flex align-items-center justify-content-between mb-3">
+                            <h3 class="mb-20">Question Pool</h3>
                             @if(permissionCheck('question-pool.create'))
-                                <ul class="d-flex">
-                                    <li><a class="primary-btn radius_30px mr-10 fix-gr-bg"
-                                           href="{{ route('question-pool.create') }}"><i
-                                                class="ti-plus"></i>Add Question</a>
-                                    </li>
-                                </ul>
+                                <div class="filter">
+                                    <ul class="d-flex float-end gap-10">
+                                        <li>
+                                            <a class="primary-btn radius_30px fix-gr-bg"
+                                               href="{{ route('question-pool.create') }}">
+                                                <i class="ti-plus"></i>Add Question
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             @endif
                         </div>
-                    </div>
 
-                    <div class="QA_section QA_section_heading_custom check_box_table">
+                        <div class="QA_section QA_section_heading_custom check_box_table">
                         <div class="QA_table">
                             <table id="lms_table" class="table Crm_table_active3">
                                 <thead>
@@ -39,6 +42,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
