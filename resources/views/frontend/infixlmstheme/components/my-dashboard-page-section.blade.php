@@ -51,6 +51,93 @@
             <div class="row">
                 <div class="col-xl-{{$col}} col-12">
                     <div class="row">
+                        <div class="col-12 ">
+                            <div id="myHomepageCourse" class="owl-carousel">
+                                @if($mycourse)
+                                    @foreach($mycourse as $key=>$single_course)
+                                        @if($key<5)
+                                            @php
+                                                $course =$single_course->course;
+                                                   $percentage =round($course->loginUserTotalPercentage);
+                                                   if ($percentage>=100){
+                                                       continue;
+                                                   }
+                                            @endphp
+
+                                            <a href="{{route('continueCourse',[$course->slug])}}" class="course-dashboard-card-link">
+                                                <div class="dashboard_card dashboard_banner ">
+                                                    <div class="thumb position-relative"
+                                                         style="background-image: url('{{getCourseImage($course->image)}}')"
+                                                    >
+                                                        <span class="badge ms-3 mt-2">{{$course->courseLevel->title}}</span>
+                                                    </div>
+                                                    <div class="banner_info">
+                                                        <div class="course_qualification mb-2">
+                                                            <div class="banner_info_profile d-flex align-items-center">
+                                                                <div class="img"><img
+                                                                        src="{{getProfileImage($course->user->image,$course->user->name)}}"
+                                                                        alt="">
+                                                                </div>
+                                                                <p>{{$course->user->name}}</p>
+                                                            </div>
+                                                            <div class="starts d-flex">
+
+                                                                <div class="stars">
+                                                                    @php
+
+                                                                        $main_stars=$course->total_rating;
+
+                                                                        $stars=intval($course->total_rating);
+
+                                                                    @endphp
+                                                                    @for ($i = 0; $i <  $stars; $i++)
+                                                                        <i class="fas fa-star"></i>
+                                                                    @endfor
+                                                                    @if ($main_stars>$stars)
+                                                                        <i class="fas fa-star-half"></i>
+                                                                    @endif
+                                                                    @if($main_stars==0)
+                                                                        @for ($i = 0; $i <  5; $i++)
+                                                                            <i class="far fa-star"></i>
+                                                                        @endfor
+                                                                    @endif
+                                                                </div>
+                                                                <p>
+                                                            </div>
+                                                        </div>
+                                                        {{--                                                margin-left: calc(var(--width) * -1);--}}
+                                                        @php
+
+                                                            if ($percentage == 0){
+                                                                $margin= 'margin-left: 0';
+                                                            }elseif ($percentage == 100){
+                                                              $margin= 'margin-left: calc(var(--width) * -1 - 20px)';
+                                                            }else{
+                                                                $margin= 'margin-left: calc(var(--width) * -1)';
+                                                            }
+                                                        @endphp
+                                                        <span class="title d-block">{{$course->title}}</span>
+                                                        <div class="progress">
+                                                            <div
+                                                                class="progress-status"
+                                                                style="--position:{{$percentage}}%;{{$margin}}"
+                                                            >{{$percentage.'%'}}
+                                                            </div>
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 aria-valuenow="{{$percentage}}"
+                                                                 aria-valuemin="0" aria-valuemax="100"
+                                                                 style="width: {{$percentage}}%"></div>
+                                                        </div>
+                                                        <span class="theme_btn d-inline-block">{{__('frontend.Complete This Course')}}</span>
+                                                    </div>
+                                                </div>
+                                            </a>
+
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
                         @if(showEcommerce())
                             <div class="col-lg-{{$item}} col-md-4 col-sm-{{$item}}">
                                 <div class="dashboard_card text-center">
@@ -217,93 +304,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 ">
-                            <div id="myHomepageCourse" class="owl-carousel">
-                                @if($mycourse)
-                                    @foreach($mycourse as $key=>$single_course)
-                                        @if($key<5)
-                                            @php
-                                                $course =$single_course->course;
-                                                   $percentage =round($course->loginUserTotalPercentage);
-                                                   if ($percentage>=100){
-                                                       continue;
-                                                   }
-                                            @endphp
 
-                                            <a href="{{route('continueCourse',[$course->slug])}}" class="course-dashboard-card-link">
-                                                <div class="dashboard_card dashboard_banner ">
-                                                    <div class="thumb position-relative"
-                                                         style="background-image: url('{{getCourseImage($course->image)}}')"
-                                                    >
-                                                        <span class="badge ms-3 mt-2">{{$course->courseLevel->title}}</span>
-                                                    </div>
-                                                    <div class="banner_info">
-                                                        <div class="course_qualification mb-2">
-                                                            <div class="banner_info_profile d-flex align-items-center">
-                                                                <div class="img"><img
-                                                                        src="{{getProfileImage($course->user->image,$course->user->name)}}"
-                                                                        alt="">
-                                                                </div>
-                                                                <p>{{$course->user->name}}</p>
-                                                            </div>
-                                                            <div class="starts d-flex">
-
-                                                                <div class="stars">
-                                                                    @php
-
-                                                                        $main_stars=$course->total_rating;
-
-                                                                        $stars=intval($course->total_rating);
-
-                                                                    @endphp
-                                                                    @for ($i = 0; $i <  $stars; $i++)
-                                                                        <i class="fas fa-star"></i>
-                                                                    @endfor
-                                                                    @if ($main_stars>$stars)
-                                                                        <i class="fas fa-star-half"></i>
-                                                                    @endif
-                                                                    @if($main_stars==0)
-                                                                        @for ($i = 0; $i <  5; $i++)
-                                                                            <i class="far fa-star"></i>
-                                                                        @endfor
-                                                                    @endif
-                                                                </div>
-                                                                <p>
-                                                            </div>
-                                                        </div>
-                                                        {{--                                                margin-left: calc(var(--width) * -1);--}}
-                                                        @php
-
-                                                            if ($percentage == 0){
-                                                                $margin= 'margin-left: 0';
-                                                            }elseif ($percentage == 100){
-                                                              $margin= 'margin-left: calc(var(--width) * -1 - 20px)';
-                                                            }else{
-                                                                $margin= 'margin-left: calc(var(--width) * -1)';
-                                                            }
-                                                        @endphp
-                                                        <span class="title d-block">{{$course->title}}</span>
-                                                        <div class="progress">
-                                                            <div
-                                                                class="progress-status"
-                                                                style="--position:{{$percentage}}%;{{$margin}}"
-                                                            >{{$percentage.'%'}}
-                                                            </div>
-                                                            <div class="progress-bar" role="progressbar"
-                                                                 aria-valuenow="{{$percentage}}"
-                                                                 aria-valuemin="0" aria-valuemax="100"
-                                                                 style="width: {{$percentage}}%"></div>
-                                                        </div>
-                                                        <span class="theme_btn d-inline-block">{{__('frontend.Complete This Course')}}</span>
-                                                    </div>
-                                                </div>
-                                            </a>
-
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="col-xl-6 col-12">
