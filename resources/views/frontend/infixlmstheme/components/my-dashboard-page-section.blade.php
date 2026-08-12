@@ -51,8 +51,9 @@
             <div class="row">
                 <div class="col-xl-{{$col}} col-12">
                     <div class="row">
-                        <div class="col-12 ">
-                            <div id="myHomepageCourse" class="owl-carousel">
+                        <div class="col-12">
+                            <div class="mx-auto" style="max-width: 850px;">
+                                <div id="myHomepageCourse" class="owl-carousel">
                                 @if($mycourse)
                                     @foreach($mycourse as $key=>$single_course)
                                         @if($key<5)
@@ -136,6 +137,7 @@
                                         @endif
                                     @endforeach
                                 @endif
+                            </div>
                             </div>
                         </div>
                         @if(showEcommerce())
