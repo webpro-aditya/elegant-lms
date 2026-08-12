@@ -129,7 +129,7 @@
                                                                  aria-valuemin="0" aria-valuemax="100"
                                                                  style="width: {{$percentage}}%"></div>
                                                         </div>
-                                                        <span class="theme_btn d-inline-block">{{__('frontend.Complete This Course')}}</span>
+                                                        <span class="theme_btn d-inline-block">{{__('Start Reading')}}</span>
                                                     </div>
                                                 </div>
                                             </a>
