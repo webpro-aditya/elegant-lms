@@ -559,7 +559,7 @@
                                             </div>
                                             <div class="pl-20 text-end ms-3 d-flex align-items-center flex-row">
                                                 @if(Route::has('practice-quiz.setup'))
-                                                    <a href="{{ route('practice-quiz.setup', $course->id) }}" class="text-nowrap mr-2" style="background-color: #FB1159; color: #fff; border: none; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 10px rgba(251, 17, 89, 0.2); transition: all 0.3s ease; font-size: 14px; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" target="_blank" title="Practice Quiz">
+                                                    <a href="{{ route('practice-quiz.setup', $course->id) }}" class="text-nowrap mx-3" style="background-color: #1B75BB; color: #fff; border: none; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 10px rgba(27, 117, 187, 0.2); transition: all 0.3s ease; font-size: 14px; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" target="_blank" title="Practice Quiz">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                                         Practice
                                                     </a>
@@ -3540,6 +3540,7 @@ if ($assign->questionBank->shuffle==1){
 
 
             </div>
+
             <div class="course__play_list">
                 @php
                     $i = 1;
