@@ -76,10 +76,10 @@ class QuestionPoolController extends Controller
                     ->addColumn('action', function ($row) {
                         $editUrl = route('question-pool.edit', $row->id);
                         $btn = '<div class="dropdown CRM_dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu' . $row->id . '" data-bs-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Action
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu2">
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu' . $row->id . '">
                                         <a href="' . $editUrl . '" class="dropdown-item">Edit</a>
                                         <a href="#" data-id="' . $row->id . '" class="dropdown-item deleteQuestion">Delete</a>
                                     </div>
