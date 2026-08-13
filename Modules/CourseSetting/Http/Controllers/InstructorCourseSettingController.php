@@ -163,6 +163,23 @@ class InstructorCourseSettingController extends Controller
 
                 if (isset($course) && isset($chapter)) {
 
+                    // Practice Quiz - simplified save without host/file
+                    if ($request->is_practice_quiz == 1) {
+                        $lesson = new Lesson();
+                        $lesson->course_id = $request->course_id;
+                        $lesson->chapter_id = $request->chapter_id;
+                        $lesson->name = $request->name;
+                        $lesson->is_practice_quiz = 1;
+                        $lesson->practice_quiz_question_count = $request->practice_quiz_question_count ?? 10;
+                        $lesson->practice_quiz_lesson_id = $request->practice_quiz_lesson_id;
+                        $lesson->is_lock = (int)$request->is_lock;
+                        $lesson->save();
+
+                        (new CourseSettingController())->updateTotalCountForCourse($course);
+                        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                        return redirect()->route('courseDetails', [$course->id]);
+                    }
+
                     $lesson = new Lesson();
                     $lesson->course_id = $request->course_id;
                     $lesson->chapter_id = $request->chapter_id;
@@ -592,7 +609,24 @@ class InstructorCourseSettingController extends Controller
             $rules['chapter_id'] = 'required';
             $rules['course_id'] = 'required';
 
-            if (isModuleActive('Org') && $request->fileType != 2) {
+            // Practice Quiz doesn't need host/file validation
+            if ($request->is_practice_quiz == 1) {
+                $max_questions = 0;
+                if ($request->course_id) {
+                    $query = \Modules\QuestionPool\Entities\QuestionPoolQuestion::active()
+                        ->where('course_id', $request->course_id)
+                        ->where('type', '!=', 'F');
+                    
+                    if ($request->practice_quiz_lesson_id) {
+                        $query->where('lesson_id', $request->practice_quiz_lesson_id);
+                    } elseif ($request->chapter_id) {
+                        $query->where('chapter_id', $request->chapter_id);
+                    }
+                    $max_questions = $query->count();
+                }
+
+                $rules['practice_quiz_question_count'] = 'required|integer|min:1|max:' . $max_questions;
+            } elseif (isModuleActive('Org') && $request->fileType != 2) {
                 $rules['file_type'] = 'required';
                 $rules['file_path'] = 'required';
             } else {
@@ -767,6 +801,23 @@ class InstructorCourseSettingController extends Controller
                     // $success = trans('lang.Lesson').' '.trans('lang.Added').' '.trans('lang.Successfully');
 
                     $lesson = Lesson::find($request->lesson_id);
+
+                    // Practice Quiz - simplified update without host/file
+                    if ($request->is_practice_quiz == 1) {
+                        $lesson->course_id = $request->course_id;
+                        $lesson->chapter_id = $request->chapter_id;
+                        $lesson->name = $request->name;
+                        $lesson->is_practice_quiz = 1;
+                        $lesson->practice_quiz_question_count = $request->practice_quiz_question_count ?? 10;
+                        $lesson->practice_quiz_lesson_id = $request->practice_quiz_lesson_id;
+                        $lesson->is_lock = (int)$request->is_lock;
+                        $lesson->save();
+
+                        (new CourseSettingController())->updateTotalCountForCourse($course);
+                        Toastr::success(trans('common.Operation successful'), trans('common.Success'));
+                        return redirect()->route('courseDetails', [$course->id]);
+                    }
+
                     $lesson->course_id = $request->course_id;
                     $lesson->chapter_id = $request->chapter_id;
                     $lesson->name = $request->name;

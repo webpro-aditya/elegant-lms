@@ -1071,6 +1071,19 @@ if ($assign->questionBank->shuffle==1){
                 @include(theme('partials._quiz_submit_confirm_modal'))
                 @include(theme('partials._quiz_start_confirm_modal'))
             @endif
+            
+        @elseif($lesson->is_practice_quiz == 1)
+            <div class="quiz_questions_wrapper w-100 ms-5 me-5 mt_70">
+                <div class="quiz_test_header d-flex justify-content-between align-items-center">
+                    <div class="quiz_header_left text-center w-100">
+                        <h3>{{ $lesson->name }}</h3>
+                        <p class="mt-3 mb-4 text-muted">{{ __('Practice Quiz') }}</p>
+                        <a href="{{ route('practice-quiz.start-lesson', $lesson->id) }}" class="theme_btn mt-4 quiz_primary_btn">
+                            {{ __('Start Practice Quiz') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
 
         @elseif($lesson->is_assignment == 1)
             @if (isModuleActive('Assignment'))
@@ -3607,6 +3620,23 @@ if ($assign->questionBank->shuffle==1){
                                                                         </span>
                                                                 </div>
                                                                 @endforeach
+                                                            @elseif ($singleLesson->is_practice_quiz == 1)
+                                                                <div class="course_play_name">
+
+                                                                    <label class="primary_checkbox d-flex mb-0">
+                                                                        <input type="checkbox"
+                                                                               {{ $singleLesson->completed && $singleLesson->completed->status == 1 ? 'checked' : '' }}
+                                                                               disabled>
+                                                                        <span class="checkmark mr_15"
+                                                                              style="cursor: not-allowed"></span>
+
+                                                                        <i class="ti-check-box"></i>
+                                                                    </label>
+                                                                    <span class="quizLink d-inline-block" onclick="goFullScreen({{ $course->id }},{{ $singleLesson->id }})">
+                                                                        <span class="quiz_name">{{ $i }}.
+                                                                            {{ $singleLesson->name }} [Practice Quiz]</span>
+                                                                    </span>
+                                                                </div>
                                                             @else
                                                                 <div class="course_play_name">
                                                                     @if (request()->route('lesson_id') == $singleLesson->id)

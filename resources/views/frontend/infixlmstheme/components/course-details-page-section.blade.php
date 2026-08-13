@@ -334,6 +334,15 @@
                                                                                                         </span>
 
                                                                                                     @endforeach
+                                                                                                @elseif ($lesson->is_practice_quiz==1)
+                                                                                                    <span
+                                                                                                        onclick="goFullScreen({{$course->id}},{{$lesson->id}})"
+                                                                                                        class="quizLink active"
+                                                                                                    >
+                                                                                                    <i class="ti-check-box"></i>
+                                                                                                        <span
+                                                                                                            class="quiz_name">{{@$key+1}} {{@$lesson->name}} [Practice Quiz]</span>
+                                                                                                    </span>
                                                                                                 @else
 
                                                                                                     <div
@@ -360,6 +369,9 @@
                                                                                                         <span
                                                                                                             class="quiz_name">{{@$key+1}} {{@$quiz->title}} [{{__('frontend.Quiz')}}]</span>
                                                                                                     @endforeach
+                                                                                                @elseif ($lesson->is_practice_quiz==1)
+                                                                                                    <span
+                                                                                                        class="quiz_name">{{@$key+1}} {{@$lesson->name}} [Practice Quiz]</span>
                                                                                                 @else
                                                                                                     <span
                                                                                                         data-host="{{$lesson->host}}"
@@ -373,6 +385,9 @@
                                                                                                     <span
                                                                                                         class="quiz_name">{{@$key+1}} {{@$quiz->title}} [{{__('frontend.Quiz')}}]</span>
                                                                                                 @endforeach
+                                                                                            @elseif ($lesson->is_practice_quiz==1)
+                                                                                                <span
+                                                                                                    class="quiz_name">{{@$key+1}} {{@$lesson->name}} [Practice Quiz]</span>
                                                                                             @else
                                                                                                 <span
                                                                                                     data-host="{{$lesson->host}}"
@@ -399,6 +414,21 @@
                                                                                                         class="quiz_name">{{@$key+1}} {{@$quiz->title}} [{{__('frontend.Quiz')}}]</span>
                                                                                                 @endif
                                                                                             @endforeach
+                                                                                        @elseif ($lesson->is_practice_quiz==1)
+                                                                                                @if (Auth::check() && $isEnrolled)
+                                                                                                    <span
+                                                                                                        onclick="goFullScreen({{$course->id}},{{$lesson->id}})"
+                                                                                                        class="quizLink active"
+                                                                                                    >
+                                                                                                        <i class="ti-check-box"></i>
+                                                                                                        <span
+                                                                                                            class="quiz_name">{{@$key+1}} {{@$lesson->name}} [Practice Quiz]</span>
+                                                                                                        </span>
+                                                                                                @else
+                                                                                                    <i class="ti-check-box"></i>
+                                                                                                    <span
+                                                                                                        class="quiz_name">{{@$key+1}} {{@$lesson->name}} [Practice Quiz]</span>
+                                                                                                @endif
                                                                                         @else
                                                                                             @if ($lesson->host=='Youtube')
                                                                                                 <div class="svg-play">

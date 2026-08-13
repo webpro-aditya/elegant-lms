@@ -245,6 +245,16 @@
                                                                    class="ellipsis btn btn-tertiary btn-block btn-modal">
                                                                     <i class="ti-plus m-0"></i> {{__('quiz.Quiz')}}
                                                                 </a>
+
+                                                                <a data-purpose="add-practice-quiz-btn"
+                                                                   aria-label="Add Practice Quiz" type="button"
+                                                                   data-chapter="{{$key}}"
+                                                                   data-container="#commonModal" type="button"
+                                                                   href="{{route('courseModal',[$course->id,'practice_quiz'])}}?chapter_id={{$chapter->id}}"
+                                                                   class="ellipsis btn btn-tertiary btn-block btn-modal">
+                                                                    <i class="ti-plus m-0"></i> Practice Quiz
+                                                                </a>
+
                                                                 @if (isModuleActive('Assignment'))
 
                                                                     <a data-purpose="add-chapter-btn"
@@ -274,6 +284,9 @@
                                                             }elseif(isModuleActive('Assignment') && $lesson->is_assignment==1){
                                                                 $type='assignment';
                                                                 $lessonTitle =$lesson->assignmentInfo->title;
+                                                            }elseif($lesson->is_practice_quiz==1){
+                                                                $type='practice_quiz';
+                                                                $lessonTitle =$lesson->name;
                                                             }else{
                                                                 $type='lesson';
                                                                $lessonTitle =$lesson->name;
@@ -302,6 +315,8 @@
                                                                         [{{trans('quiz.Quiz')}}]
                                                                     @elseif(isModuleActive('Assignment') && $lesson->is_assignment==1)
                                                                         [{{trans('assignment.Assignment')}}]
+                                                                    @elseif($lesson->is_practice_quiz==1)
+                                                                        [Practice Quiz]
                                                                     @else
                                                                         [{{trans('courses.Lesson')}}]
                                                                     @endif
@@ -320,10 +335,15 @@
                                                                 <div
                                                                     class="dropdown-menu dropdown-menu-right">
 
-
-                                                                    <a target="_blank"
-                                                                       href="{{$lesson->is_quiz==0?route('fullScreenView',[$course->id,$lesson->id]):route('quizStart',[$course->id,$lesson->quiz_id,$lesson->lessonQuiz->title])}}"
-                                                                       class="dropdown-item">{{__('common.View')}}</a>
+                                                                    @if($lesson->is_practice_quiz==1)
+                                                                        <a target="_blank"
+                                                                           href="{{route('practice-quiz.setup',[$course->id])}}"
+                                                                           class="dropdown-item">{{__('common.View')}}</a>
+                                                                    @else
+                                                                        <a target="_blank"
+                                                                           href="{{$lesson->is_quiz==0?route('fullScreenView',[$course->id,$lesson->id]):route('quizStart',[$course->id,$lesson->quiz_id,$lesson->lessonQuiz->title])}}"
+                                                                           class="dropdown-item">{{__('common.View')}}</a>
+                                                                    @endif
 
                                                                     @if($lesson->is_quiz==1)
                                                                         <a target="_blank"

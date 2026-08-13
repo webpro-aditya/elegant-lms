@@ -24,6 +24,7 @@ Route::middleware(['auth', 'admin'])->prefix('question-pool')->group(function ()
 
 // Student Practice Quiz routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/practice-quiz/start-lesson/{lessonId}', [PracticeQuizController::class, 'startLesson'])->name('practice-quiz.start-lesson');
     Route::get('/practice-quiz/setup/{courseId}', [PracticeQuizController::class, 'setup'])->name('practice-quiz.setup');
     Route::get('/practice-quiz/available-count', [PracticeQuizController::class, 'availableCount'])->name('practice-quiz.available-count');
     Route::post('/practice-quiz/start', [PracticeQuizController::class, 'start'])->name('practice-quiz.start');

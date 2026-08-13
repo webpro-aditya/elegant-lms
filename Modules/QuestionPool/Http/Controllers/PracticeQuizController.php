@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
+use Modules\CourseSetting\Entities\Lesson;
 use Modules\QuestionPool\Entities\PracticeQuiz;
 use Modules\QuestionPool\Entities\PracticeQuizDetail;
 use Modules\QuestionPool\Entities\QuestionPoolQuestion;
@@ -17,6 +18,79 @@ use Illuminate\Support\Facades\DB;
 
 class PracticeQuizController extends Controller
 {
+    public function startLesson($lessonId)
+    {
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $lesson = Lesson::findOrFail($lessonId);
+            
+            // Verify enrollment
+            $isEnrolled = CourseEnrolled::where('user_id', $user->id)->where('course_id', $lesson->course_id)->exists();
+            if (!$isEnrolled) {
+                Toastr::error('You must be enrolled in this course to take a practice quiz', 'Error');
+                return back();
+            }
+
+            if ($lesson->is_practice_quiz != 1) {
+                Toastr::error('Invalid practice quiz lesson', 'Error');
+                return back();
+            }
+
+            $query = QuestionPoolQuestion::active()->where('course_id', $lesson->course_id)->where('type', '!=', 'F');
+            
+            // Apply scope based on what was configured in the lesson
+            if ($lesson->practice_quiz_lesson_id) {
+                $query->where('lesson_id', $lesson->practice_quiz_lesson_id);
+                $scope = 'lesson';
+                $scope_id = $lesson->practice_quiz_lesson_id;
+            } else {
+                $query->where('chapter_id', $lesson->chapter_id);
+                $scope = 'chapter';
+                $scope_id = $lesson->chapter_id;
+            }
+
+            $available_count = $query->count();
+            $request_count = min($lesson->practice_quiz_question_count ?? 10, $available_count);
+
+            if ($request_count < 1) {
+                Toastr::error('No questions available for this practice quiz', 'Error');
+                return back();
+            }
+
+            $questions = $query->inRandomOrder()->limit($request_count)->get();
+            $total_marks = $questions->sum('marks');
+
+            $quiz = new PracticeQuiz();
+            $quiz->user_id = $user->id;
+            $quiz->course_id = $lesson->course_id;
+            $quiz->chapter_id = $scope == 'chapter' ? $scope_id : ($scope == 'lesson' ? $scope_id : null);
+            $quiz->lesson_id = $scope == 'lesson' ? $scope_id : null;
+            $quiz->scope = $scope;
+            $quiz->total_questions = $request_count;
+            $quiz->total_marks = $total_marks;
+            $quiz->estimated_time = $request_count; // 1 min per question
+            $quiz->status = 0; // in-progress
+            $quiz->started_at = now();
+            $quiz->lms_id = $lesson->id;
+            $quiz->save();
+
+            foreach ($questions as $question) {
+                $detail = new PracticeQuizDetail();
+                $detail->practice_quiz_id = $quiz->id;
+                $detail->question_pool_question_id = $question->id;
+                $detail->save();
+            }
+
+            DB::commit();
+            return redirect()->route('practice-quiz.attempt', $quiz->id);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage(), 'Error');
+            return back();
+        }
+    }
+
     public function setup($courseId)
     {
         try {
