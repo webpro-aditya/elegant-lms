@@ -121,6 +121,9 @@
                                             min="1"
                                             value="{{$edit->practice_quiz_question_count ?? 10}}">
                                         <span class="focus-border"></span>
+                                        <small class="text-primary mt-2 d-inline-block" id="availableQuestionsText">
+                                            Available Questions: <i class="fa fa-spinner fa-spin" id="availableQuestionsSpinner"></i> <strong id="availableQuestionsCount">...</strong>
+                                        </small>
                                         @if ($errors->has('practice_quiz_question_count'))
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $errors->first('practice_quiz_question_count') }}</strong>
@@ -167,6 +170,44 @@
 <script>
     $(document).ready(function () {
         $('select').niceSelect();
+        
+        function updateAvailableQuestions() {
+            let form = $('#practiceQuizForm');
+            let course_id = form.find('input[name="course_id"]').val();
+            let chapter_id = form.find('input[name="chapter_id"]').val();
+            let lesson_id = form.find('select[name="practice_quiz_lesson_id"]').val();
+            
+            let scope = lesson_id ? 'lesson' : 'chapter';
+            
+            $('#availableQuestionsSpinner').show();
+            $('#availableQuestionsCount').hide();
+            
+            $.ajax({
+                url: '{{route("practice-quiz.available-count")}}',
+                type: 'GET',
+                data: {
+                    course_id: course_id,
+                    chapter_id: chapter_id,
+                    lesson_id: lesson_id,
+                    scope: scope
+                },
+                success: function(response) {
+                    $('#availableQuestionsSpinner').hide();
+                    $('#availableQuestionsCount').text(response.count).show();
+                    form.find('input[name="practice_quiz_question_count"]').attr('max', response.count);
+                },
+                error: function() {
+                    $('#availableQuestionsSpinner').hide();
+                    $('#availableQuestionsCount').text('Error').show();
+                }
+            });
+        }
+        
+        updateAvailableQuestions();
+        
+        $('select[name="practice_quiz_lesson_id"]').on('change', function() {
+            updateAvailableQuestions();
+        });
         
         $('#practiceQuizForm').on('submit', function(e) {
             e.preventDefault();
