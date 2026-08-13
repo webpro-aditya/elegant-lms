@@ -31,13 +31,18 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm">
                         <h4 class="mb-0 text-primary" style="font-weight: 600;">Practice Quiz In Progress</h4>
-                        <div class="d-flex align-items-center">
-                            <svg class="timer-icon-svg text-danger mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <h3 class="mb-0 text-danger font-weight-bold timer_display" id="timer_display">
-                                {{ sprintf("%02d:00", $quiz->estimated_time) }}
-                            </h3>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center mr-3">
+                                <svg class="timer-icon-svg text-danger mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="mb-0 text-danger font-weight-bold timer_display" id="timer_display">
+                                    {{ sprintf("%02d:00", $quiz->estimated_time) }}
+                                </h3>
+                            </div>
+                            <button onclick="window.close();" class="theme_btn text-white px-4 py-2" style="border-radius: 8px; border: none;">
+                                <i class="fas fa-arrow-left mr-2"></i> {{ __('common.Back') }}
+                            </button>
                         </div>
                     </div>
                 </div>

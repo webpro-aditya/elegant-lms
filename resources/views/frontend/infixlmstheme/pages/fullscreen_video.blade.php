@@ -1073,16 +1073,12 @@ if ($assign->questionBank->shuffle==1){
             @endif
             
         @elseif($lesson->is_practice_quiz == 1)
-            <div class="quiz_questions_wrapper w-100 ms-5 me-5 mt_70">
-                <div class="quiz_test_header d-flex justify-content-between align-items-center">
-                    <div class="quiz_header_left text-center w-100">
-                        <h3>{{ $lesson->name }}</h3>
-                        <p class="mt-3 mb-4 text-muted">{{ __('Practice Quiz') }}</p>
-                        <a href="{{ route('practice-quiz.start-lesson', $lesson->id) }}" class="theme_btn mt-4 quiz_primary_btn">
-                            {{ __('Start Practice Quiz') }}
-                        </a>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-center align-items-center h-100 w-100 flex-column" style="min-height: 400px; background: #000;">
+                <h4 class="mb-4 text-white">{{ $lesson->name }}</h4>
+                <p class="text-white mb-4">{{ __('Practice Quiz') }}</p>
+                <a href="{{ route('practice-quiz.start-lesson', $lesson->id) }}" class="theme_btn" target="_blank">
+                    {{ __('Start Practice Quiz') }} <i class="fas fa-arrow-right ml-2"></i>
+                </a>
             </div>
 
         @elseif($lesson->is_assignment == 1)

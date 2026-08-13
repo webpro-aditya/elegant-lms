@@ -248,9 +248,14 @@
         <div class="container-fluid no-gutters">
             <div class="row">
                 <div class="col-12">
-                    <div class="section__title3 margin_50">
-                        <h3>Practice Quiz Setup</h3>
-                        <p>Customize your revision session for: <strong>{{ $course->title }}</strong></p>
+                    <div class="section__title3 margin_50 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <h3>Practice Quiz Setup</h3>
+                            <p class="m-0">Customize your revision session for: <strong>{{ $course->title }}</strong></p>
+                        </div>
+                        <button onclick="window.close();" class="theme_btn text-white px-4 py-2" style="border-radius: 8px; border: none;">
+                            <i class="fas fa-arrow-left mr-2"></i> {{ __('common.Back') }}
+                        </button>
                     </div>
                 </div>
             </div>
