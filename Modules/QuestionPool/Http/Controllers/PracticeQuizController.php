@@ -39,15 +39,26 @@ class PracticeQuizController extends Controller
 
             $query = QuestionPoolQuestion::active()->where('course_id', $lesson->course_id)->where('type', '!=', 'F');
             
-            // Apply scope based on what was configured in the lesson
-            if ($lesson->practice_quiz_lesson_id) {
-                $query->where('lesson_id', $lesson->practice_quiz_lesson_id);
+            // Multi-select support: read comma-separated IDs from lesson
+            $chapterIds = $lesson->practice_quiz_chapter_ids ? array_filter(explode(',', $lesson->practice_quiz_chapter_ids)) : [];
+            $lessonIds = $lesson->practice_quiz_lesson_ids ? array_filter(explode(',', $lesson->practice_quiz_lesson_ids)) : [];
+            
+            // Backward compat: fall back to old single-value fields
+            if (empty($lessonIds) && $lesson->practice_quiz_lesson_id) {
+                $lessonIds = [$lesson->practice_quiz_lesson_id];
+            }
+            if (empty($chapterIds) && $lesson->chapter_id) {
+                $chapterIds = [$lesson->chapter_id];
+            }
+
+            if (!empty($lessonIds)) {
+                $query->whereIn('lesson_id', $lessonIds);
                 $scope = 'lesson';
-                $scope_id = $lesson->practice_quiz_lesson_id;
-            } else {
-                $query->where('chapter_id', $lesson->chapter_id);
+            } elseif (!empty($chapterIds)) {
+                $query->whereIn('chapter_id', $chapterIds);
                 $scope = 'chapter';
-                $scope_id = $lesson->chapter_id;
+            } else {
+                $scope = 'course';
             }
 
             $available_count = $query->count();
@@ -64,8 +75,10 @@ class PracticeQuizController extends Controller
             $quiz = new PracticeQuiz();
             $quiz->user_id = $user->id;
             $quiz->course_id = $lesson->course_id;
-            $quiz->chapter_id = $scope == 'chapter' ? $scope_id : ($scope == 'lesson' ? $scope_id : null);
-            $quiz->lesson_id = $scope == 'lesson' ? $scope_id : null;
+            $quiz->chapter_id = !empty($chapterIds) ? $chapterIds[0] : null;
+            $quiz->lesson_id = !empty($lessonIds) ? $lessonIds[0] : null;
+            $quiz->chapter_ids = !empty($chapterIds) ? implode(',', $chapterIds) : null;
+            $quiz->lesson_ids = !empty($lessonIds) ? implode(',', $lessonIds) : null;
             $quiz->scope = $scope;
             $quiz->total_questions = $request_count;
             $quiz->total_marks = $total_marks;
@@ -117,10 +130,14 @@ class PracticeQuizController extends Controller
         try {
             $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
             
-            if ($request->scope == 'lesson' && $request->lesson_id) {
-                $query->where('lesson_id', $request->lesson_id);
-            } elseif ($request->scope == 'chapter' && $request->chapter_id) {
-                $query->where('chapter_id', $request->chapter_id);
+            // Multi-select support
+            $lessonIds = $request->lesson_ids ?? ($request->lesson_id ? [$request->lesson_id] : []);
+            $chapterIds = $request->chapter_ids ?? ($request->chapter_id ? [$request->chapter_id] : []);
+
+            if (!empty($lessonIds)) {
+                $query->whereIn('lesson_id', $lessonIds);
+            } elseif (!empty($chapterIds)) {
+                $query->whereIn('chapter_id', $chapterIds);
             }
 
             $count = $query->count();
@@ -146,10 +163,15 @@ class PracticeQuizController extends Controller
             $user = Auth::user();
             
             $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
-            if ($request->scope == 'lesson') {
-                $query->where('lesson_id', $request->lesson_id);
-            } elseif ($request->scope == 'chapter') {
-                $query->where('chapter_id', $request->chapter_id);
+            
+            // Multi-select support
+            $chapterIds = $request->chapter_ids ?? ($request->chapter_id ? [$request->chapter_id] : []);
+            $lessonIds = $request->lesson_ids ?? ($request->lesson_id ? [$request->lesson_id] : []);
+
+            if ($request->scope == 'lesson' && !empty($lessonIds)) {
+                $query->whereIn('lesson_id', $lessonIds);
+            } elseif ($request->scope == 'chapter' && !empty($chapterIds)) {
+                $query->whereIn('chapter_id', $chapterIds);
             }
 
             $available_count = $query->count();
@@ -166,8 +188,10 @@ class PracticeQuizController extends Controller
             $quiz = new PracticeQuiz();
             $quiz->user_id = $user->id;
             $quiz->course_id = $request->course_id;
-            $quiz->chapter_id = $request->scope == 'chapter' ? $request->chapter_id : ($request->scope == 'lesson' ? $request->chapter_id : null);
-            $quiz->lesson_id = $request->scope == 'lesson' ? $request->lesson_id : null;
+            $quiz->chapter_id = !empty($chapterIds) ? $chapterIds[0] : null;
+            $quiz->lesson_id = !empty($lessonIds) ? $lessonIds[0] : null;
+            $quiz->chapter_ids = !empty($chapterIds) ? implode(',', $chapterIds) : null;
+            $quiz->lesson_ids = !empty($lessonIds) ? implode(',', $lessonIds) : null;
             $quiz->scope = $request->scope;
             $quiz->total_questions = $request_count;
             $quiz->total_marks = $total_marks;

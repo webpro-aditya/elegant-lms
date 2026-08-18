@@ -1613,12 +1613,12 @@ class CourseSettingController extends Controller
         } elseif ($type == 'practice_quiz') {
             $edit = Lesson::find($request->id);
             $course = Course::with('chapters.lessons')->find($course_id);
-            $lessons = [];
-            if ($chapter_id) {
-                $chapter = Chapter::with('lessons')->find($chapter_id);
-                $lessons = $chapter ? $chapter->lessons->where('is_quiz', 0)->where('is_assignment', 0)->where('is_practice_quiz', 0) : collect();
-            }
-            return view('coursesetting::parts_of_course_details.modal._practice_quiz', compact('course_id', 'chapter_id', 'edit', 'course', 'lessons'));
+            $allChapters = $course ? $course->chapters : collect();
+            // Filter out quiz/assignment/practice-quiz lessons from each chapter for lesson selection
+            $allChapters->each(function ($chapter) {
+                $chapter->filteredLessons = $chapter->lessons->where('is_quiz', 0)->where('is_assignment', 0)->where('is_practice_quiz', 0)->values();
+            });
+            return view('coursesetting::parts_of_course_details.modal._practice_quiz', compact('course_id', 'chapter_id', 'edit', 'course', 'allChapters'));
         } elseif ($type == 'assignment' && isModuleActive('Assignment')) {
             $edit = Lesson::with('assignmentInfo')->find($request->id);
             return view('coursesetting::parts_of_course_details.modal._assignment', compact('course_id', 'chapter_id', 'edit'));

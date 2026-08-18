@@ -171,7 +171,9 @@ class InstructorCourseSettingController extends Controller
                         $lesson->name = $request->name;
                         $lesson->is_practice_quiz = 1;
                         $lesson->practice_quiz_question_count = $request->practice_quiz_question_count ?? 10;
-                        $lesson->practice_quiz_lesson_id = $request->practice_quiz_lesson_id;
+                        // Multi-select: store comma-separated IDs
+                        $lesson->practice_quiz_chapter_ids = $request->practice_quiz_chapter_ids ? implode(',', $request->practice_quiz_chapter_ids) : null;
+                        $lesson->practice_quiz_lesson_ids = $request->practice_quiz_lesson_ids ? implode(',', $request->practice_quiz_lesson_ids) : null;
                         $lesson->is_lock = (int)$request->is_lock;
                         $lesson->save();
 
@@ -617,8 +619,11 @@ class InstructorCourseSettingController extends Controller
                         ->where('course_id', $request->course_id)
                         ->where('type', '!=', 'F');
                     
-                    if ($request->practice_quiz_lesson_id) {
-                        $query->where('lesson_id', $request->practice_quiz_lesson_id);
+                    // Multi-select support
+                    if ($request->practice_quiz_lesson_ids && count($request->practice_quiz_lesson_ids) > 0) {
+                        $query->whereIn('lesson_id', $request->practice_quiz_lesson_ids);
+                    } elseif ($request->practice_quiz_chapter_ids && count($request->practice_quiz_chapter_ids) > 0) {
+                        $query->whereIn('chapter_id', $request->practice_quiz_chapter_ids);
                     } elseif ($request->chapter_id) {
                         $query->where('chapter_id', $request->chapter_id);
                     }
@@ -809,7 +814,9 @@ class InstructorCourseSettingController extends Controller
                         $lesson->name = $request->name;
                         $lesson->is_practice_quiz = 1;
                         $lesson->practice_quiz_question_count = $request->practice_quiz_question_count ?? 10;
-                        $lesson->practice_quiz_lesson_id = $request->practice_quiz_lesson_id;
+                        // Multi-select: store comma-separated IDs
+                        $lesson->practice_quiz_chapter_ids = $request->practice_quiz_chapter_ids ? implode(',', $request->practice_quiz_chapter_ids) : null;
+                        $lesson->practice_quiz_lesson_ids = $request->practice_quiz_lesson_ids ? implode(',', $request->practice_quiz_lesson_ids) : null;
                         $lesson->is_lock = (int)$request->is_lock;
                         $lesson->save();
 

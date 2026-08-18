@@ -242,6 +242,53 @@
     
     /* Hide native radio button interference */
     .primary_radio { display: none !important; }
+
+    /* Multi-select checkbox panel */
+    .ms-panel {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        max-height: 220px;
+        overflow-y: auto;
+        margin-top: 8px;
+    }
+    .ms-panel label {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        cursor: pointer;
+        margin: 0;
+        transition: background 0.15s;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .ms-panel label:last-child { border-bottom: none; }
+    .ms-panel label:hover { background: #f8fafc; }
+    .ms-panel input[type="checkbox"] {
+        width: 18px; height: 18px;
+        accent-color: #FB1159;
+        flex-shrink: 0;
+    }
+    .ms-panel .ms-group-header {
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #64748b;
+        background: #f1f5f9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .ms-selected-count {
+        font-size: 0.8rem;
+        color: #FB1159;
+        font-weight: 600;
+        margin-top: 6px;
+    }
 </style>
 <div class="main_content_iner main_content_padding setup-wrapper">
     <div class="dashboard_lg_card">
@@ -271,7 +318,7 @@
                         <div class="setup-card">
                             <div class="setup-title">
                                 <div class="title-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                                 </div>
                                 1. Select Study Scope
                             </div>
@@ -288,40 +335,47 @@
                                     <input type="radio" name="scope" value="chapter" class="scope-input" style="position: absolute; opacity: 0; width: 0; height: 0;">
                                     <div class="scope-box">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
-                                        <span>Specific Chapter</span>
+                                        <span>Specific Chapters</span>
                                     </div>
                                 </label>
                                 <label class="m-0" style="position: relative;">
                                     <input type="radio" name="scope" value="lesson" class="scope-input" style="position: absolute; opacity: 0; width: 0; height: 0;">
                                     <div class="scope-box">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        <span>Specific Lesson</span>
+                                        <span>Specific Lessons</span>
                                     </div>
                                 </label>
                             </div>
 
+                            {{-- Chapter multi-select --}}
                             <div id="chapter_selection" class="d-none">
-                                <label class="font-weight-bold text-dark mb-2" style="font-size: 0.9rem;">Select Chapter</label>
-                                <select class="primary_select w-100" name="chapter_id" id="setup_chapter_id">
-                                    <option value="">Choose a chapter...</option>
+                                <label class="font-weight-bold text-dark mb-2" style="font-size: 0.9rem;">Select Chapters <small class="text-muted">(select one or more)</small></label>
+                                <div class="ms-panel" id="chapter_panel">
                                     @foreach($course->chapters as $chapter)
-                                        <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+                                        <label>
+                                            <input type="checkbox" name="chapter_ids[]" value="{{ $chapter->id }}" class="chapter-checkbox">
+                                            {{ $chapter->name }}
+                                        </label>
                                     @endforeach
-                                </select>
+                                </div>
+                                <div class="ms-selected-count" id="chapter_selected_count"></div>
                             </div>
 
-                            <div id="lesson_selection" class="d-none">
-                                <label class="font-weight-bold text-dark mb-2" style="font-size: 0.9rem;">Select Lesson</label>
-                                <select class="primary_select w-100" name="lesson_id" id="setup_lesson_id">
-                                    <option value="">Choose a lesson...</option>
+                            {{-- Lesson multi-select --}}
+                            <div id="lesson_selection" class="d-none mt-3">
+                                <label class="font-weight-bold text-dark mb-2" style="font-size: 0.9rem;">Select Lessons <small class="text-muted">(select one or more)</small></label>
+                                <div class="ms-panel" id="lesson_panel">
                                     @foreach($course->chapters as $chapter)
-                                        <optgroup label="{{ $chapter->name }}">
-                                            @foreach($chapter->lessons as $lesson)
-                                                <option value="{{ $lesson->id }}">{{ $lesson->name }}</option>
-                                            @endforeach
-                                        </optgroup>
+                                        <div class="ms-group-header" data-chapter-id="{{ $chapter->id }}">{{ $chapter->name }}</div>
+                                        @foreach($chapter->lessons as $lesson)
+                                            <label data-chapter-id="{{ $chapter->id }}">
+                                                <input type="checkbox" name="lesson_ids[]" value="{{ $lesson->id }}" class="lesson-checkbox">
+                                                {{ $lesson->name }}
+                                            </label>
+                                        @endforeach
                                     @endforeach
-                                </select>
+                                </div>
+                                <div class="ms-selected-count" id="lesson_selected_count"></div>
                             </div>
                         </div>
 
@@ -401,7 +455,7 @@
                                 </div>
                                 <div class="instruction-text">
                                     <h6>Targeted Revision</h6>
-                                    <p>Focus on exactly what you need to study by selecting specific chapters or lessons.</p>
+                                    <p>Focus on exactly what you need to study by selecting multiple chapters or lessons at once.</p>
                                 </div>
                             </li>
                             <li class="instruction-item">
@@ -457,28 +511,56 @@
             document.getElementById('setup_estimated_time').innerText = currentCount + ' Min';
         }
 
+        function getSelectedChapterIds() {
+            var ids = [];
+            $('.chapter-checkbox:checked').each(function() {
+                ids.push($(this).val());
+            });
+            return ids;
+        }
+
+        function getSelectedLessonIds() {
+            var ids = [];
+            $('.lesson-checkbox:checked').each(function() {
+                ids.push($(this).val());
+            });
+            return ids;
+        }
+
+        function updateSelectionCounts() {
+            var chCount = getSelectedChapterIds().length;
+            var lsCount = getSelectedLessonIds().length;
+            $('#chapter_selected_count').text(chCount > 0 ? chCount + ' chapter(s) selected' : '');
+            $('#lesson_selected_count').text(lsCount > 0 ? lsCount + ' lesson(s) selected' : '');
+        }
+
         function updateAvailability() {
             var scope = $('input[name="scope"]:checked').val();
             var course_id = $('#setup_course_id').val();
-            var chapter_id = $('#setup_chapter_id').val();
-            var lesson_id = $('#setup_lesson_id').val();
+            var chapter_ids = getSelectedChapterIds();
+            var lesson_ids = getSelectedLessonIds();
 
-            if (scope == 'chapter' && !chapter_id) return;
-            if (scope == 'lesson' && !lesson_id) return;
+            if (scope == 'chapter' && chapter_ids.length === 0) return;
+            if (scope == 'lesson' && lesson_ids.length === 0) return;
 
             $('#availability_info').removeClass('danger success').addClass('info')
                 .html('<svg class="status-icon spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg><div><h6 class="mb-1 font-weight-bold" style="font-size: 0.95rem;">Scanning Question Pool...</h6><p class="mb-0" style="font-size: 0.85rem; opacity: 0.8;">Checking available questions.</p></div>');
             $('#start_btn').prop('disabled', true);
 
+            var ajaxData = {
+                scope: scope,
+                course_id: course_id
+            };
+            if (scope == 'chapter') {
+                ajaxData.chapter_ids = chapter_ids;
+            } else if (scope == 'lesson') {
+                ajaxData.lesson_ids = lesson_ids;
+            }
+
             $.ajax({
                 url: "{{ route('practice-quiz.available-count') }}",
                 type: "GET",
-                data: {
-                    scope: scope,
-                    course_id: course_id,
-                    chapter_id: chapter_id,
-                    lesson_id: lesson_id
-                },
+                data: ajaxData,
                 success: function(res) {
                     maxAvailable = res.count;
                     if (maxAvailable > 0) {
@@ -563,14 +645,47 @@
             if (val == 'chapter') {
                 $('#chapter_selection').removeClass('d-none');
             } else if (val == 'lesson') {
+                $('#chapter_selection').removeClass('d-none');
                 $('#lesson_selection').removeClass('d-none');
+                filterLessonsByChapters();
             }
             updateAvailability();
         });
 
-        $('#setup_chapter_id, #setup_lesson_id').on('change', function() {
+        // Chapter checkboxes
+        $(document).on('change', '.chapter-checkbox', function() {
+            updateSelectionCounts();
+            var scope = $('input[name="scope"]:checked').val();
+            if (scope == 'lesson') {
+                filterLessonsByChapters();
+            }
             updateAvailability();
         });
+
+        // Lesson checkboxes
+        $(document).on('change', '.lesson-checkbox', function() {
+            updateSelectionCounts();
+            updateAvailability();
+        });
+
+        // Filter lessons panel based on selected chapters
+        function filterLessonsByChapters() {
+            var selectedChapterIds = getSelectedChapterIds();
+            $('#lesson_panel label, #lesson_panel .ms-group-header').each(function() {
+                var chId = String($(this).data('chapter-id'));
+                if (selectedChapterIds.length === 0) {
+                    $(this).show();
+                } else {
+                    if (selectedChapterIds.indexOf(chId) !== -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                        $(this).find('input').prop('checked', false);
+                    }
+                }
+            });
+            updateSelectionCounts();
+        }
 
         // initial load
         updateAvailability();
