@@ -597,6 +597,9 @@
                                                 @endif
                                             </div>
                                         @endif
+                                        <a href="javascript:void(0)" onclick="if(window.openCalculator) window.openCalculator();" class="header__common_btn ms-2" title="Calculator">
+                                            <i class="fas fa-calculator"></i>
+                                        </a>
                                         <a href="javascript:void(0)" class="ms-2 mobile_progress">
                                             <div class="progress p-2" data-percentage="{{ $percentage }}">
                                                 <span class="progress-left">
@@ -3922,6 +3925,7 @@ if ($assign->questionBank->shuffle==1){
         @include('whatsappsupport::partials._popup')
     @endif
 
+    @include(theme('partials._calculator'))
 @endsection
 @push('js')
     @if(isModuleActive("WhatsappSupport"))

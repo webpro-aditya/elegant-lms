@@ -210,4 +210,5 @@
         </script>
     @endif
 
+    @include(theme('partials._calculator'))
 @endsection

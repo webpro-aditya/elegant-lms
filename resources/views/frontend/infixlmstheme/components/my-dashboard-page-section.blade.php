@@ -129,7 +129,7 @@
                                                                  aria-valuemin="0" aria-valuemax="100"
                                                                  style="width: {{$percentage}}%"></div>
                                                         </div>
-                                                        <span class="theme_btn d-inline-block">{{__('Start Reading')}}</span>
+                                                        <span class="theme_btn d-inline-block" style="font-size: 18px; padding: 15px 40px;">{{__('Start Reading')}}</span>
                                                     </div>
                                                 </div>
                                             </a>
