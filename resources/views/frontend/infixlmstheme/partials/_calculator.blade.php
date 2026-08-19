@@ -2,7 +2,7 @@
     /* CSS for calculator */
     #floatingCalculator {
         position: fixed;
-        bottom: 20px;
+        bottom: 150px;
         left: 20px;
         width: 320px;
         min-width: 250px;
@@ -185,7 +185,7 @@
     
     #calcFloatingToggle {
         position: fixed;
-        bottom: 20px;
+        bottom: 150px;
         left: 20px;
         width: 50px;
         height: 50px;
