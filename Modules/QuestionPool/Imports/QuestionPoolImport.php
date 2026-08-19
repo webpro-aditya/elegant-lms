@@ -18,9 +18,10 @@ class QuestionPoolImport implements ToCollection, WithHeadingRow
     {
         $user_id = Auth::id();
 
-        foreach ($rows as $row) {
+        foreach ($rows as $index => $row) {
             // Validate required fields
             if (!isset($row['course_title']) || !isset($row['question']) || !isset($row['type'])) {
+                \Illuminate\Support\Facades\Log::warning('Bulk Import Practice Quiz: Skipped row ' . ($index + 2) . ' due to missing required fields (course_title, question, type).', ['row' => $row]);
                 continue;
             }
 

@@ -297,9 +297,18 @@ class QuestionPoolController extends Controller
 
     public function bulkImportSubmit(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'file' => 'required|mimes:csv,xls,xlsx'
         ]);
+
+        if ($validator->fails()) {
+            $error = '';
+            foreach ($validator->errors()->all() as $msg) {
+                $error .= $msg . '<br>';
+            }
+            Toastr::error($error, 'Validation Error');
+            return back();
+        }
 
         try {
             Excel::import(new QuestionPoolImport, $request->file('file'));
