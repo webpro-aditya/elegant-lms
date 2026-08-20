@@ -49,7 +49,7 @@ Route::group(['prefix' => 'gamification', 'middleware' => ['auth', 'admin']], fu
     Route::post('/setting', 'GamificationController@update')->name('gamification.setting.update')->middleware('RoutePermissionCheck:gamification.setting.update');
     Route::post('/setting-reset', 'GamificationController@reset')->name('gamification.setting.reset')->middleware('RoutePermissionCheck:gamification.setting.reset');
     Route::get('/statistic-reset', 'GamificationController@statisticResetModal')->name('gamification.reset.statistic')->middleware('RoutePermissionCheck:gamification.reset.statistic');
-    Route::post('/statistic-reset', 'GamificationController@statisticReset')->name('gamification.reset.statistic')->middleware('RoutePermissionCheck:gamification.reset.statistic');
+    Route::post('/statistic-reset', 'GamificationController@statisticReset')->name('gamification.reset.statistic.submit')->middleware('RoutePermissionCheck:gamification.reset.statistic');
 
     Route::get('/badges', 'BadgeController@index')->name('gamification.badges')->middleware('RoutePermissionCheck:gamification.badges');
     Route::post('/badges', 'BadgeController@store')->name('gamification.badges.store')->middleware('RoutePermissionCheck:gamification.badges.store');

@@ -94,7 +94,7 @@ Route::group(['prefix' => 'admin/systemsetting', 'middleware' => ['auth', 'admin
         Route::post('/hr/departments/delete', 'DepartmentController@delete')->name('hr.department.delete');
 
         Route::get('settings', 'StaffController@settings')->name('staffs.settings');
-        Route::post('settings', 'StaffController@settingsPost')->name('staffs.settings');
+        Route::post('settings', 'StaffController@settingsPost')->name('staffs.settings.submit');
         Route::resource('staffs', 'StaffController')->except('destroy')->middleware('RoutePermissionCheck:staffs.index');
         Route::post('/staff-document/store', 'StaffController@document_store')->name('staff_document.store');
         Route::get('/staff-document/destroy/{id}', 'StaffController@document_destroy')->name('staff_document.destroy');

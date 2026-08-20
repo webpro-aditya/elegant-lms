@@ -15,7 +15,7 @@ Route::get('reset-password', 'Auth\ForgotPasswordController@ResetPassword')->nam
 Route::get('register', 'Auth\RegisterController@RegisterForm')->name('register');
 Route::get('saas-signup', 'Auth\RegisterController@LmsRegisterForm')->name('lms_register');
 
-Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout')->name('logout');
+Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout')->name('log_out');
 Route::post('/resend', '\App\Http\Controllers\Auth\VerificationController@resend_mail')->name('verification_mail_resend');
 Route::get('auto-login/{key}', '\App\Http\Controllers\Auth\LoginController@autologin')->name('auto.login');
 

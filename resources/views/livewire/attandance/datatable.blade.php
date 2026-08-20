@@ -81,7 +81,7 @@
                 <x-slot name="thead">
                     <x-livewire-tables::table.th.reorder/>
                     <x-livewire-tables::table.th.bulk-actions/>
-                    <x-livewire-tables::table.th.row-contents/>
+                    <div-x-livewire-tables::table.th.row-contents/> --}}
                     @foreach($columns as $index => $column)
                         @continue($column->isHidden())
                         @continue($this->columnSelectIsEnabled() && ! $this->columnSelectIsEnabledForColumn($column))
@@ -101,7 +101,7 @@
                     <x-livewire-tables::table.tr :row="$row" :rowIndex="$rowIndex">
                         <x-livewire-tables::table.td.reorder/>
                         <x-livewire-tables::table.td.bulk-actions :row="$row"/>
-                        <x-livewire-tables::table.td.row-contents :rowIndex="$rowIndex"/>
+                        <div-x-livewire-tables::table.td.row-contents :rowIndex="$rowIndex"/>
 
                         @foreach($columns as $colIndex => $column)
                             @continue($column->isHidden())
@@ -114,7 +114,7 @@
                         @endforeach
                     </x-livewire-tables::table.tr>
 
-                    <x-livewire-tables::table.row-contents :row="$row" :rowIndex="$rowIndex"/>
+                    <div-x-livewire-tables::table.row-contents :row="$row" :rowIndex="$rowIndex"/>
                 @empty
                     <x-livewire-tables::table.empty/>
                 @endforelse

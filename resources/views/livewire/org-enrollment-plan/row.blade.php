@@ -16,46 +16,46 @@
 
                  </td>--}}
             @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('title')))
-                <x-livewire-tables::bs4.table.cell>
+                <x-livewire-tables::table.td>
                     {{$row->title}}
-                </x-livewire-tables::bs4.table.cell>
+                </x-livewire-tables::table.td>
             @endif
 
-            {{--      <x-livewire-tables::bs4.table.cell>
+            {{--      <x-livewire-tables::table.td>
                       {{getPriceFormat($row->price)}}
-                  </x-livewire-tables::bs4.table.cell>
+                  </x-livewire-tables::table.td>
 
-                  <x-livewire-tables::bs4.table.cell>
+                  <x-livewire-tables::table.td>
                       {{$row->about}}
-                  </x-livewire-tables::bs4.table.cell>
+                  </x-livewire-tables::table.td>
       --}}
             @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('join_date')))
 
-                <x-livewire-tables::bs4.table.cell>
+                <x-livewire-tables::table.td>
                     {{showDate($row->join_date)}}
                     {{$row->join_time}}
-                </x-livewire-tables::bs4.table.cell>
+                </x-livewire-tables::table.td>
             @endif
 
             @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('end_date')))
 
-                <x-livewire-tables::bs4.table.cell>
+                <x-livewire-tables::table.td>
                     {{showDate($row->end_date)}}
                     {{$row->end_time}}
-                </x-livewire-tables::bs4.table.cell>
+                </x-livewire-tables::table.td>
             @endif
             @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('days')))
 
-                <x-livewire-tables::bs4.table.cell>
+                <x-livewire-tables::table.td>
                     {{$row->days!=0?$row->days.' Days':''}}
-                </x-livewire-tables::bs4.table.cell>
+                </x-livewire-tables::table.td>
             @endif
 
             @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('type')))
 
-                <x-livewire-tables::bs4.table.cell>
+                <x-livewire-tables::table.td>
                     {{$row->type==1?'Class':'Leaning Path'}}
-                </x-livewire-tables::bs4.table.cell>
+                </x-livewire-tables::table.td>
             @endif
 
         </div>

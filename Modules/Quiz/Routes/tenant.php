@@ -32,7 +32,7 @@ Route::prefix('quiz')->middleware(['auth', 'admin'])->group(function () {
     Route::get('download-sample', 'QuestionBankController@downloadSample')->name('download-sample');
 
 
-    Route::get('course-question-bank/{id}', 'QuestionBankController@CourseQuetionShow')->name('question-bank-edit')->middleware('RoutePermissionCheck:question-bank.edit');
+    Route::get('course-question-bank/{id}', 'QuestionBankController@CourseQuetionShow')->name('course-question-bank-edit')->middleware('RoutePermissionCheck:question-bank.edit');
 
     Route::post('course-question-bank', 'QuestionBankController@storeCourse')->name('question-bank.course');
     Route::put('course-question-bank-update/{id}', 'QuestionBankController@updateCourse')->name('question-bank-update.course');

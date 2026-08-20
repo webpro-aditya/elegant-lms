@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-
-Auth::routes(['verify' => true]);
-
+// Auth::routes(['verify' => true]); // Removed to fix route:cache duplicate name [login]
 Route::group(['namespace' => 'Api'], function () {
 });
 
@@ -65,7 +63,7 @@ Route::group([
 
         Route::post('set-lang', 'AuthController@setLang');
 
-        Route::any('lesson-complete', 'WebsiteApiController@lessonComplete')->name('lesson.complete');
+        Route::any('lesson-complete', 'WebsiteApiController@lessonComplete')->name('api.lesson.complete');
 
 
         Route::get('/get-bbb-start-url/{meeting_id}/{user_name}', 'WebsiteApiController@getBbbMeetingUrl');

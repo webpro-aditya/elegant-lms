@@ -8,7 +8,7 @@
 @endsection
 @section('mainContent')
 
-    <x-ebook-plan-checkout-page-section :request="$request" :plan="$s_plan" :price="$price"/>
+    <div-x-ebook-plan-checkout-page-section :request="$request" :plan="$s_plan" :price="$price"/> --}}
 
 @endsection
 @section('js')

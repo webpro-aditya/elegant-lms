@@ -27,9 +27,7 @@ use App\Http\Controllers\Api\V2\CustomMeeting\CustomMeetingController;
 use App\Http\Controllers\Api\V2\GeneralSetting\GeneralSettingController;
 use App\Http\Controllers\Api\V2\Course\QuizController as CourseQuizController;
 use App\Http\Controllers\Api\V2\Filepond\FilepondController;
-
-Auth::routes(['verify' => true]);
-
+// Auth::routes(['verify' => true]); // Removed to fix route:cache duplicate name [login]
 Route::group([
     'namespace' => 'Api/V2'
 ], function () {

@@ -14,48 +14,48 @@
 
     </style>
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('sl')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{ ++$this->serial }}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('title')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{$row->title}}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('category')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{$row->fullPath}}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('type')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{$row->type}}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('user_id')))
 
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{$row->user->name}}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('status')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             <label class="switch_toggle">
                 <input type="checkbox" class="status_enable_disable"
                        @if (@$row->status == 1) checked
                        @endif value="{{@$row->id }}">
                 <i class="slider round"></i>
             </label>
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('created_at')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             {{showDate($row->created_at)}}
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
     @if (!$columnSelect || ($columnSelect && $this->isColumnSelectEnabled('action')))
-        <x-livewire-tables::bs4.table.cell>
+        <x-livewire-tables::table.td>
             <div class="dropdown CRM_dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button"
                         id="dropdownMenu2" data-bs-toggle="dropdown"
@@ -98,7 +98,7 @@
             </div>
 
 
-        </x-livewire-tables::bs4.table.cell>
+        </x-livewire-tables::table.td>
     @endif
 
 </div>

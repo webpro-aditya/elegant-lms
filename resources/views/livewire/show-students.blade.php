@@ -16,57 +16,57 @@
                value="">
         <label for="student{{$row->id}}" class="mt-2"></label>
     </td>
-    <x-livewire-tables::bs4.table.cell>
+    <x-livewire-tables::table.td>
         {{ ++$index*request()->input('page',1)  }}
-    </x-livewire-tables::bs4.table.cell>
-    <x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
+    <x-livewire-tables::table.td>
         {{$row->name}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
-    <x-livewire-tables::bs4.table.cell>
+    <x-livewire-tables::table.td>
         {{$row->org_chart_code}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
         {{$row->org_position_code}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
         {{$row->employee_id}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
         {{$row->email}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
 
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
         {{$row->dob}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
         {{$row->gender}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
      {{showDate($row->start_working_date)}}
-    </x-livewire-tables::bs4.table.cell>
+    </x-livewire-tables::table.td>
 
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
      {{$row->phone}}
- </x-livewire-tables::bs4.table.cell>
+ </x-livewire-tables::table.td>
 
 
- <x-livewire-tables::bs4.table.cell>
+ <x-livewire-tables::table.td>
      @if($row->status==1)
          Active
      @else
          <span class="text-danger">Deactivate</span>
      @endif
- </x-livewire-tables::bs4.table.cell>
+ </x-livewire-tables::table.td>
 
 </div>
