@@ -108,11 +108,41 @@
         gap: 8px;
         flex: 1;
     }
+    .basic-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+    }
+    .basic-grid .calc-btn {
+        font-size: 16px; /* Base size for standard buttons */
+    }
+    .basic-grid .num-btn, .basic-grid .eval-btn {
+        font-size: 24px; /* Larger size for numbers and equals */
+    }
+    .btn-tall {
+        grid-row: span 2;
+    }
+    .calc-btn.num-btn {
+        background: #207682;
+        color: white;
+        border-color: #1a626c;
+    }
+    .calc-btn.num-btn:hover {
+        background: #1a626c;
+    }
+    .calc-btn.org-btn {
+        background: #f59e0b;
+        color: white;
+        border-color: #d97706;
+    }
+    .calc-btn.org-btn:hover {
+        background: #d97706;
+    }
     .calc-btn {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
-        padding: 12px 5px;
+        padding: 6px 5px;
         text-align: center;
         cursor: pointer;
         font-weight: 600;
@@ -239,48 +269,65 @@
         
         <div id="scientificMode" class="calc-mode-content">
             <div class="calc-display" id="calcDisplay">0</div>
-            <div class="calc-grid">
-                <!-- Row 1 -->
+            
+            <div id="toggleScientific" style="text-align: right; margin-bottom: 10px; cursor: pointer; color: #FB1159; font-size: 13px; font-weight: 600; user-select: none;">
+                <i class="fas fa-flask"></i> <span id="scientificToggleText">Show Scientific</span>
+            </div>
+            
+            <div class="calc-grid" id="scientificGrid" style="display: none; margin-bottom: 8px;">
+                <!-- Scientific Rows -->
                 <div class="calc-btn op-btn" data-val="sin(">sin</div>
                 <div class="calc-btn op-btn" data-val="cos(">cos</div>
                 <div class="calc-btn op-btn" data-val="tan(">tan</div>
-                <div class="calc-btn op-btn" data-val="C" style="color: #ef4444;">C</div>
+                <div class="calc-btn op-btn" data-val="pi">π</div>
                 
-                <!-- Row 2 -->
                 <div class="calc-btn op-btn" data-val="log(">log</div>
                 <div class="calc-btn op-btn" data-val="ln(">ln</div>
-                <div class="calc-btn op-btn" data-val="(">(</div>
-                <div class="calc-btn op-btn" data-val=")">)</div>
-                
-                <!-- Row 3 -->
                 <div class="calc-btn op-btn" data-val="^">x^y</div>
                 <div class="calc-btn op-btn" data-val="sqrt(">√</div>
-                <div class="calc-btn op-btn" data-val="DEL">DEL</div>
-                <div class="calc-btn op-btn" data-val="/">/</div>
+            </div>
+
+            <div class="basic-grid">
+                <!-- Row 1 -->
+                <div class="calc-btn" style="color: #207682;" data-val="DEL" title="Backspace">►</div>
+                <div class="calc-btn" style="color: #207682;" data-val="+/-">+/-</div>
+                <div class="calc-btn" style="color: #207682;" data-val="sqrt(">√</div>
+                <div class="calc-btn" style="color: #207682;" data-val="(">(</div>
+                <div class="calc-btn" style="color: #207682;" data-val=")">)</div>
+                
+                <!-- Row 2 -->
+                <div class="calc-btn" style="color: #207682;" data-val="MC">MC</div>
+                <div class="calc-btn" style="color: #207682;" data-val="MR">MR</div>
+                <div class="calc-btn" style="color: #207682;" data-val="M-">M-</div>
+                <div class="calc-btn" style="color: #207682;" data-val="M+">M+</div>
+                <div class="calc-btn" style="color: #207682; font-size: 32px;" data-val="/">÷</div>
+                
+                <!-- Row 3 -->
+                <div class="calc-btn" style="color: #207682; font-size: 32px;" data-val="%">%</div>
+                <div class="calc-btn num-btn" data-val="7">7</div>
+                <div class="calc-btn num-btn" data-val="8">8</div>
+                <div class="calc-btn num-btn" data-val="9">9</div>
+                <div class="calc-btn" style="color: #207682; font-size: 32px;" data-val="*">×</div>
                 
                 <!-- Row 4 -->
-                <div class="calc-btn" data-val="7">7</div>
-                <div class="calc-btn" data-val="8">8</div>
-                <div class="calc-btn" data-val="9">9</div>
-                <div class="calc-btn op-btn" data-val="*">*</div>
+                <div class="calc-btn org-btn" data-val="AC">AC</div>
+                <div class="calc-btn num-btn" data-val="4">4</div>
+                <div class="calc-btn num-btn" data-val="5">5</div>
+                <div class="calc-btn num-btn" data-val="6">6</div>
+                <div class="calc-btn" style="color: #207682; font-size: 36px;" data-val="-">-</div>
                 
                 <!-- Row 5 -->
-                <div class="calc-btn" data-val="4">4</div>
-                <div class="calc-btn" data-val="5">5</div>
-                <div class="calc-btn" data-val="6">6</div>
-                <div class="calc-btn op-btn" data-val="-">-</div>
+                <div class="calc-btn org-btn" data-val="C" style="font-size: 14px;">ON/C</div>
+                <div class="calc-btn num-btn" data-val="1">1</div>
+                <div class="calc-btn num-btn" data-val="2">2</div>
+                <div class="calc-btn num-btn" data-val="3">3</div>
+                <div class="calc-btn btn-tall" style="color: #207682; height: 100%; font-size: 32px;" data-val="+">+</div>
                 
                 <!-- Row 6 -->
-                <div class="calc-btn" data-val="1">1</div>
-                <div class="calc-btn" data-val="2">2</div>
-                <div class="calc-btn" data-val="3">3</div>
-                <div class="calc-btn op-btn" data-val="+">+</div>
-                
-                <!-- Row 7 -->
-                <div class="calc-btn" data-val="0">0</div>
-                <div class="calc-btn" data-val=".">.</div>
-                <div class="calc-btn op-btn" data-val="pi">π</div>
-                <div class="calc-btn eval-btn" data-val="=">=</div>
+                <div class="calc-btn num-btn" data-val="0">0</div>
+                <div class="calc-btn num-btn" data-val="00">00</div>
+                <div class="calc-btn num-btn" data-val=".">.</div>
+                <div class="calc-btn eval-btn" data-val="=" style="background: #207682; color: #fff; border: none;">=</div>
             </div>
         </div>
         
@@ -297,6 +344,7 @@
         let calcState = {
             isOpen: false,
             isMinimized: false,
+            isScientificOpen: false,
             position: { top: 'auto', left: '20px', bottom: '20px', right: 'auto' },
             size: { width: '320px', height: 'auto' },
             activeTab: '#scientificMode',
@@ -322,6 +370,22 @@
         const $toggleBtn = $('#calcFloatingToggle');
         
         // Apply State
+        if (calcState.isScientificOpen) {
+            $('#scientificGrid').show();
+            $('#scientificToggleText').text('Hide Scientific');
+        } else {
+            $('#scientificGrid').hide();
+            $('#scientificToggleText').text('Show Scientific');
+        }
+
+        $('#toggleScientific').on('click', function() {
+            $('#scientificGrid').slideToggle(200, function() {
+                calcState.isScientificOpen = $('#scientificGrid').is(':visible');
+                $('#scientificToggleText').text(calcState.isScientificOpen ? 'Hide Scientific' : 'Show Scientific');
+                saveState();
+            });
+        });
+
         if (calcState.isOpen) {
             $calc.show();
             $toggleBtn.hide();
@@ -351,8 +415,8 @@
         // Setup Dragging
         if ($.fn.draggable) {
             $calc.draggable({
-                handle: "#calcHeader",
                 containment: "window",
+                cancel: ".calc-btn, .calc-controls span, .calc-tab, input, .finance-calc-btn, #toggleScientific",
                 stop: function(event, ui) {
                     calcState.position = {
                         top: ui.position.top + 'px',
@@ -367,15 +431,17 @@
         
         // Native touch drag fallback and fix for touch drag swallowing events
         (function setupTouchDrag() {
-            const header = document.getElementById('calcHeader');
             const calcEl = $calc[0];
-            if (!header || !calcEl) return;
+            if (!calcEl) return;
             let isDragging = false, startX, startY, origLeft, origTop;
             
-            header.addEventListener('touchstart', function(e) {
-                // Don't interfere with button taps inside header controls
+            calcEl.addEventListener('touchstart', function(e) {
+                // Don't interfere with button taps
                 if (e.target.closest('#calcClose') || e.target.closest('#calcMinMax')) return;
                 if (e.target.closest('.calc-controls')) return;
+                if (e.target.closest('.calc-btn') || e.target.closest('input')) return;
+                if (e.target.closest('.calc-tab') || e.target.closest('.finance-calc-btn') || e.target.closest('#toggleScientific')) return;
+                
                 const touch = e.touches[0];
                 const rect = calcEl.getBoundingClientRect();
                 isDragging = true;
@@ -512,7 +578,7 @@
         }
         
         function handleCalcAction(val) {
-            if (val === 'C') {
+            if (val === 'C' || val === 'AC') {
                 expression = '';
                 updateDisplay('0');
                 return;
@@ -529,8 +595,42 @@
                 return;
             }
             
+            if (val === '+/-') {
+                if (expression && expression !== '0' && !shouldResetDisplay) {
+                    if (expression.startsWith('-')) {
+                        expression = expression.substring(1);
+                    } else {
+                        expression = '-' + expression;
+                    }
+                    updateDisplay(expression);
+                }
+                return;
+            }
+            
+            if (val === '%') {
+                try {
+                    let result = Function('"use strict";return (' + expression + ')')();
+                    expression = String(result / 100);
+                    updateDisplay(expression);
+                    shouldResetDisplay = true;
+                } catch(e) {}
+                return;
+            }
+            
+            if (['MC', 'MR', 'M+', 'M-', 'GT', 'MU'].includes(val)) {
+                // Advanced functions placeholder
+                return;
+            }
+            
             if (val === '=') {
                 try {
+                    // Auto-close any unclosed parentheses
+                    let openCount = (expression.match(/\(/g) || []).length;
+                    let closeCount = (expression.match(/\)/g) || []).length;
+                    for (let i = 0; i < openCount - closeCount; i++) {
+                        expression += ')';
+                    }
+
                     // Safe basic evaluation replacing scientific terms
                     let evalExpr = expression
                         .replace(/sin\(/g, 'Math.sin(')
@@ -563,6 +663,16 @@
                 expression = '';
             }
             shouldResetDisplay = false;
+            
+            // Wrap preceding number if a function is pressed (e.g. '9' then 'sqrt(' becomes 'sqrt(9)')
+            if (['sin(', 'cos(', 'tan(', 'log(', 'ln(', 'sqrt('].includes(val)) {
+                const match = expression.match(/(\d+\.?\d*)$/);
+                if (match) {
+                    expression = expression.slice(0, -match[1].length) + val + match[1] + ')';
+                    updateDisplay(expression);
+                    return;
+                }
+            }
             
             expression += val;
             updateDisplay(expression);
