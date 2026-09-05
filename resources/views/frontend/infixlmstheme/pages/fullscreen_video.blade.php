@@ -1079,7 +1079,7 @@ if ($assign->questionBank->shuffle==1){
             <div class="d-flex justify-content-center align-items-center h-100 w-100 flex-column" style="min-height: 400px; background: #000;">
                 <h4 class="mb-4 text-white">{{ $lesson->name }}</h4>
                 <p class="text-white mb-4">{{ __('Practice Quiz') }}</p>
-                <a href="{{ route('practice-quiz.start-lesson', $lesson->id) }}" class="theme_btn" target="_blank">
+                <a href="{{ route('practice-quiz.setup', ['courseId' => $course->id, 'quiz_lesson_id' => $lesson->id]) }}" class="theme_btn" target="_blank">
                     {{ __('Start Practice Quiz') }} <i class="fas fa-arrow-right ml-2"></i>
                 </a>
             </div>

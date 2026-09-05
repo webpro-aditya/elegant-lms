@@ -498,7 +498,15 @@
 <script>
     $(document).ready(function() {
         var maxAvailable = 0;
-        var currentCount = 10;
+        var preselectQuestionCount = @json($preselectQuestionCount ?? 10);
+        var currentCount = parseInt(preselectQuestionCount);
+        if (isNaN(currentCount) || currentCount < 1) currentCount = 10;
+        
+        var preselectScope = @json($preselectScope ?? 'course');
+        var preselectChapterIds = @json($preselectChapterIds ?? []);
+        var preselectLessonIds = @json($preselectLessonIds ?? []);
+        
+
 
         function setCount(val) {
             val = parseInt(val);
@@ -573,6 +581,8 @@
 
                         if (currentCount > maxAvailable) {
                             setCount(maxAvailable);
+                        } else {
+                            setCount(currentCount);
                         }
                         $('#start_btn').prop('disabled', false);
                     } else {
@@ -684,6 +694,29 @@
                     }
                 }
             });
+            updateSelectionCounts();
+        }
+        
+        // Apply pre-selections from server
+        if (preselectScope && preselectScope !== 'course') {
+            $('input[name="scope"][value="' + preselectScope + '"]').prop('checked', true).trigger('change');
+            
+            if (preselectChapterIds && preselectChapterIds.length > 0) {
+                preselectChapterIds.forEach(function(id) {
+                    $('.chapter-checkbox[value="' + id + '"]').prop('checked', true);
+                });
+            }
+            
+            if (preselectLessonIds && preselectLessonIds.length > 0) {
+                preselectLessonIds.forEach(function(id) {
+                    $('.lesson-checkbox[value="' + id + '"]').prop('checked', true);
+                });
+            }
+            
+            if (preselectScope === 'lesson') {
+                filterLessonsByChapters();
+            }
+            
             updateSelectionCounts();
         }
 

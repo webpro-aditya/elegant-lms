@@ -104,7 +104,7 @@ class PracticeQuizController extends Controller
         }
     }
 
-    public function setup($courseId)
+    public function setup(Request $request, $courseId)
     {
         try {
             $user = Auth::user();
@@ -118,7 +118,37 @@ class PracticeQuizController extends Controller
 
             $course = Course::with('chapters.lessons')->findOrFail($courseId);
             
-            return view('questionpool::student.setup', compact('course'));
+            $preselectScope = 'course';
+            $preselectChapterIds = [];
+            $preselectLessonIds = [];
+            $preselectQuestionCount = 10;
+            
+            if ($request->has('quiz_lesson_id')) {
+                $lesson = Lesson::find($request->quiz_lesson_id);
+                if ($lesson) {
+                    $preselectChapterIds = $lesson->practice_quiz_chapter_ids ? array_filter(explode(',', $lesson->practice_quiz_chapter_ids)) : [];
+                    $preselectLessonIds = $lesson->practice_quiz_lesson_ids ? array_filter(explode(',', $lesson->practice_quiz_lesson_ids)) : [];
+                    
+                    if (empty($preselectLessonIds) && $lesson->practice_quiz_lesson_id) {
+                        $preselectLessonIds = [$lesson->practice_quiz_lesson_id];
+                    }
+                    if (empty($preselectChapterIds) && $lesson->chapter_id) {
+                        $preselectChapterIds = [$lesson->chapter_id];
+                    }
+                    
+                    if (!empty($preselectLessonIds)) {
+                        $preselectScope = 'lesson';
+                    } elseif (!empty($preselectChapterIds)) {
+                        $preselectScope = 'chapter';
+                    }
+                    
+                    if ($lesson->practice_quiz_question_count) {
+                        $preselectQuestionCount = $lesson->practice_quiz_question_count;
+                    }
+                }
+            }
+            
+            return view('questionpool::student.setup', compact('course', 'preselectScope', 'preselectChapterIds', 'preselectLessonIds', 'preselectQuestionCount'));
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return back();
