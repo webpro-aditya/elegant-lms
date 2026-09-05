@@ -477,25 +477,66 @@
                         <button class="iep-close" id="iep-close-btn" aria-label="Close"><i class="ti-close"></i></button>
                     </div>
                     <div class="iep-body">
-                        <div class="iep-row">
-                            <div>
-                                <label class="em-field-label">Start Date &amp; Time</label>
-                                <div class="date-input-wrap">
-                                    <input type="text" id="iep-start-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
-                                    <i class="ti-calendar cal-icon"></i>
+                        <div class="em-mode-toggle mb-3" id="iepDurationModeToggle">
+                            <button class="em-mode-btn active" data-mode="daterange" type="button">
+                                <i class="ti-calendar"></i> Date Range
+                            </button>
+                            <button class="em-mode-btn" data-mode="duration" type="button">
+                                <i class="ti-timer"></i> Duration (Days)
+                            </button>
+                        </div>
+                        
+                        <div id="iep-panel-daterange">
+                            <div class="iep-row">
+                                <div>
+                                    <label class="em-field-label">Start Date &amp; Time</label>
+                                    <div class="date-input-wrap">
+                                        <input type="text" id="iep-start-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
+                                        <i class="ti-calendar cal-icon"></i>
+                                    </div>
+                                    <div id="cal-iep-start" class="cal-widget"></div>
                                 </div>
-                                <div id="cal-iep-start" class="cal-widget"></div>
+                                <div>
+                                    <label class="em-field-label">End Date &amp; Time</label>
+                                    <div class="date-input-wrap">
+                                        <input type="text" id="iep-end-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
+                                        <i class="ti-calendar cal-icon"></i>
+                                    </div>
+                                    <div id="cal-iep-end" class="cal-widget"></div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="em-field-label">End Date &amp; Time</label>
-                                <div class="date-input-wrap">
-                                    <input type="text" id="iep-end-date" class="date-display-input" placeholder="Pick date &amp; time" readonly />
-                                    <i class="ti-calendar cal-icon"></i>
+                            <p class="em-hint"><i class="ti-info-alt"></i> Clear both fields to remove date restrictions.</p>
+                        </div>
+
+                        <div id="iep-panel-duration" style="display:none;">
+                            <div class="iep-row">
+                                <div>
+                                    <label class="em-field-label">Start Date &amp; Time</label>
+                                    <div class="date-input-wrap">
+                                        <input type="text" id="iep-duration-start" class="date-display-input" placeholder="Today by default" readonly />
+                                        <i class="ti-calendar cal-icon"></i>
+                                    </div>
+                                    <div id="cal-iep-duration-start" class="cal-widget"></div>
                                 </div>
-                                <div id="cal-iep-end" class="cal-widget"></div>
+                                <div>
+                                    <label class="em-field-label">Number of Days</label>
+                                    <div class="duration-number-wrap">
+                                        <input type="number" id="iep-duration-days" min="1" placeholder="e.g. 30" />
+                                        <span class="unit">days</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 mb-2">
+                                <label class="em-field-label">Calculated End Date</label>
+                                <div class="em-computed-badge">
+                                    <i class="ti-calendar cb-icon"></i>
+                                    <div class="cb-content">
+                                        <span class="cb-label">Access expires on</span>
+                                        <span class="cb-value" id="iep-computed-end-text">—</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <p class="em-hint"><i class="ti-info-alt"></i> Clear both fields to remove date restrictions.</p>
                     </div>
                     <div class="iep-feedback" id="iep-feedback" style="display:none;"></div>
                     <div class="iep-actions">
@@ -905,6 +946,10 @@
         containerId: 'cal-iep-end', inputId: 'iep-end-date',
         minDateFn: function(){ return calIepStart.getDate(); }
     });
+    var calIepDurationStart = new InlineCalendar({
+        containerId: 'cal-iep-duration-start', inputId: 'iep-duration-start',
+        onChange: function(){ recomputeIepEndDate(); }
+    });
 
     document.addEventListener('click', function(){
         document.querySelectorAll('.cal-widget').forEach(function(c){ c.style.display='none'; });
@@ -922,6 +967,18 @@
         out.textContent = calFmtDisplay(base);
     }
     document.getElementById('enroll-duration-days').addEventListener('input', recomputeEndDate);
+
+    function recomputeIepEndDate(){
+        var days = parseInt(document.getElementById('iep-duration-days').value,10);
+        var out  = document.getElementById('iep-computed-end-text');
+        if (!days||days<1){ out.textContent='—'; return; }
+        var sd   = calIepDurationStart.getDate();
+        var base = sd ? new Date(sd.getTime()) : new Date();
+        base.setDate(base.getDate()+days);
+        if (!sd) base.setHours(23,59,0,0);
+        out.textContent = calFmtDisplay(base);
+    }
+    document.getElementById('iep-duration-days').addEventListener('input', recomputeIepEndDate);
 
     /* ── Mode toggle ── */
     var currentMode = 'daterange';
@@ -1056,6 +1113,17 @@
                enrollId.  We write it here; the save handler reads it.
     ───────────────────────────────────────────────────────────────── */
     var iepContext = { userId: null, enrollId: null };
+    
+    var currentIepMode = 'daterange';
+    document.querySelectorAll('#iepDurationModeToggle .em-mode-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('#iepDurationModeToggle .em-mode-btn').forEach(function(b){ b.classList.remove('active'); });
+            this.classList.add('active');
+            currentIepMode = this.dataset.mode;
+            document.getElementById('iep-panel-daterange').style.display = currentIepMode==='daterange' ? '' : 'none';
+            document.getElementById('iep-panel-duration').style.display  = currentIepMode==='duration'  ? '' : 'none';
+        });
+    });
 
     function openInlineEdit(cell) {
         var userId      = cell.dataset.userId;
@@ -1072,6 +1140,16 @@
 
         calIepStart.clear();
         calIepEnd.clear();
+        calIepDurationStart.clear();
+        document.getElementById('iep-duration-days').value = '';
+        document.getElementById('iep-computed-end-text').textContent = '—';
+        
+        document.querySelectorAll('#iepDurationModeToggle .em-mode-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelector('#iepDurationModeToggle [data-mode="daterange"]').classList.add('active');
+        currentIepMode = 'daterange';
+        document.getElementById('iep-panel-daterange').style.display = '';
+        document.getElementById('iep-panel-duration').style.display = 'none';
+
         if (startDate) calIepStart.setDate(startDate);
         if (endDate)   calIepEnd.setDate(endDate);
 
@@ -1126,18 +1204,24 @@
     });
     iepPanel.addEventListener('click', function(e){ e.stopPropagation(); });
 
+    function getIepDurationPayload(){
+        if (currentIepMode==='daterange')
+            return { start_date: calIepStart.getValue(), end_date: calIepEnd.getValue() };
+        var sd = calIepDurationStart.getValue();
+        var days = parseInt(document.getElementById('iep-duration-days').value,10);
+        return { start_date: sd, duration: days||null };
+    }
+
     /* Save handler */
     iepSaveBtn.addEventListener('click', function(){
         if (!iepContext.userId) return;
         iepSaveBtn.disabled = true;
         iepSaveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:14px;height:14px;border-width:2px;"></span> Saving…';
 
-        var payload = {
+        var payload = Object.assign({
             user_id:    iepContext.userId,
-            enroll_id:  iepContext.enrollId,
-            start_date: calIepStart.getValue(),
-            end_date:   calIepEnd.getValue()
-        };
+            enroll_id:  iepContext.enrollId
+        }, getIepDurationPayload());
 
         fetch('{!! $updateUrl !!}', {
             method: 'PUT',

@@ -811,13 +811,23 @@ class CourseInvitationController extends Controller
             ], 404);
         }
 
-        $startDate = $request->filled('start_date')
-            ? \Carbon\Carbon::parse($request->start_date)->toDateTimeString()
-            : null;
+        $startDate = null;
+        $endDate   = null;
 
-        $endDate = $request->filled('end_date')
-            ? \Carbon\Carbon::parse($request->end_date)->toDateTimeString()
-            : null;
+        if ($request->filled('start_date')) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->toDateTimeString();
+
+            if ($request->filled('end_date')) {
+                $endDate = \Carbon\Carbon::parse($request->end_date)->toDateTimeString();
+            } elseif ($request->filled('duration')) {
+                $endDate = \Carbon\Carbon::parse($request->start_date)
+                    ->addDays((int) $request->duration)
+                    ->toDateTimeString();
+            }
+        } elseif ($request->filled('duration')) {
+            $startDate = now()->toDateTimeString();
+            $endDate   = now()->addDays((int) $request->duration)->toDateTimeString();
+        }
 
         // Capture old values before update
         $oldStartDate = $enrollment->start_date;
