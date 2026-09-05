@@ -533,8 +533,9 @@
                                 <div class="category_search d-none d-lg-flex category_box_iner">
                                     <div class="input-group-prepend2 ps-3 ">
                                         <a class="headerTitle"
-                                           href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}">
-                                            <h4 class="headerTitle">{{ $course->title }}
+                                           href="{{ courseDetailsUrl($course->id, $course->type, $course->slug) }}"
+                                           title="{{ $course->title }}">
+                                            <h4 class="headerTitle">{{ \Illuminate\Support\Str::limit($course->title, 30) }}
                                                 <span class="badge bg-primary ms-2" style="font-size: 12px; font-weight: normal; margin-left: 10px; vertical-align: middle;">{{ $course->remaining_time }}</span>
                                             </h4>
                                         </a>
