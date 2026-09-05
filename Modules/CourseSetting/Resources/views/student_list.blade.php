@@ -238,16 +238,16 @@
             cursor: pointer;
             position: relative;
         }
-        .edit-date-cell:hover .edit-pencil {
-            opacity: 1;
-        }
         .edit-pencil {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 20px; height: 20px; border-radius: 50%;
+            width: 24px; height: 24px; border-radius: 50%;
             background: #ede8ff; color: #7b2ff7;
-            font-size: 10px; margin-left: 6px;
-            opacity: 0; transition: opacity .2s;
+            font-size: 12px; margin-left: 6px;
+            opacity: 1; transition: all .2s;
             vertical-align: middle;
+        }
+        .edit-date-cell:hover .edit-pencil {
+            background: #7b2ff7; color: #fff;
         }
 
         /* ── MODIFIED: Floating edit panel — scrollable & always on top ── */
