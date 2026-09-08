@@ -76,6 +76,9 @@ class LessonController extends Controller
                 $lesson->description = $request->description;
                 $lesson->video_url = $request->video_url;
                 $lesson->host = $request->host;
+                if ($request->host == 'VimeoLink') {
+                    $lesson->video_url = $request->vimeo_link_url;
+                }
                 $lesson->duration = $request->duration;
                 $lesson->is_lock = $request->is_lock;
                 $lesson->save();
@@ -158,8 +161,11 @@ class LessonController extends Controller
                 $lesson->name = $request->name;
                 $lesson->description = $request->description;
                 $lesson->video_url = $request->video_url;
+                $lesson->host = $request->host;
                 if ($request->get('host') == "Vimeo") {
                     $lesson->video_url = $request->vimeo;
+                } elseif ($request->get('host') == "VimeoLink") {
+                    $lesson->video_url = $request->vimeo_link_url;
                 }
                 $lesson->duration = $request->duration;
                 $lesson->is_lock = $request->is_lock;

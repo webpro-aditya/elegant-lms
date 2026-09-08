@@ -1323,6 +1323,22 @@ if ($assign->questionBank->shuffle==1){
             @endif
 
 
+            @if ($lesson->host == 'VimeoLink')
+                @php
+                    $vimeoVideoId = '';
+                    if (preg_match('/vimeo\.com\/(\d+)/', $lesson->video_url, $matches)) {
+                        $vimeoVideoId = $matches[1];
+                    }
+                @endphp
+
+                @if($vimeoVideoId)
+                <div class="plyr__video-embed video_iframe" id="video-id">
+                    <iframe src="https://player.vimeo.com/video/{{$vimeoVideoId}}?loop=false&amp;byline=false&amp;portrait=false&amp;title=false&amp;speed=true&amp;transparent=0&amp;gesture=media"
+                            allowfullscreen allowtransparency allow="autoplay; fullscreen; picture-in-picture"></iframe>
+                </div>
+                @endif
+            @endif
+
             @if ($lesson->host == 'VdoCipher')
                 <div id="embedBox" class="video_iframe"></div>
 
@@ -4044,7 +4060,7 @@ if ($assign->questionBank->shuffle==1){
 
     </script>
 
-    @if ($lesson->host == 'Self' || $lesson->host == 'AmazonS3' || $lesson->host == 'URL' || $lesson->host == 'Youtube' || $lesson->host == 'Iframe'|| $lesson->host == 'Vimeo')
+    @if ($lesson->host == 'Self' || $lesson->host == 'AmazonS3' || $lesson->host == 'URL' || $lesson->host == 'Youtube' || $lesson->host == 'Iframe'|| $lesson->host == 'Vimeo' || $lesson->host == 'VimeoLink')
         <script src="{{assetPath('plugins/plyr/plyr.js')}}" type="application/javascript"></script>
         <link rel="stylesheet" href="{{assetPath('plugins/plyr/plyr.css')}}">
         <script>

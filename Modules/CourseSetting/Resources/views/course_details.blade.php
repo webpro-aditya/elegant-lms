@@ -377,6 +377,7 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").show();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#bunnyStreamUrl").hide();
                     $("#youtubeVideo").val('');
@@ -401,6 +402,7 @@
                     fileupload.show();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#VdoCipherUrl").hide();
@@ -413,6 +415,20 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").show();
+                    $("#vimeoLinkUrl").hide();
+                    $("#vimeoVideo").val('');
+                    $("#youtubeVideo").val('');
+                    $("#fileupload").hide();
+                    $("#VdoCipherUrl").hide();
+                    $("#bunnyStreamUrl").hide();
+                    $("#media_upload").hide();
+                    $("#linkUrl").hide();
+
+                } else if (category_id === 'VimeoLink') {
+                    $("#iframeBox").hide();
+                    $("#videoUrl").hide();
+                    $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").show();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -438,6 +454,7 @@
                     $("#iframeBox").show();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -452,6 +469,7 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -464,6 +482,7 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -476,6 +495,7 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -488,6 +508,7 @@
                     $("#iframeBox").hide();
                     $("#videoUrl").hide();
                     $("#vimeoUrl").hide();
+                    $("#vimeoLinkUrl").hide();
                     $("#vimeoVideo").val('');
                     $("#youtubeVideo").val('');
                     $("#fileupload").hide();
@@ -508,6 +529,7 @@
                 if (category_id1 === 'Youtube') {
                     $("#videoUrl1").show();
                     $("#vimeoUrl1").hide();
+                    $("#vimeoLinkUrl1").hide();
                     $("#vimeoVideo1").val('');
                     $("#youtubeVideo1").val('');
                     $("#fileupload1").hide();
@@ -520,6 +542,7 @@
                     $("#fileupload1").show();
                     $("#videoUrl1").hide();
                     $("#vimeoUrl1").hide();
+                    $("#vimeoLinkUrl1").hide();
                     $("#vimeoVideo1").val('');
                     $("#youtubeVideo1").val('');
                     $("#bunnyStreamUrl1").hide();
@@ -527,6 +550,15 @@
                 } else if (category_id1 === 'Vimeo') {
                     $("#videoUrl1").hide();
                     $("#vimeoUrl1").show();
+                    $("#vimeoLinkUrl1").hide();
+                    $("#vimeoVideo1").val('');
+                    $("#youtubeVideo1").val('');
+                    $("#fileupload1").hide();
+                    $("#bunnyStreamUrl1").hide();
+                } else if (category_id1 === 'VimeoLink') {
+                    $("#videoUrl1").hide();
+                    $("#vimeoUrl1").hide();
+                    $("#vimeoLinkUrl1").show();
                     $("#vimeoVideo1").val('');
                     $("#youtubeVideo1").val('');
                     $("#fileupload1").hide();
@@ -541,6 +573,7 @@
                 } else {
                     $("#videoUrl1").hide();
                     $("#vimeoUrl1").hide();
+                    $("#vimeoLinkUrl1").hide();
                     $("#vimeoVideo1").val('');
                     $("#youtubeVideo1").val('');
                     $("#fileupload1").hide();

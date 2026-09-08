@@ -279,6 +279,8 @@ class InstructorCourseSettingController extends Controller
                             $lesson->video_url = $request->video_url;
                         } elseif ($request->get('host') == "Iframe") {
                             $lesson->video_url = $request->iframe_url;
+                        } elseif ($request->get('host') == "VimeoLink") {
+                            $lesson->video_url = $request->vimeo_link_url;
                         } elseif ($request->get('host') == "Link") {
                             $lesson->video_url = $request->link_url;
                             $lesson->description = $request->link_text;
@@ -643,6 +645,8 @@ class InstructorCourseSettingController extends Controller
                     $rules['bunny'] = 'required';
                 } elseif ($request->get('host') == "Iframe") {
                     $rules['iframe_url'] = 'required';
+                } elseif ($request->get('host') == "VimeoLink") {
+                    $rules['vimeo_link_url'] = 'required|url';
                 } elseif ($request->get('host') == "Link") {
                     $rules['link_url'] = 'required|url';
                     $rules['link_text'] = 'required';
@@ -927,6 +931,8 @@ class InstructorCourseSettingController extends Controller
                             $lesson->video_url = $request->video_url;
                         } elseif ($request->get('host') == "Iframe") {
                             $lesson->video_url = $request->iframe_url;
+                        } elseif ($request->get('host') == "VimeoLink") {
+                            $lesson->video_url = $request->vimeo_link_url;
                         } elseif ($request->get('host') == "Link") {
                             $lesson->video_url = $request->link_url;
                             $lesson->description = $request->link_text;

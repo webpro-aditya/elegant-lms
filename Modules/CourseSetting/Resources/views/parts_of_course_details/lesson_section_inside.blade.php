@@ -97,6 +97,10 @@
                                             Vimeo
                                         </option>
                                         <option
+                                            value="VimeoLink" {{isset($editLesson) ? $editLesson->host=='VimeoLink'? 'selected':'':'' }} >
+                                            Vimeo Link
+                                        </option>
+                                        <option
                                             value="VdoCipher" {{isset($editLesson) ? $editLesson->host=='VdoCipher'? 'selected':'':'' }} >
                                             VdoCipher
                                         </option>
@@ -342,6 +346,26 @@
                                                   role="alert">
                                             <strong>{{ $errors->first('vimeo') }}</strong>
                                         </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="input-effect mt-2 pt-1"
+                                     id="vimeoLinkUrl{{isset($editSection)?'_edit_':''}}{{isset($editLesson)? $editLesson->id:$key}}"
+                                     style="display: @if((isset($editLesson) && ($editLesson->host!="VimeoLink")) || !isset($editLesson)) none  @endif">
+                                    <div class="" id="">
+                                        <label class="primary_input_label mt-1">{{__('courses.Vimeo Link')}}
+                                            <span class="required_mark">*</span></label>
+                                        <input
+                                            class="primary_input_field name{{ $errors->has('vimeo_link_url') ? ' is-invalid' : '' }}"
+                                            type="url" name="vimeo_link_url"
+                                            placeholder="https://vimeo.com/123456789"
+                                            autocomplete="off"
+                                            value="@if(isset($editLesson)) @if($editLesson->host=="VimeoLink"){{$editLesson->video_url}} @endif @endif">
+                                        <span class="focus-border"></span>
+                                        @if ($errors->has('vimeo_link_url'))
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('vimeo_link_url') }}</strong>
+                                            </span>
                                         @endif
                                     </div>
                                 </div>

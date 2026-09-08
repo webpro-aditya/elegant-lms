@@ -209,6 +209,10 @@
                                                     Vimeo
                                                 </option>
                                                 <option
+                                                    value="VimeoLink" {{($edit->host??'')=='VimeoLink'? 'selected':'' }} >
+                                                    Vimeo Link
+                                                </option>
+                                                <option
                                                     value="VdoCipher" {{($edit->host??'')=='VdoCipher'? 'selected':'' }} >
                                                     VdoCipher
                                                 </option>
@@ -468,6 +472,26 @@
                                                 @endif
                                             </div>
                                         </div>
+                                        <div class="input-effect mt-2 pt-1"
+                                             id="vimeoLinkUrl{{isset($edit)?'_edit_':''}}{{$edit->id??''}}"
+                                             style="display: @if((isset($edit) && ($edit->host!="VimeoLink")) || !isset($edit)) none  @endif">
+                                            <div class="" id="">
+                                                <label class="primary_input_label mt-1">{{__('courses.Vimeo Link')}}
+                                                    <span class="required_mark">*</span></label>
+                                                <input
+                                                    class="primary_input_field name{{ $errors->has('vimeo_link_url') ? ' is-invalid' : '' }}"
+                                                    type="url" name="vimeo_link_url"
+                                                    placeholder="https://vimeo.com/123456789"
+                                                    autocomplete="off"
+                                                    value="@if(isset($edit)) @if(($edit->host??'')=="VimeoLink"){{$edit->video_url}} @endif @endif">
+                                                <span class="focus-border"></span>
+                                                @if ($errors->has('vimeo_link_url'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('vimeo_link_url') }}</strong>
+                                            </span>
+                                                @endif
+                                            </div>
+                                        </div>
                                         @if (isModuleActive('BunnyStorage'))
                                             <div class="input-effect mt-2 pt-1"
                                                  id="bunnyStreamUrl{{isset($edit)?'_edit_':''}}{{$edit->id??''}}"
@@ -689,6 +713,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).show();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#VdoCipherUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -704,6 +729,7 @@
             $("#fileupload" + key).show();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
             $("#VdoCipherUrl" + key).hide();
@@ -716,6 +742,21 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).show();
+            $("#vimeoLinkUrl" + key).hide();
+            $("#vimeoVideo" + key).val('');
+            $("#youtubeVideo" + key).val('');
+            $("#fileupload" + key).hide();
+            $("#VdoCipherUrl" + key).hide();
+            $("#bunnyStreamUrl" + key).hide();
+            $("#media_upload" + key).hide();
+            $("#editorBox" + key).hide();
+            $("#linkUrlBox" + key).hide();
+
+        } else if (category_id === 'VimeoLink') {
+            $("#iframeBox" + key).hide();
+            $("#videoUrl" + key).hide();
+            $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).show();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
             $("#fileupload" + key).hide();
@@ -729,6 +770,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#VdoCipherUrl" + key).show();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -742,6 +784,7 @@
             $("#iframeBox" + key).show();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
             $("#fileupload" + key).hide();
@@ -754,6 +797,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#bunnyStreamUrl" + key).show();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -767,6 +811,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#bunnyStreamUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -779,6 +824,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#bunnyStreamUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -791,6 +837,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#bunnyStreamUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
@@ -803,6 +850,7 @@
             $("#iframeBox" + key).hide();
             $("#videoUrl" + key).hide();
             $("#vimeoUrl" + key).hide();
+            $("#vimeoLinkUrl" + key).hide();
             $("#vimeoVideo" + key).val('');
             $("#youtubeVideo" + key).val('');
             $("#fileupload" + key).hide();
