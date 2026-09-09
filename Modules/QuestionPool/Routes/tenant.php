@@ -12,10 +12,11 @@ Route::middleware(['auth', 'admin'])->prefix('question-pool')->group(function ()
     Route::get('/bulk-import', [QuestionPoolController::class, 'bulkImport'])->name('question-pool.bulk-import');
     Route::post('/bulk-import', [QuestionPoolController::class, 'bulkImportSubmit'])->name('question-pool.bulk-import-submit');
     Route::get('/download-sample', [QuestionPoolController::class, 'downloadSample'])->name('question-pool.download-sample');
+    Route::post('/bulk-delete', [QuestionPoolController::class, 'bulkDestroy'])->name('question-pool.bulk-delete');
+    Route::post('/delete', [QuestionPoolController::class, 'destroy'])->name('question-pool.delete');
 
     Route::get('/{id}/edit', [QuestionPoolController::class, 'edit'])->name('question-pool.edit');
     Route::post('/{id}', [QuestionPoolController::class, 'update'])->name('question-pool.update');
-    Route::post('/delete', [QuestionPoolController::class, 'destroy'])->name('question-pool.delete');
     
     // Ajax dropdowns
     Route::get('/get-chapters/{courseId}', [QuestionPoolController::class, 'getChapters'])->name('question-pool.get-chapters');

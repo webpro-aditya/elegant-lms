@@ -89,6 +89,17 @@
                             <table id="lms_table" class="table Crm_table_active3">
                                 <thead>
                                 <tr>
+                                    <th scope="col">
+                                        <div class="d-flex items-center">
+                                            <label class="primary_checkbox" for="questionSelectAll">
+                                                <input type="checkbox" id="questionSelectAll" class="common-checkbox selectAllQuizQuestion">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                            <a href="#" id="deleteAllBtn" style="display: none; margin-top: -5px;" class="primary-btn small fix-gr-bg ms-2">
+                                                <span class="ti-trash"></span>
+                                            </a>
+                                        </div>
+                                    </th>
                                     <th scope="col">Sl</th>
                                     <th scope="col">Question</th>
                                     <th scope="col">Course</th>
@@ -132,6 +143,32 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade admin-query" id="deleteAllBank">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Question Pool</h4>
+                    <button type="button" class="close" data-dismiss="modal"><i class="ti-close "></i></button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="{{route('question-pool.bulk-delete')}}" method="post">
+                        @csrf
+
+                        <div class="text-center">
+                            <h4>Are you sure to delete?</h4>
+                        </div>
+                        <input type="hidden" name="questions" value="" id="qusList">
+                        <div class="mt-40 d-flex justify-content-between">
+                            <button type="button" class="primary-btn tr-bg" data-dismiss="modal">Cancel</button>
+                            <button class="primary-btn fix-gr-bg" type="submit">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -165,6 +202,7 @@
         });
 
         dataTableOptions.columns = [
+            {data: 'delete_btn', name: 'delete_btn', orderable: false, searchable: false},
             {data: 'DT_RowIndex', name: 'id'},
             {data: 'question', name: 'question'},
             {data: 'course', name: 'course'},
@@ -176,7 +214,7 @@
         ];
 
         if (typeof updateColumnExportOption === "function") {
-            dataTableOptions = updateColumnExportOption(dataTableOptions, [0, 1, 2, 3, 4, 5, 6]);
+            dataTableOptions = updateColumnExportOption(dataTableOptions, [1, 2, 3, 4, 5, 6, 7]);
         }
 
         $('#lms_table').DataTable(dataTableOptions);
@@ -236,6 +274,48 @@
                 var table = $('#lms_table').DataTable();
                 table.clearPipeline();
                 table.draw();
+            });
+
+            $("#lms_table").on("change", ".question", function () {
+                qusIsCheck();
+            });
+
+            function qusIsCheck() {
+                if ($("#lms_table input:checkbox:checked").length > 0) {
+                    $('#deleteAllBtn').show();
+                } else {
+                    $('#deleteAllBtn').hide();
+                }
+            }
+
+            var questions = [];
+
+            $('#deleteAllBtn').click(function (e) {
+                e.preventDefault();
+                $('#qusList').val('');
+
+                questions = [];
+                $('#lms_table input:checkbox').each(function () {
+                    if (this.checked && $(this).val() !== 'on') {
+                        questions.push($(this).val());
+                    }
+                });
+                $('#qusList').val(questions.toString());
+                $('#deleteAllBank').modal('show');
+            });
+            
+            $(document).on('click', '.selectAllQuizQuestion', function () {
+                var table = $('#lms_table').DataTable();
+                if ($(this).is(':checked') == true) {
+                    table.rows().nodes().to$().find('input[type="checkbox"].question').each(function () {
+                        $(this).prop('checked', true);
+                    });
+                } else {
+                    table.rows().nodes().to$().find('input[type="checkbox"].question').each(function () {
+                        $(this).prop('checked', false);
+                    });
+                }
+                qusIsCheck();
             });
         });
     </script>

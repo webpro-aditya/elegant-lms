@@ -52,6 +52,14 @@ class QuestionPoolController extends Controller
 
                 return Datatables::of($query)
                     ->addIndexColumn()
+                    ->addColumn('delete_btn', function ($row) {
+                        return '<label class="primary_checkbox" for="question'.$row->id.'">
+                                    <input type="checkbox" name="questions[]"
+                                           id="question'.$row->id.'" value="'.$row->id.'"
+                                           class="common-checkbox question">
+                                    <span class="checkmark"></span>
+                                </label>';
+                    })
                     ->addColumn('question', function ($row) {
                         return strip_tags(substr($row->question, 0, 50)) . '...';
                     })
@@ -86,7 +94,7 @@ class QuestionPoolController extends Controller
                                 </div>';
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action'])
+                    ->rawColumns(['delete_btn', 'status', 'action'])
                     ->make(true);
             }
 
@@ -284,6 +292,33 @@ class QuestionPoolController extends Controller
             $question->delete();
             Toastr::success('Question deleted successfully', 'Success');
             return redirect()->back();
+        } catch (Exception $e) {
+            Toastr::error($e->getMessage(), 'Error');
+            return redirect()->back();
+        }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        try {
+            $questions = explode(',', $request->questions);
+            if (count($questions) != 0) {
+                $user = Auth::user();
+                foreach ($questions as $question_id) {
+                    $question = QuestionPoolQuestion::find($question_id);
+                    if ($question) {
+                        if ($user->role_id == 2 && $question->user_id != $user->id) {
+                            continue;
+                        }
+                        if ($question->type == 'M') {
+                            QuestionPoolOption::where('question_pool_question_id', $question->id)->delete();
+                        }
+                        $question->delete();
+                    }
+                }
+                Toastr::success('Questions deleted successfully', 'Success');
+                return redirect()->back();
+            }
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return redirect()->back();
