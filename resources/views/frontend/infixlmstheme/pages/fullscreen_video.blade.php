@@ -3611,6 +3611,34 @@ if ($assign->questionBank->shuffle==1){
                                                             continue;
                                                         }
                                                     @endphp
+                                                    @php
+                                                        $iconClass = 'fas fa-play';
+                                                        if ($singleLesson->host == 'Youtube' || $singleLesson->host == 'Vimeo' || $singleLesson->host == 'VimeoLink' || $singleLesson->host == 'Self' || $singleLesson->host == 'AmazonS3') {
+                                                            $iconClass = 'fas fa-video';
+                                                        } elseif ($singleLesson->host == 'PDF') {
+                                                            $iconClass = 'fas fa-file-pdf';
+                                                        } elseif ($singleLesson->host == 'Word') {
+                                                            $iconClass = 'fas fa-file-word';
+                                                        } elseif ($singleLesson->host == 'Excel') {
+                                                            $iconClass = 'fas fa-file-excel';
+                                                        } elseif ($singleLesson->host == 'PowerPoint') {
+                                                            $iconClass = 'fas fa-file-powerpoint';
+                                                        } elseif ($singleLesson->host == 'Zip') {
+                                                            $iconClass = 'fas fa-file-archive';
+                                                        } elseif ($singleLesson->host == 'Image') {
+                                                            $iconClass = 'fas fa-image';
+                                                        } elseif ($singleLesson->host == 'Text') {
+                                                            $iconClass = 'fas fa-file-alt';
+                                                        } elseif ($singleLesson->host == 'Iframe') {
+                                                            $iconClass = 'fas fa-window-restore';
+                                                        } elseif ($singleLesson->host == 'Link') {
+                                                            $iconClass = 'fas fa-link';
+                                                        } elseif ($singleLesson->host == 'GoogleDrive') {
+                                                            $iconClass = 'fab fa-google-drive';
+                                                        } elseif ($singleLesson->host == 'Scorm') {
+                                                            $iconClass = 'fas fa-cube';
+                                                        }
+                                                    @endphp
                                                     <div class="single_play_list"
                                                          id="single_lesson_{{ $singleLesson->id }}">
                                                         <a class="@if (showPicName(Request::url()) == $singleLesson->id) active @endif"
@@ -3665,9 +3693,9 @@ if ($assign->questionBank->shuffle==1){
                                                                                            disabled>
                                                                                     <span style="cursor: not-allowed"
                                                                                           class="checkmark mr_15"></span>
-                                                                                    <i class="ti-control-play"></i>
+                                                                                    <i class="{{ $iconClass }}"></i>
                                                                                 @else
-                                                                                    <i class="ti-control-play"></i>
+                                                                                    <i class="{{ $iconClass }}"></i>
                                                                                 @endif
                                                                             </label>
                                                                         </div>
@@ -3678,7 +3706,7 @@ if ($assign->questionBank->shuffle==1){
                                                                             <span style="cursor: not-allowed"
                                                                                   class="checkmark mr_15"></span>
 
-                                                                            <i class="ti-control-play"></i>
+                                                                            <i class="{{ $iconClass }}"></i>
                                                                         </label>
                                                                     @endif
 
