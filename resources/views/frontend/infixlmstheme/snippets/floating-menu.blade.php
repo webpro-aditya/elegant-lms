@@ -273,14 +273,25 @@
     }
 
     .panel-close {
-        background: red;
-        border: none;
+        background: #ff3b3b;
+        border: 2px solid #fff;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         color: #fff;
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
         font-weight: bold;
         border-radius: 50%;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .panel-close:hover {
+        background: #ff1111;
+        transform: scale(1.1);
     }
 
     /* SCROLL AREA */
@@ -559,5 +570,16 @@
                 }
             });
         });
+
+        // --- FIRST LOAD AUTO-OPEN ON MOBILE ---
+        if (window.innerWidth <= 768) {
+            const courseKey = 'course_opened_' + '{{ $course->id ?? "default" }}';
+            if (!sessionStorage.getItem(courseKey)) {
+                chapMenu.classList.add('open');
+                overlay.classList.add('active');
+                toggleFab(true); // Ensure FAB sub-icons are hidden when side menu opens
+                sessionStorage.setItem(courseKey, '1');
+            }
+        }
     })();
 </script>

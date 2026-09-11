@@ -1107,10 +1107,10 @@
         $(document).ready(function () {
 
 
-            if (window.outerWidth < 425) {
-                $('.courseListPlayer').toggleClass("active");
-                $('.course_fullview_wrapper').toggleClass("active");
-            }
+            // if (window.outerWidth < 425) {
+            //     $('.courseListPlayer').toggleClass("active");
+            //     $('.course_fullview_wrapper').toggleClass("active");
+            // }
 
 
         });
