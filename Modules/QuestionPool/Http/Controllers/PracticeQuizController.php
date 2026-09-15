@@ -383,16 +383,52 @@ class PracticeQuizController extends Controller
         }
     }
 
-    public function history()
+    public function history(Request $request)
     {
         try {
             $user = Auth::user();
-            $quizzes = PracticeQuiz::with('course', 'chapter', 'lesson')
+            
+            // Base query for history
+            $query = PracticeQuiz::with('course', 'chapter', 'lesson')
                 ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
 
-            return view('questionpool::student.history', compact('quizzes'));
+            if ($request->filled('course_id')) {
+                $query->where('course_id', $request->course_id);
+            }
+            if ($request->filled('chapter_id')) {
+                $query->where('chapter_id', $request->chapter_id);
+            }
+            if ($request->filled('lesson_id')) {
+                $query->where('lesson_id', $request->lesson_id);
+            }
+            if ($request->filled('status')) {
+                if ($request->status === 'passed') {
+                    $query->where('status', 1)->where('pass', 1);
+                } elseif ($request->status === 'failed') {
+                    $query->where('status', 1)->where('pass', '!=', 1);
+                } elseif ($request->status === 'in_progress') {
+                    $query->where('status', '!=', 1);
+                }
+            }
+
+            $quizzes = $query->get();
+
+            // Get unique options from user's history for select dropdowns
+            $allHistory = PracticeQuiz::with('course', 'chapter', 'lesson')
+                ->where('user_id', $user->id)
+                ->get();
+            
+            $courses = $allHistory->pluck('course')->filter()->unique('id');
+            $chapters = $allHistory->pluck('chapter')->filter()->unique('id');
+            $lessons = $allHistory->pluck('lesson')->filter()->unique('id');
+
+            $course_id = $request->course_id ?? '';
+            $chapter_id = $request->chapter_id ?? '';
+            $lesson_id = $request->lesson_id ?? '';
+            $filter_status = $request->status ?? '';
+
+            return view('questionpool::student.history', compact('quizzes', 'courses', 'chapters', 'lessons', 'course_id', 'chapter_id', 'lesson_id', 'filter_status'));
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return back();

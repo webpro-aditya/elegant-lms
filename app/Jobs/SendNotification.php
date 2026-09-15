@@ -12,14 +12,15 @@ class SendNotification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $template, $user, $shortcodes, $action;
+    protected $template, $user, $shortcodes, $action, $attachment;
 
-    public function __construct($template, $user, $shortcodes, $action=[])
+    public function __construct($template, $user, $shortcodes, $action=[], $attachment = null)
     {
         $this->template = $template;
         $this->user = $user;
         $this->shortcodes = $shortcodes;
         $this->action = $action;
+        $this->attachment = $attachment;
     }
 
     public function handle()
@@ -28,11 +29,12 @@ class SendNotification implements ShouldQueue
         $user = $this->user;
         $shortcodes = $this->shortcodes;
         $action = $this->action;
+        $attachment = $this->attachment;
 
         $lang = app()->getLocale();
         app()->setLocale($user->language_code ?? 'en');
         if (UserEmailNotificationSetup($template, $user)) {
-            SendGeneralEmail::dispatch($user, $template, $shortcodes);
+            SendGeneralEmail::dispatch($user, $template, $shortcodes, $attachment);
         }
         if (UserBrowserNotificationSetup($template, $user)) {
             send_browser_notification($user, $template, $shortcodes,

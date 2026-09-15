@@ -13,18 +13,19 @@ class SendGeneralEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $user, $type, $shortcodes;
+    private $user, $type, $shortcodes, $attachment;
 
-    public function __construct($user, $type, $shortcodes)
+    public function __construct($user, $type, $shortcodes, $attachment = null)
     {
         $this->user = $user;
         $this->type = $type;
         $this->shortcodes = $shortcodes;
+        $this->attachment = $attachment;
     }
 
     public function handle()
     {
         Log::info($this->type . '->send mail');
-        send_email($this->user, $this->type, $this->shortcodes);
+        send_email($this->user, $this->type, $this->shortcodes, $this->attachment);
     }
 }

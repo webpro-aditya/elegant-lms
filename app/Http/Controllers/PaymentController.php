@@ -82,6 +82,24 @@ class PaymentController extends Controller
 
     public $payPalGateway;
 
+    private function generateInvoiceAttachment($checkout_info)
+    {
+        $attachment = null;
+        if (class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
+            try {
+                $pdfData = \Barryvdh\DomPDF\Facade\Pdf::loadView('frontend.infixlmstheme.pages.invoice_pdf', ['enroll' => $checkout_info])->output();
+                $attachment = [
+                    'data' => $pdfData,
+                    'name' => 'Invoice-INV-' . ($checkout_info->id + 1000) . '.pdf',
+                    'mime' => 'application/pdf'
+                ];
+            } catch (\Exception $e) {
+                \Log::error("Invoice PDF generation failed: " . $e->getMessage());
+            }
+        }
+        return $attachment;
+    }
+
     public function __construct()
     {
         $this->middleware(['maintenanceMode', 'onlyAppMode']);
@@ -837,6 +855,7 @@ class PaymentController extends Controller
                 }
             }
 
+            $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
                 'course' => $course->getTranslation('title', $checkout_info->user->language_code ?? config('app.fallback_locale')),
@@ -844,7 +863,7 @@ class PaymentController extends Controller
                 'price' => ($checkout_info->user->currency->conversion_rate * $itemPrice),
                 'instructor' => $course->user->name,
                 'gateway' => $gateWayName,
-            ]);
+            ], [], $invoiceAttachment);
 
 
             $this->sendNotification('Enroll_notify_Instructor', $instractor, [
@@ -963,6 +982,7 @@ class PaymentController extends Controller
             $payout->status = 0;
             $payout->save();
 
+            $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
                 'course' => $bundleCheck->title,
@@ -970,7 +990,7 @@ class PaymentController extends Controller
                 'price' => ($checkout_info->user->currency->conversion_rate * $bundleCheck->price),
                 'instructor' => $bundleCheck->user->name,
                 'gateway' => $gateWayName,
-            ]);
+            ], [], $invoiceAttachment);
 
             $this->sendNotification('Enroll_notify_Instructor', $instractor, [
                 'time' => Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
@@ -1832,6 +1852,7 @@ class PaymentController extends Controller
             }
 
 
+            $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
                 'course' => $course->getTranslation('title', $checkout_info->user->language_code ?? config('app.fallback_locale')),
@@ -1839,7 +1860,7 @@ class PaymentController extends Controller
                 'price' => ($checkout_info->user->currency->conversion_rate * $itemPrice),
                 'instructor' => $course->user->name,
                 'gateway' => $gateWayName,
-            ]);
+            ], [], $invoiceAttachment);
 
             $this->sendNotification('Enroll_notify_Instructor', $instractor, [
                 'time' => Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
@@ -1977,6 +1998,7 @@ class PaymentController extends Controller
                 $interface = App::make(InvoiceRepositoryInterface::class);
                 $interface->sendInvoice($checkout_info->user->id, null, $checkout_info);
             }
+            $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
                 'course' => $bundleCheck->title,
@@ -1984,7 +2006,7 @@ class PaymentController extends Controller
                 'price' => ($checkout_info->user->currency->conversion_rate * $bundleCheck->price),
                 'instructor' => $bundleCheck->user->name,
                 'gateway' => $gateWayName,
-            ]);
+            ], [], $invoiceAttachment);
 
 
             $this->sendNotification('Enroll_notify_Instructor', $instractor, [

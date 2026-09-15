@@ -36,7 +36,7 @@ if (!function_exists('ad')) {
 
 
 if (!function_exists('send_smtp_mail')) {
-    function send_smtp_mail($config, $receiver_email, $receiver_name, $sender_email, $sender_name, $subject, $message)
+    function send_smtp_mail($config, $receiver_email, $receiver_name, $sender_email, $sender_name, $subject, $message, $attachment = null)
     {
         $mail_val = [
             'send_to_name' => $receiver_name,
@@ -47,10 +47,13 @@ if (!function_exists('send_smtp_mail')) {
         ];
 
         try {
-            Mail::send('partials.email', ['body' => $message], function ($send) use ($mail_val) {
+            Mail::send('partials.email', ['body' => $message], function ($send) use ($mail_val, $attachment) {
                 $send->from($mail_val['email_from'], $mail_val['email_from_name']);
                 $send->replyto($mail_val['email_from'], $mail_val['email_from_name']);
                 $send->to($mail_val['send_to'])->subject($mail_val['subject']);
+                if ($attachment) {
+                    $send->attachData($attachment['data'], $attachment['name'], ['mime' => $attachment['mime']]);
+                }
             });
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -61,7 +64,7 @@ if (!function_exists('send_smtp_mail')) {
 }
 
 if (!function_exists('sendMailBySendGrid')) {
-    function sendMailBySendGrid($config, $receiver_email, $receiver_name, $sender_email, $sender_name, $subject, $message)
+    function sendMailBySendGrid($config, $receiver_email, $receiver_name, $sender_email, $sender_name, $subject, $message, $attachment = null)
     {
         $email = new \SendGrid\Mail\Mail();
         $email->setFrom($config->from_email, $config->from_name);
@@ -70,6 +73,14 @@ if (!function_exists('sendMailBySendGrid')) {
         $email->addContent(
             "text/html", (string)view('partials.email', ['body' => $message])
         );
+        if ($attachment) {
+            $email->addAttachment(
+                base64_encode($attachment['data']),
+                $attachment['mime'],
+                $attachment['name'],
+                "attachment"
+            );
+        }
         $sendgrid = new SendGrid($config->api_key);
         try {
             $response = $sendgrid->send($email);
@@ -102,7 +113,7 @@ if (!function_exists('shortcode_replacer')) {
 
 if (!function_exists('send_email')) {
 
-    function send_email($user, $type, $shortcodes = [])
+    function send_email($user, $type, $shortcodes = [], $attachment = null)
     {
         try {
             $query = EmailTemplate::query();
@@ -137,9 +148,9 @@ if (!function_exists('send_email')) {
                 if ($config->email_engine_type == 'php') {
                     send_php_mail($to_email, $user->name, $config->from_email, $email_template->subj, $message);
                 } else if ($config->email_engine_type == 'smtp') {
-                    send_smtp_mail($config, $to_email, $user->name, $config->from_email, Settings('site_title'), $email_template->subj, $message);
+                    send_smtp_mail($config, $to_email, $user->name, $config->from_email, Settings('site_title'), $email_template->subj, $message, $attachment);
                 } else if ($config->email_engine_type == 'sendgrid') {
-                    sendMailBySendGrid($config, $to_email, $user->name, $config->from_email, Settings('site_title'), $email_template->subj, $message);
+                    sendMailBySendGrid($config, $to_email, $user->name, $config->from_email, Settings('site_title'), $email_template->subj, $message, $attachment);
                 }
                 return true;
             }
