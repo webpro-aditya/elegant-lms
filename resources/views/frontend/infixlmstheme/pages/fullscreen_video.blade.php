@@ -825,7 +825,7 @@
                                                     <a href="{{ $lesson->lessonQuiz->show_ans_sheet == 1 ? route('quizResultPreview', $pre['quiz_test_id']) : '#' }}"
                                                        data-quiz_test_id="{{ $pre['quiz_test_id'] }}"
                                                        title="{{ $lesson->lessonQuiz->show_ans_sheet != 1 ? __('quiz.Answer Sheet is currently locked by Teacher') : '' }}"
-                                                       class="theme_btn small_btn2 @if ($lesson->lessonQuiz->show_ans_with_explanation == 1)
+                                                       class="theme_btn small_btn2 text-white @if ($lesson->lessonQuiz->show_ans_with_explanation == 1)
                                        submit_q_btn
                                        @endif ">{{ __('student.See Answer Sheet') }}</a>
                                                 </td>
