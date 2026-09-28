@@ -723,6 +723,20 @@
                                                                     {{ __('student.Wrong Answer') }}</span>
                                                             </label>
                                                         </li>
+                                                        <li class="unattempted">
+                                                            <label class="primary_checkbox2 warning_ans d-flex">
+                                                                <input checked="" name="qus" type="checkbox"
+                                                                       disabled>
+                                                                <div class="icon" style="background: #6c757d; border-color: #6c757d;">
+                                                                    <svg width="12" height="12" viewBox="0 0 12 12"
+                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M2 6H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                                    </svg>
+                                                                </div>
+                                                                <span class="label_name">{{ $result['totalQus'] - $result['totalAns'] }}
+                                                                    {{ __('student.Unattempted') }}</span>
+                                                            </label>
+                                                        </li>
                                                     </ul>
                                                 </div>
 

@@ -2,6 +2,7 @@
 
 return [
     'Students' => 'Students',
+    'Unattempted' => 'Unattempted Questions',
     'Student' => 'Student',
     'Add Student' => 'Add Student',
     'Add New Student' => 'Add New Student',
