@@ -135,6 +135,46 @@
                                     </table>
                                 </div>
 
+                                <div class="table-responsive mb-4" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-bordered table-striped table-hover">
+                                        <thead class="sticky-top bg-white">
+                                            <tr>
+                                                <th width="10%">#</th>
+                                                <th width="70%">{{ __('frontend.Question') }}</th>
+                                                <th width="20%">{{ __('frontend.Result') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(isset($questions))
+                                                @foreach($questions as $index => $question)
+                                                    @php
+                                                        if ($quiz->show_only_wrong_ans_in_ans_sheet==1 && !$question['isWrong'] && $quiz->total_correct_ans!=count($questions) ){
+                                                           continue;
+                                                        }
+                                                        if(isset($question['isSubmit']) && $question['isSubmit']){
+                                                            if(isset($question['isWrong']) &&  $question['isWrong']){
+                                                                $qStatus = __('student.Wrong Answer');
+                                                                $qClass = 'text-danger';
+                                                            } else {
+                                                                $qStatus = __('student.Correct Answer');
+                                                                $qClass = 'text-success';
+                                                            }
+                                                        } else {
+                                                            $qStatus = __('student.Unattempted');
+                                                            $qClass = 'text-warning';
+                                                        }
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $index + 1 }}</td>
+                                                        <td>{!! \Illuminate\Support\Str::limit(strip_tags($question['qus']), 150) !!}</td>
+                                                        <td class="{{ $qClass }} fw-bold">{{ $qStatus }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+
                                 <!-- quiz_test_body  -->
                                 <div class="quiz_result_sheet_body">
                                     <div class="result_sheet_view">
