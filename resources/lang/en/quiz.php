@@ -1,6 +1,8 @@
 <?php
 return [
     'Quiz' => 'Quiz',
+    'Attempted' => 'Attempted',
+    'Not Attempted' => 'Not Attempted',
     'Chapter' => 'Chapter',
     'Chapter List' => 'Chapter List',
     'Question Group' => 'Question Group',

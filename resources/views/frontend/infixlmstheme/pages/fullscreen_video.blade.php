@@ -800,6 +800,8 @@
                                     <table class="table table-bordered">
                                         <tr>
                                             <th>{{ __('common.Date') }}</th>
+                                            <th>{{ __('quiz.Attempted') }}</th>
+                                            <th>{{ __('quiz.Not Attempted') }}</th>
                                             <th>{{ __('quiz.Marks') }}</th>
                                             <th>{{ __('quiz.Percentage') }}</th>
                                             <th>{{ __('common.Rating') }}</th>
@@ -808,6 +810,8 @@
                                         @foreach ($preResult as $pre)
                                             <tr>
                                                 <td>{{ $pre['date'] }}</td>
+                                                <td>{{ $pre['totalAns'] ?? 0 }}</td>
+                                                <td>{{ ($pre['totalQus'] ?? 0) - ($pre['totalAns'] ?? 0) }}</td>
                                                 <td>{{ $pre['score'] }}/{{ $pre['totalScore'] }}</td>
                                                 <td>{{ $pre['mark'] }}%</td>
                                                 <td class="{{ $pre['text_color'] }}">
@@ -821,7 +825,7 @@
                                                     <a href="{{ $lesson->lessonQuiz->show_ans_sheet == 1 ? route('quizResultPreview', $pre['quiz_test_id']) : '#' }}"
                                                        data-quiz_test_id="{{ $pre['quiz_test_id'] }}"
                                                        title="{{ $lesson->lessonQuiz->show_ans_sheet != 1 ? __('quiz.Answer Sheet is currently locked by Teacher') : '' }}"
-                                                       class=" font_1 font_16 f_w_600 theme_text3    @if ($lesson->lessonQuiz->show_ans_with_explanation == 1)
+                                                       class="theme_btn small_btn2 @if ($lesson->lessonQuiz->show_ans_with_explanation == 1)
                                        submit_q_btn
                                        @endif ">{{ __('student.See Answer Sheet') }}</a>
                                                 </td>

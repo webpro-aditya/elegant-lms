@@ -494,7 +494,7 @@ class WebsiteController extends Controller
 
                 foreach ($all as $key => $i) {
                     $onlineQuiz = OnlineQuiz::find($i->quiz_id);
-                    $date = showDate($i->created_at);
+                    $date = showDate($i->created_at) . ' ' . $i->created_at->format('h:i A');
                     $totalQus = totalQuizQus($i->quiz_id);
                     $totalAns = count($i->details);
                     $totalCorrect = 0;
