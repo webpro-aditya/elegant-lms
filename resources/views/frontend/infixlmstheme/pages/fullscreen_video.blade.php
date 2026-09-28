@@ -683,7 +683,7 @@
                                             <div class="score_view_wrapper">
                                                 <div class="single_score_view">
                                                     {{-- <p>{{ __('student.Exam Score') }}:</p> --}}
-                                                    <ul class="quiz_exam_score_details">
+                                                    <ul class="quiz_exam_score_details" style="display: flex; gap: 10px; flex-wrap: wrap;">
                                                         <li class="correct">
                                                             <label class="primary_checkbox2 d-flex">
                                                                 <input checked="" type="checkbox" disabled>
