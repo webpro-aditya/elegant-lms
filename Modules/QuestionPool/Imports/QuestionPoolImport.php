@@ -21,33 +21,51 @@ class QuestionPoolImport implements ToCollection, WithHeadingRow
         foreach ($rows as $index => $row) {
             // Validate required fields
             if (!isset($row['course_title']) || !isset($row['question']) || !isset($row['type'])) {
-                \Illuminate\Support\Facades\Log::warning('Bulk Import Practice Quiz: Skipped row ' . ($index + 2) . ' due to missing required fields (course_title, question, type).', ['row' => $row]);
-                continue;
+                $keys = implode(', ', array_keys($row->toArray()));
+                throw new \Exception('Missing required fields (course_title, question, type) on row ' . ($index + 2) . '. Found columns: ' . $keys);
+            }
+
+            $searchTitle = trim($row['course_title']);
+            // To handle cases where encoding replaces characters (like dashes) with the replacement char
+            $replacementChar = "\xEF\xBF\xBD";
+            if (strpos($searchTitle, $replacementChar) !== false) {
+                $parts = explode($replacementChar, $searchTitle);
+                $searchTitle = trim($parts[0]);
             }
 
             // Find course
-            $course = Course::where('title', 'like', '%' . $row['course_title'] . '%')->first();
-            if (!$course) continue;
+            $course = Course::where('title', 'like', '%' . $searchTitle . '%')->first();
+            if (!$course) {
+                throw new \Exception("Course not found: " . $row['course_title'] . " on row " . ($index + 2));
+            }
 
             // Find chapter if provided
             $chapter_id = null;
             if (!empty($row['chapter_name'])) {
-                $chapter = Chapter::where('name', 'like', '%' . $row['chapter_name'] . '%')
+                $chapter = Chapter::where('name', 'like', '%' . trim($row['chapter_name']) . '%')
                                   ->where('course_id', $course->id)
                                   ->first();
-                if ($chapter) $chapter_id = $chapter->id;
+                if ($chapter) {
+                    $chapter_id = $chapter->id;
+                } else {
+                    throw new \Exception("Chapter not found: " . $row['chapter_name'] . " on row " . ($index + 2));
+                }
             }
 
             // Find lesson if provided
             $lesson_id = null;
             if (!empty($row['lesson_name'])) {
-                $lesson_query = Lesson::where('name', 'like', '%' . $row['lesson_name'] . '%')
+                $lesson_query = Lesson::where('name', 'like', '%' . trim($row['lesson_name']) . '%')
                                       ->where('course_id', $course->id);
                 if ($chapter_id) {
                     $lesson_query->where('chapter_id', $chapter_id);
                 }
                 $lesson = $lesson_query->first();
-                if ($lesson) $lesson_id = $lesson->id;
+                if ($lesson) {
+                    $lesson_id = $lesson->id;
+                } else {
+                    throw new \Exception("Lesson not found: " . $row['lesson_name'] . " on row " . ($index + 2));
+                }
             }
 
             $type = strtoupper($row['type']);

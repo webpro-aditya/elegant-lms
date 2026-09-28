@@ -3,420 +3,399 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
-    <title>Invoice - INV-{{ $enroll->id + 1000 }}</title>
+    <title>Invoice - ETC-INV-{{ date('Y') }}-{{ str_pad($enroll->id, 4, '0', STR_PAD_LEFT) }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+            border-collapse: collapse;
+        }
+        .header-table {
+            margin-bottom: 20px;
+        }
+        .header-table td {
+            vertical-align: top;
+        }
+        .logo-img {
+            max-height: 80px;
+        }
+        .title {
+            color: #1a237e;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: right;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .invoice-details {
+            text-align: left;
+            width: 100%;
+        }
+        .invoice-details td {
+            padding: 4px 0;
+            font-size: 13px;
+        }
+        .invoice-details-label {
+            width: 120px;
+            color: #555;
+        }
+        .invoice-details-value {
+            color: #333;
+        }
+        .status-paid {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-unpaid {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .company-info-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .company-info-table td {
+            width: 50%;
+            vertical-align: top;
+            font-size: 12px;
+            color: #444;
+        }
+        .company-info-table .right-info {
+            text-align: right;
+        }
+        .section-title {
+            color: #1a237e;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #1a237e;
+            padding-bottom: 5px;
+        }
+        .billing-course-table {
+            margin-bottom: 30px;
+        }
+        .billing-course-table td {
+            width: 50%;
+            vertical-align: top;
+        }
+        .billing-info p, .course-info p {
+            margin: 0 0 5px 0;
+            font-size: 13px;
+            color: #333;
+        }
+        .items-table th {
+            background-color: #1a237e;
+            color: white;
+            padding: 12px;
+            font-size: 13px;
+            text-align: left;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .items-table .text-center {
+            text-align: center;
+        }
+        .totals-table {
+            width: 50%;
+            float: right;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        .totals-table td {
+            padding: 6px 12px;
+            text-align: right;
+            font-size: 13px;
+        }
+        .totals-table .total-row {
+            font-weight: bold;
+            font-size: 15px;
+            border-top: 2px solid #1a237e;
+            border-bottom: 2px solid #1a237e;
+            color: #1a237e;
+        }
+        .totals-table .balance-due {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .payment-info-box {
+            clear: both;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .payment-info-title {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            font-weight: bold;
+            color: #1a237e;
+            font-size: 13px;
+        }
+        .payment-info-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 13px;
+        }
+        .payment-info-table tr:last-child td {
+            border-bottom: none;
+        }
+        .payment-info-label {
+            width: 250px;
+            color: #555;
+        }
+        .footer-note {
+            font-size: 11px;
+            color: #777;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .footer-center {
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="invoice_print">
-        <div class="invoice_part_iner">
-
-                                <style>
-                                        .table {
-                                            width: 100%;
-                                            margin-bottom: 1rem;
-                                            color: #212529;
-                                            font-family: Jost, sans-serif;
-                                        }
-
-                                        td h3 {
-                                            font-size: 24px;
-                                            font-weight: 500;
-                                            color: #3C4777;
-                                        }
-
-                                        .w-50 {
-                                            width: 50% !important;
-                                        }
-
-                                        .invoice_grid {
-                                            margin-bottom: 5px;
-                                        }
-
-                                        h4 {
-                                            line-height: 25px;
-                                        }
-
-                                        .custom_table3 {
-                                            border-radius: 5px;
-                                        }
-
-                                        .custom_table3 tr {
-                                            border-bottom: 1px solid #f1f2f3;
-                                        }
-
-                                        .table tr th {
-                                            background-color: #fafafa !important;
-                                        }
-
-                                        .table thead th {
-                                            vertical-align: bottom;
-                                        }
-
-                                        .table.custom_table3 thead tr th {
-                                            font-weight: 600;
-                                            border-top: 0;
-                                            font-family: 'Cerebri Sans', sans-serif;
-                                            padding: 15px 30px 15px 0;
-                                        }
-
-                                        .table.custom_table3 tbody tr td,
-                                        .table.custom_table3 thead tr th {
-                                            font-size: 16px;
-                                            color: #373737;
-                                            white-space: nowrap;
-                                        }
-
-                                        th p span,
-                                        td p span {
-                                            color: #212E40;
-                                        }
-
-                                        .text-end {
-                                            text-align: right !important;
-                                        }
-
-                                    .text_alignment {
-                                        text-align: left;
-                                    }
-
-                                    html[dir=rtl] .text_alignment {
-                                        text-align: right
-                                    }
-
-                                    .basic_padding {
-                                        padding-left: 15px;
-                                    }
-
-                                    html[dir=rtl] .table thead th {
-                                        padding-right: 15px !important;
-                                    }
-
-                                    table thead tr th:nth-last-child(2), table tbody tr td:nth-last-child(2) {
-                                        width: 20%;
-                                        min-width: 150px;
-                                    }
-
-                                    html[dir=rtl] .text-end {
-                                        text-align: left !important;
-                                    }
-                                </style>
-                                <table style=" margin-bottom: 30px" class="table">
-                                    <tbody>
-                                    <td>
-                                        <img style="width: 108px" src="{{ getCourseImage(Settings('logo')) }}"
-                                             alt="{{ Settings('site_name') }}">
-                                    </td>
-                                    <td style="text-align: right">
-                                        <h3 class="invoice_no black_color" style=" margin-bottom: 10px" ;>
-                                            INV-{{ $enroll->id + 1000 }}</h3>
-                                    </td>
-                                    </tbody>
-                                </table>
-
-                                <table style="margin-bottom: 0 !important;" class="table">
-                                    <tbody>
-                                    <tr>
-                                        <td class="w-50">
-                                            @if (isModuleActive('Store'))
-                                                <p class="invoice_grid"
-                                                   style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                        <span class="black_color">{{ __('product.Order ID') }}:
-                                                        </span><span>{{ @$enroll->order_number }}</span>
-                                                </p>
-                                            @endif
-
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Date') }}:
-                                                    </span><span>{{ date('d F Y', strtotime(@$enroll->created_at)) }}</span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Pay Method') }}:
-                                                    </span><span>
-                                                    @if($enroll->payment_method=='Wallet')
-                                                        {{__('payment.Wallet')}}
-                                                    @else
-                                                        {{ $enroll->payment_method }}
-                                                    @endif
-                                                </span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                @if ($enroll->courses->sum('purchase_price') == 0)
-                                                    <span class="black_color">{{ __('student.Status') }}: </span>
-                                                    <span class="black_color">{{ __('common.Paid') }}</span>
-
-                                                @else
-                                                    <span class="black_color">{{ __('student.Status') }}: </span>
-                                                    @php
-                                                        if (isModuleActive('Store')) {
-                                                            $is_paid = $enroll->status == 1 && $enroll->is_paid == 1;
-                                                        }else {
-                                                            $is_paid = $enroll->status == 1;
-                                                        }
-                                                    @endphp
-                                                    <span
-                                                        class="black_color">{{ $is_paid ? __('student.Paid') : __('student.Unpaid') }}</span>
-                                            </p>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Company') }}:
-                                                    </span><span>{{ Settings('site_title') }}</span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Phone') }}:
-                                                    </span><span>{{ Settings('phone') }}</span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Email') }}:
-                                                    </span><span>{{ Settings('email') }}</span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                    <span class="black_color">{{ __('student.Address') }}:
-                                                    </span><span>{{ Settings('address') }}</span>
-                                            </p>
-                                        </td>
-                                    </tr>
-
-
-                                    </tbody>
-                                </table>
-                                @if($enroll->purchase_price!= 0)
-                                    <h4 style=" font-size: 16px; font-weight: 500; color: #000000; margin-top: 0; margin-bottom: 3px "
-                                        class="black_color" ;>{{ __('student.Billed To') }},</h4>
-
-                                    <table style="margin-bottom: 35px !important;" class="table">
-                                        <tbody>
-                                        <td>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                <span class="black_color">{{ __('student.Name') }}: </span><span>
-                                                    {{ @$enroll->bill->first_name }}
-                                                    {{ @$enroll->bill->last_name }}</span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                <span class="black_color">{{ __('student.Phone') }}: </span><span>
-                                                    {{ @$enroll->bill->phone }} </span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                <span class="black_color">{{ __('student.Email') }}: </span><span>
-                                                    {{ @$enroll->bill->email }} </span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                <span class="black_color">{{__('frontend.Company Name')}}: </span><span>
-                                                    {{ @$enroll->bill->company_name }} </span>
-                                            </p>
-                                            <p class="invoice_grid"
-                                               style="font-size:14px; font-weight: 400; color:#3C4777;">
-                                                <span class="black_color">{{ __('student.Address') }}: </span>
-                                                <span class="black_color">
-                                                    {{ @$enroll->bill->address1 }} {{ @$enroll->bill->address2 }}
-                                                    {{ @$enroll->bill->cityDetails->name }}
-                                                    {{ @$enroll->bill->zip_code }}
-                                                    {{ @$enroll->bill->countryDetails->name }}
-                                                </span>
-                                            </p>
-                                        </td>
-                                        </tbody>
-                                    </table>
+    <div class="invoice-box">
+        @php
+            if (isModuleActive('Store')) {
+                $is_paid = $enroll->status == 1 && $enroll->is_paid == 1;
+            }else {
+                $is_paid = $enroll->status == 1;
+            }
+            $invoice_no = "ETC-INV-" . date('Y', strtotime(@$enroll->created_at)) . "-" . str_pad($enroll->id, 4, '0', STR_PAD_LEFT);
+            $language_code = auth()->user()->language_code ?? 'en';
+        @endphp
+        <table class="header-table">
+            <tr>
+                <td style="width: 50%;">
+                    <img src="{{ getCourseImage(Settings('logo')) }}" alt="Logo" class="logo-img">
+                </td>
+                <td style="width: 50%; text-align: right;">
+                    <div class="title">TAX INVOICE</div>
+                    <table class="invoice-details" style="float: right; width: auto;">
+                        <tr>
+                            <td class="invoice-details-label">Invoice No.</td>
+                            <td class="invoice-details-value">{{ $invoice_no }}</td>
+                        </tr>
+                        <tr>
+                            <td class="invoice-details-label">Invoice Date</td>
+                            <td class="invoice-details-value">{{ date('d F Y', strtotime(@$enroll->created_at)) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="invoice-details-label">Payment Status</td>
+                            <td class="invoice-details-value">
+                                @if($is_paid || $enroll->courses->sum('purchase_price') == 0)
+                                    <span class="status-paid">PAID</span>
+                                @else
+                                    <span class="status-unpaid">UNPAID</span>
                                 @endif
-                                <h2 style=" font-size: 18px; font-weight: 500; color: #000000; margin-top: 50px; margin-bottom: 33px "
-                                    class="black_color" ;>{{ __('student.Order List') }}</h2>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
-                                <table class="table custom_table3 mb-0">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" class="text_alignment">
-                                                <span class="ps-3">
-                                                    {{ __('common.SL') }}
-                                                </span>
-                                        </th>
-                                        <th colspan="2" scope="col"
-                                            class="black_color text_alignment">{{ __('courses.Course') }}
-                                            / {{ __('student.Product') }} {{ __('common.Name') }}</th>
+        <div class="company-info-box">
+            <table class="company-info-table">
+                <tr>
+                    <td>
+                        <strong>ELEGANT PROFESSIONAL & MANAGEMENT DEVELOPMENT TRAINING</strong><br>
+                        Office No. 620, Al Attar Business Center, Al Barsha 1, Dubai,<br>
+                        United Arab Emirates<br>
+                        TRN: 100510151200003
+                    </td>
+                    <td class="right-info">
+                        Elegant Training Center<br>
+                        Approved & Permitted by KHDA<br>
+                        www.elegant-training.ae
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-                                        @if (isModuleActive('Store'))
-                                            <th scope="col" class="black_color">{{ __('product.Type') }}</th>
-                                            <th scope="col" class="black_color">{{ __('student.Quantity') }}
-                                            </th>
-                                        @endif
+        <table class="billing-course-table">
+            <tr>
+                <td style="padding-right: 20px;">
+                    <div class="section-title">BILLED TO</div>
+                    <div class="billing-info">
+                        <p><strong>{{ @$enroll->bill->first_name }} {{ @$enroll->bill->last_name }}</strong></p>
+                        <p>{{ @$enroll->bill->email }}</p>
+                        <p>{{ @$enroll->bill->phone }}</p>
+                    </div>
+                </td>
+                <td style="padding-left: 20px;">
+                    <div class="section-title">COURSE DETAILS</div>
+                    <div class="course-info">
+                        @if(isset($enroll->courses) && $enroll->courses->count() > 0)
+                            <p><strong>{{ @$enroll->courses->first()->course->getTranslation('title', $language_code) }}</strong></p>
+                        @elseif(isset($enroll->bookings) && $enroll->bookings->count() > 0)
+                            <p><strong>Appointment</strong></p>
+                        @elseif(isset($enroll->gifts) && $enroll->gifts->count() > 0)
+                            <p><strong>{{ @$enroll->gifts->first()->course->getTranslation('title', $language_code) }}</strong></p>
+                        @else
+                            <p><strong>Course/Training</strong></p>
+                        @endif
+                        <p>Training Mode: Classroom / Live Online</p>
+                        <p>Currency: AED</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-                                        <th scope="col" class="black_color">{{ __('student.Price') }}</th>
-                                        <th colspan="2" scope="col"
-                                            class="black_color text_alignment">{{ __('student.Total') }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @php
-                                        $total = 0;
-                                        $language_code = auth()->user()->language_code ?? 'en';
-                                        $sl = 1;
-                                    @endphp
-                                    @if(isModuleActive('Appointment') && $enroll->type=='appointment')
-                                        @if (isset($enroll->bookings))
-                                            @foreach ($enroll->bookings as $key => $item)
-                                                <tr>
-                                                    <td class="black_color">
-                                                        <span class="ps-3">
-                                                            {{ $sl++ }}
-                                                        </span>
-                                                    </td>
-                                                    <td colspan="2" class="text_alignment">
-                                                        <h5 class="black_color">
-                                                            {{ @$item->userInfo->name }}
-                                                            - {{showDate($item->schedule->schedule_date)}}                                                        </h5>
-                                                    </td>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-center">VAT</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $total = 0;
+                    $tax_total = 0;
+                @endphp
+                
+                @if(isModuleActive('Appointment') && $enroll->type=='appointment')
+                    @if (isset($enroll->bookings))
+                        @foreach ($enroll->bookings as $key => $item)
+                            @php
+                                $price = $item->purchase_price;
+                                $qty = 1;
+                                $item_amount = $price * $qty;
+                                $item_tax = $enroll->tax ?? ($item_amount * 0.05);
+                                $total += $item_amount;
+                                $tax_total += $item_tax;
+                            @endphp
+                            <tr>
+                                <td>{{ @$item->userInfo->name }} - {{showDate($item->schedule->schedule_date)}}</td>
+                                <td class="text-center">{{ $qty }}</td>
+                                <td class="text-right">{{ getPriceFormat($price, false) }}</td>
+                                <td class="text-center">5%</td>
+                                <td class="text-right">{{ getPriceFormat($item_amount, false) }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                @elseif (isModuleActive('Gift') && $enroll->courses->count() < $enroll->cart_count)
+                    @foreach ($enroll->gifts as $gift)
+                        @php
+                            $price = $gift->course->discount_price != 0 ? $gift->course->discount_price : $gift->course->price;
+                            $qty = 1;
+                            $item_amount = $price * $qty;
+                            $item_tax = $enroll->tax ?? ($item_amount * 0.05);
+                            $total += $item_amount;
+                            $tax_total += $item_tax;
+                        @endphp
+                        <tr>
+                            <td>{{ @$gift->course->getTranslation('title', $language_code) }}</td>
+                            <td class="text-center">{{ $qty }}</td>
+                            <td class="text-right">{{ getPriceFormat($price, false) }}</td>
+                            <td class="text-center">5%</td>
+                            <td class="text-right">{{ getPriceFormat($item_amount, false) }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    @if (isset($enroll->courses))
+                        @foreach ($enroll->courses as $key => $item)
+                            @php
+                                $price1 = $item->purchase_price;
+                                $qty = $item->qty > 0 ? $item->qty : 1;
+                                $item_amount = $price1 * $qty;
+                                $item_tax = $enroll->tax ?? ($item_amount * 0.05);
+                                $total += $item_amount;
+                                $tax_total += $item_tax;
+                            @endphp
+                            <tr>
+                                <td>{{ @$item->course->getTranslation('title', $language_code) }}</td>
+                                <td class="text-center">{{ $qty }}</td>
+                                <td class="text-right">{{ getPriceFormat($price1, false) }}</td>
+                                <td class="text-center">5%</td>
+                                <td class="text-right">{{ getPriceFormat($item_amount, false) }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                @endif
+            </tbody>
+        </table>
 
-                                                    @php
-                                                        $price = $item->purchase_price;
+        <table class="totals-table">
+            <tr>
+                <td>Subtotal</td>
+                <td>{{ getPriceFormat($total, false) }}</td>
+            </tr>
+            <tr>
+                <td>VAT @ 5%</td>
+                <td>{{ getPriceFormat($tax_total, false) }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL (INCL. VAT)</td>
+                <td>{{ getPriceFormat($total + $tax_total, false) }}</td>
+            </tr>
+            <tr>
+                <td>Amount Paid</td>
+                <td>{{ getPriceFormat($is_paid ? ($total + $tax_total) : 0, false) }}</td>
+            </tr>
+            <tr>
+                <td>Balance Due</td>
+                <td class="balance-due">{{ getPriceFormat($is_paid ? 0 : ($total + $tax_total), false) }}</td>
+            </tr>
+        </table>
 
-                                                                        $total = $total + $price;
-                                                    @endphp
-                                                    @if (isModuleActive('Store'))
-                                                        <td>{{trans('common.N/A')}}</td>
-                                                        <td>{{translatedNumber(1)}}</td>
-                                                    @endif
-                                                    <td class="black_color text_alignment">
-                                                        {{ getPriceFormat($price,false) }}</td>
-                                                    <td class="black_color text_alignment">
-                                                        {{ getPriceFormat($price,false) }}</td>
-                                                </tr>
-                                            @endforeach
-                                        @endif
-                                    @elseif (isModuleActive('Gift') && $enroll->courses->count() < $enroll->cart_count)
-                                        @foreach ($enroll->gifts as $gift)
-                                            <tr>
-                                                <td class="black_color">
-                                                        <span class="ps-3">
-                                                            {{ $sl++ }}
-                                                        </span>
-                                                </td>
-                                                <td colspan="2" class="text_alignment">
-                                                    <h5 class="black_color">
-                                                        {{ @$gift->course->getTranslation('title', $language_code) }}
-                                                    </h5>
-                                                </td>
-                                                @php
-                                                    $price = $gift->course->discount_price != 0 ? $gift->course->discount_price : $gift->course->price;
-                                                    $total = $total + $price;
-                                                @endphp
-                                                <td class="black_color text_alignment">
-                                                    {{ getPriceFormat($gift->price,false) }}</td>
-                                            </tr>
-                                        @endforeach
+        <div style="clear:both;"></div>
 
-                                    @else
-                                        @if (isset($enroll->courses))
-                                            @foreach ($enroll->courses as $key => $item)
-                                                <tr>
-                                                    <td class="black_color">
-                                                        <span class="ps-3">
-                                                            {{ $sl++ }}
-                                                        </span>
-                                                    </td>
-                                                    <td colspan="2" class="text_alignment">
-                                                        <h5 class="black_color">
-                                                            {{ @$item->course->getTranslation('title', $language_code) }}
-                                                        </h5>
-                                                    </td>
-                                                    @if (isModuleActive('Store'))
-                                                        <td class="black_color">
-                                                            {{ $item->is_store ? ($item->course->product->type == 2 ? __('product.Physical') : __('product.Virtual')) : __('product.Virtual') }}
-                                                        </td>
-                                                        <td class="black_color">
-                                                            {{ $item->qty>0?$item->qty:1 }}
-                                                        </td>
-                                                    @endif
-                                                    @php
-                                                        $price1  =$item->purchase_price;
-                                                        $price  =$item->purchase_price * ($item->qty??1);
-                                                        $total = $total + $price;
-                                                    @endphp
-                                                    <td class="black_color text_alignment">
-                                                        {{ getPriceFormat($price1,false) }}</td>
-                                                    {{-- <td style="text-align: left"
-                                                    class="black_color">{{ getPriceFormat($price1) }}</td> --}}
-                                                    <td class="black_color text_alignment">
-                                                        {{ getPriceFormat($price,false) }}</td>
-                                                </tr>
-                                            @endforeach
-                                        @endif
-                                    @endif
+        <div class="payment-info-box">
+            <div class="payment-info-title">PAYMENT INFORMATION</div>
+            <table class="payment-info-table" style="width: 100%;">
+                <tr>
+                    <td class="payment-info-label">Payment Method</td>
+                    <td>{{ $enroll->payment_method == 'Wallet' ? __('payment.Wallet') : $enroll->payment_method }}</td>
+                </tr>
+                <tr>
+                    <td class="payment-info-label">Transaction Reference</td>
+                    <td>{{ @$enroll->order_number ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="payment-info-label">Payment Date</td>
+                    <td>{{ date('d F Y', strtotime(@$enroll->created_at)) }}</td>
+                </tr>
+            </table>
+        </div>
 
-
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        @if (isModuleActive('Store'))
-                                            <td></td>
-                                            <td></td>
-                                        @endif
-                                        <td class="text-end">{{ __('student.Sub Total') }}</td>
-                                        <td>{{ getPriceFormat($total,false) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        @if (isModuleActive('Store'))
-                                            <td></td>
-                                            <td></td>
-                                        @endif
-                                        <td class="text-end">{{ __('common.Discount') }}</td>
-                                        @if ($enroll->discount == 0)
-                                            <td>0</td>
-                                        @else
-                                            <td>{{ getPriceFormat($enroll->discount,false) }}</td>
-                                        @endif
-                                    </tr>
-                                    @if (isModuleActive('Store'))
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td class="text-end">{{ __('product.shipping_charge') }}</td>
-                                            <td>{{ getPriceFormat($enroll->shipping_cost,false) }}</td>
-                                        </tr>
-                                    @endif
-                                    @if (hasTax())
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            @if (isModuleActive('Store'))
-                                                <td></td>
-                                                <td></td>
-                                            @endif
-                                            <td class="text-end">{{ __('tax.TAX') }}</td>
-                                            <td>{{ $enroll->tax == 0 ? 0 : getPriceFormat($enroll->tax,false) }}</td>
-                                        </tr>
-                                    @endif
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        @if (isModuleActive('Store'))
-                                            <td></td>
-                                            <td></td>
-                                        @endif
-                                        <td class="text-end">{{ __('student.Total') }}</td>
-                                        <td>{{ getPriceFormat($enroll->purchase_price,false) }}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+        <p class="footer-note">Note: This is a system-generated tax invoice for LMS implementation. Student, invoice, course, payment and transaction fields can be populated automatically by the LMS.</p>
+        
+        <div class="footer-center">
+            <p>This is a system-generated invoice and does not require a signature.</p>
+            <p>Elegant Training Center | www.elegant-training.ae</p>
+        </div>
     </div>
 </body>
 </html>
