@@ -77,6 +77,64 @@
                                 {{--<div class="quiz_test_header">
                                     <h3>{{__('student.Result Sheet')}}</h3>
                                 </div>--}}
+
+                                @php
+                                    $totalQus = totalQuizQus($quizTest->quiz_id);
+                                    $totalAns = count($quizTest->details);
+                                    $totalCorrect = 0;
+                                    $totalScore = totalQuizMarks($quizTest->quiz_id);
+                                    $score = 0;
+                                    if ($totalAns != 0) {
+                                        foreach ($quizTest->details as $test) {
+                                            if ($test->status == 1) {
+                                                $score += $test->mark ?? 1;
+                                                $totalCorrect++;
+                                            }
+                                        }
+                                    }
+                                    $totalWrong = $totalAns - $totalCorrect;
+                                    $unattempted = $totalQus - $totalAns;
+                                    
+                                    $passMark = $quiz->percentage ?? 0;
+                                    $mark = $totalScore > 0 ? round($score / $totalScore * 100, 2) : 0;
+                                    $status = $mark >= $passMark ? "Passed" : "Failed";
+                                @endphp
+
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>{{ __('student.Exam Score') }}</th>
+                                                <td>{{ $score }} Out of {{ $totalScore }}</td>
+                                                <th>{{ __('frontend.Percentage') }}</th>
+                                                <td>{{ $mark }}%</td>
+                                            </tr>
+                                            <tr>
+                                                <th>{{ __('quiz.Total Questions') }}</th>
+                                                <td>{{ $totalQus }}</td>
+                                                <th>{{ __('frontend.Result') }}</th>
+                                                <td>
+                                                    @if($status == 'Passed')
+                                                        <span class="text-success">{{__("frontend.Pass")}}</span>
+                                                    @else
+                                                        <span class="text-danger">{{__("frontend.Failed")}}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>{{ __('student.Correct Answer') }}</th>
+                                                <td><span class="text-success">{{ $totalCorrect }}</span></td>
+                                                <th>{{ __('student.Wrong Answer') }}</th>
+                                                <td><span class="text-danger">{{ $totalWrong }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <th>{{ __('student.Unattempted') }}</th>
+                                                <td colspan="3"><span class="text-warning">{{ $unattempted }}</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
                                 <!-- quiz_test_body  -->
                                 <div class="quiz_result_sheet_body">
                                     <div class="result_sheet_view">
