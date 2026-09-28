@@ -3580,10 +3580,14 @@ if ($assign->questionBank->shuffle==1){
                         </span>
                     </span>
                 </h3>
-                @if($lesson->is_quiz!=1)
-                    <button class="theme_btn p-2" type="button" data-bs-toggle="modal"
-                            data-bs-target="#qnamodal">{{__('common.Q&A')}}</button>
-                @endif
+                <div class="d-flex align-items-center gap-2">
+                    @if($lesson->is_quiz!=1)
+                        <button class="theme_btn p-2" type="button" data-bs-toggle="modal"
+                                data-bs-target="#qnamodal">{{__('common.Q&A')}}</button>
+                    @endif
+                    <button class="theme_btn p-2 ms-2" type="button" data-bs-toggle="modal"
+                            data-bs-target="#courseQuizHistoryModal">{{__('frontend.Quiz History')}}</button>
+                </div>
 
 
             </div>
@@ -3820,6 +3824,8 @@ if ($assign->questionBank->shuffle==1){
         </div>
 
     </div>
+    
+    @include(theme('partials._quiz_history_modal'))
 
 
     <div class="modal fade " id="ShareLink" tabindex="-1" role="dialog" aria-labelledby=" " aria-hidden="true">
