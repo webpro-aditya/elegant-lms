@@ -1402,7 +1402,7 @@
                                                     </div>
                                                     <div class="col-lg-5">
                                                         <div class="row g-0 right h-100 border-top border-top-md-0">
-                                                            <ul class="col-6 stats">
+                                                            <ul class="col-5 stats">
                                                                 <li>
                                                                     <svg width="16" height="15" viewBox="0 0 16 15"
                                                                          fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1428,7 +1428,7 @@
                                                                 @endif
                                                             </ul>
 
-                                                            <ul class="col-4 price">
+                                                            <ul class="col-5 price">
                                                                 @if(empty($o->price_text))
 
                                                                     <li>
