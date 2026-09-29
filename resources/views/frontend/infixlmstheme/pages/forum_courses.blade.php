@@ -44,6 +44,9 @@
                             </li>
 
                             @foreach ($course_info->lessons as $lesson)
+                                @if(empty($lesson->host) && $lesson->is_quiz == 0 && $lesson->is_assignment == 0 && $lesson->is_practice_quiz == 0)
+                                    @continue
+                                @endif
                                 <li>
                                     <a href="{{route('forum.LessonForum',$lesson->id)}}">{{$lesson->name}}</a>
                                 </li>

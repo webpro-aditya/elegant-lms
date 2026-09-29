@@ -78,6 +78,9 @@
                                href="{{route('forum.CourseForum',$course_info->id)}}">{{@$course_info->title}}</a></li>
                         {{-- <li><a href="#" class="active">Lesson 01</a></li> --}}
                         @foreach ($course_info->lessons as $lesson)
+                            @if(empty($lesson->host) && $lesson->is_quiz == 0 && $lesson->is_assignment == 0 && $lesson->is_practice_quiz == 0)
+                                @continue
+                            @endif
                             <li>
                                 <a class="{{isset($lesson_info)?$lesson_info->id==$lesson->id ? 'active':'':''}}"
                                    href="{{route('forum.LessonForum',$lesson->id)}}">{{$lesson->name}}</a>

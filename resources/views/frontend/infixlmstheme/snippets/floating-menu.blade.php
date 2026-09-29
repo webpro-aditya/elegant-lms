@@ -425,11 +425,12 @@
                 <div class="chapter-links {{ $k == 0 ? 'open' : '' }}" data-ch="{{ $k }}">
                     @foreach ($lessons as $lesson)
                         @if ($lesson->chapter_id == $chapter->id)
-                            @php
-                                // Skip Quizzes with no data or Assignments if module inactive
-                                if ($lesson->is_quiz == 1 && (!isset($lesson->quiz) || $lesson->quiz->count() == 0)) continue;
-                                if ($lesson->is_assignment == 1 && !isModuleActive('Assignment')) continue;
-                                
+                                @php
+                                    // Skip Quizzes with no data or Assignments if module inactive
+                                    if ($lesson->is_quiz == 1 && (!isset($lesson->quiz) || $lesson->quiz->count() == 0)) continue;
+                                    if ($lesson->is_assignment == 1 && !isModuleActive('Assignment')) continue;
+                                    if (empty($lesson->host) && $lesson->is_quiz == 0 && $lesson->is_practice_quiz == 0 && $lesson->is_assignment == 0) continue;
+                                    
                                 $isCurrent = request()->route('lesson_id') == $lesson->id;
                                 $isDone = $lesson->completed && $lesson->completed->status == 1;
                             @endphp

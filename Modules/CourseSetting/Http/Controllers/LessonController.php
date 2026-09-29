@@ -49,9 +49,7 @@ class LessonController extends Controller
         $request->validate([
             'name' => 'required',
             'chapter_id' => 'required',
-            'duration' => 'required',
             'course_id' => 'required',
-            'video_url' => 'required',
         ]);
 
         try {

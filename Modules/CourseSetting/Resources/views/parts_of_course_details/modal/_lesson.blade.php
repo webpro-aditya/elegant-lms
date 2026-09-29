@@ -189,8 +189,7 @@
                                     <div class="defaultHost">
                                         <div class="input-effect mt-2 pt-1">
                                             <label class="primary_input_label mt-1"
-                                                   for=""> {{__('courses.Host')}}
-                                                <span class="required_mark">*</span></label>
+                                                   for=""> {{__('courses.Host')}}</label>
 
                                             <select class="primary_select category_id host_select" name="host"
                                                     data-key="{{isset($edit)?'_edit_':''}}{{$edit->id??''}}"

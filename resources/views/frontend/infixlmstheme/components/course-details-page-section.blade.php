@@ -313,6 +313,9 @@
                                                                     <div class="curriculam_list">
                                                                         <!-- curriculam_single  -->
                                                                         @foreach($chapter->lessons as $key=>$lesson)
+                                                                            @if(empty($lesson->host) && $lesson->is_quiz == 0 && $lesson->is_assignment == 0 && $lesson->is_practice_quiz == 0)
+                                                                                @continue
+                                                                            @endif
 
                                                                             <div
                                                                                 class="curriculam_single row row-gap-24">

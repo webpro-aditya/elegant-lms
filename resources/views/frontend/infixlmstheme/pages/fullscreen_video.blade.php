@@ -3632,6 +3632,9 @@ if ($assign->questionBank->shuffle==1){
                                                         if ($singleLesson->is_assignment == 1 && !isModuleActive('Assignment')) {
                                                             continue;
                                                         }
+                                                        if (empty($singleLesson->host) && $singleLesson->is_quiz == 0 && $singleLesson->is_practice_quiz == 0 && $singleLesson->is_assignment == 0) {
+                                                            continue;
+                                                        }
                                                     @endphp
                                                     @php
                                                         $iconClass = 'fas fa-play';
