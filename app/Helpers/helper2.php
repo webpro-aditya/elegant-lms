@@ -661,7 +661,12 @@ if (!function_exists('getPriceFormat')) {
 if (!function_exists('totalQuizQus')) {
     function totalQuizQus($quiz_id)
     {
+        static $cache = [];
+        if (isset($cache[$quiz_id])) {
+            return $cache[$quiz_id];
+        }
         $total = OnlineExamQuestionAssign::where('online_exam_id', $quiz_id)->count();
+        $cache[$quiz_id] = $total;
         return $total;
     }
 }
@@ -669,12 +674,17 @@ if (!function_exists('totalQuizQus')) {
 if (!function_exists('totalQuizMarks')) {
     function totalQuizMarks($quiz_id)
     {
+        static $cache = [];
+        if (isset($cache[$quiz_id])) {
+            return $cache[$quiz_id];
+        }
         $totalMark = 0;
         $total = OnlineExamQuestionAssign::where('online_exam_id', $quiz_id)->with('questionBank')->get();
 
         foreach ($total as $question) {
             $totalMark = $totalMark + $question->questionBank->marks;
         }
+        $cache[$quiz_id] = $totalMark;
         return $totalMark;
     }
 }
