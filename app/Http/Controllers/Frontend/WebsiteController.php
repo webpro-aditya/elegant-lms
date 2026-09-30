@@ -1687,8 +1687,11 @@ class WebsiteController extends Controller
         }
     }
 
-    public function frontPage($slug)
+    public function frontPage($slug = null)
     {
+        if (empty($slug)) {
+            $slug = request()->path();
+        }
 
         $page = $row = FrontPage::where('slug', $slug)->first();
         if (!$row) {
