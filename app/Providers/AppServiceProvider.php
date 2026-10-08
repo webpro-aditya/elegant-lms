@@ -121,27 +121,6 @@ class AppServiceProvider extends ServiceProvider
                     }
 
                     view()->composer('*', function ($view) {
-
-                        $seed = session()->get('user_status_seedable');
-                        if (isModuleActive('Chat') && auth()->check() && is_null($seed)) {
-                            $users = User::all();
-                            foreach ($users as $user) {
-                                if (hasTable('chat_statuses')) {
-                                    Status::firstOrCreate([
-                                        'user_id' => $user->id,
-                                    ], [
-                                        'user_id' => $user->id,
-                                        'status' => 0
-                                    ]);
-                                }
-
-                            }
-
-                            session()->put('user_status_seedable', 'false');
-                        }
-                    });
-
-                    view()->composer('*', function ($view) {
                         if (auth()->check()) {
                             $this->app->singleton('extend_view', function ($app) {
                                 if (auth()->user()->role_id == 3) {

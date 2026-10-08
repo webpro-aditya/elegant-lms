@@ -1489,16 +1489,8 @@ class CourseSettingController extends Controller
         try {
             if ($type == "make") {
                 if (currentTheme() == 'edume') {
-                    $items = Course::all();
-                    foreach ($items as $item) {
-                        if ($id == $item->id) {
-                            $featureStatus = 1;
-                        } else {
-                            $featureStatus = 0;
-                        }
-                        $item->feature = $featureStatus;
-                        $item->save();
-                    }
+                    Course::query()->update(['feature' => 0]);
+                    Course::where('id', $id)->update(['feature' => 1]);
                 } else {
                     $course = Course::find($id);
                     $course->feature = 1;
