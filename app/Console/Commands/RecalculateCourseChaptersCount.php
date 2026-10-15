@@ -43,7 +43,7 @@ class RecalculateCourseChaptersCount extends Command
         foreach ($courses as $course) {
             $chapters = $course->chapters ?? collect();
             $numberedChapters = $chapters->filter(function ($chapter) {
-                return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+                return preg_match('/(?:chapter|chap|ch\.?)\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
             });
 
             $oldCount = $course->getRawOriginal('total_chapters');
