@@ -516,7 +516,11 @@ class CourseSettingController extends Controller
 
     public function updateTotalCountForCourse($course)
     {
-        $course->total_chapters = count($course->chapters);
+        $numberedChapters = $course->chapters ? $course->chapters->filter(function ($chapter) {
+            return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+        }) : collect();
+
+        $course->total_chapters = $numberedChapters->count() > 0 ? $numberedChapters->count() : count($course->chapters);
         $course->total_lessons = count($course->lessons);
         $course->total_quiz_lessons = count($course->lessonQuizzes);
         $course->total_comments = count($course->comments);

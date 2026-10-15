@@ -273,7 +273,13 @@
                                             <div
                                                 class="d-flex flex-wrap align-items-center justify-content-between mb-3">
                                                 <ul class="curriculum_meta d-flex flex-wrap">
-                                                    <li>{{$course->total_chapters}} {{__('frontend.chapters')}}</li>
+                                                    @php
+                                                        $numberedChapters = isset($course->chapters) ? $course->chapters->filter(function ($chapter) {
+                                                            return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+                                                        }) : collect();
+                                                        $displayTotalChapters = $numberedChapters->count() > 0 ? $numberedChapters->count() : $course->total_chapters;
+                                                    @endphp
+                                                    <li>{{$displayTotalChapters}} {{__('frontend.chapters')}}</li>
                                                     <li>{{$course->total_lessons}} {{__('frontend.lectures')}}</li>
                                                     <li>{{$course->total_quiz_lessons}} {{__('frontend.quizzes')}}</li>
                                                     <li>{{MinuteFormat($course->duration)}} {{__('frontend.total length')}}</li>

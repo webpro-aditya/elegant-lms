@@ -149,6 +149,21 @@ class Course extends Model
         return $this->hasMany(Chapter::class)->orderBy('position', 'asc');
     }
 
+    public function getTotalChaptersAttribute($value)
+    {
+        if ($this->relationLoaded('chapters') && $this->chapters) {
+            $numberedChapters = $this->chapters->filter(function ($chapter) {
+                return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+            });
+
+            if ($numberedChapters->count() > 0) {
+                return $numberedChapters->count();
+            }
+        }
+
+        return $value ?? ($this->relationLoaded('chapters') && $this->chapters ? $this->chapters->count() : 0);
+    }
+
     public function lessons()
     {
 
