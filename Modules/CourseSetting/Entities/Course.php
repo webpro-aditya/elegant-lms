@@ -153,7 +153,7 @@ class Course extends Model
     {
         if ($this->relationLoaded('chapters') && $this->chapters) {
             $numberedChapters = $this->chapters->filter(function ($chapter) {
-                return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+                return preg_match('/(?:chapter|chap|ch\.?)\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
             });
 
             if ($numberedChapters->count() > 0) {

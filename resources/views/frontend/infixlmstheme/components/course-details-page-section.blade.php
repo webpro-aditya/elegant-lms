@@ -275,7 +275,7 @@
                                                 <ul class="curriculum_meta d-flex flex-wrap">
                                                     @php
                                                         $numberedChapters = isset($course->chapters) ? $course->chapters->filter(function ($chapter) {
-                                                            return preg_match('/chapter\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
+                                                            return preg_match('/(?:chapter|chap|ch\.?)\s*[-:\s]?\s*\d+/i', strip_tags(html_entity_decode($chapter->name ?? '')));
                                                         }) : collect();
                                                         $displayTotalChapters = $numberedChapters->count() > 0 ? $numberedChapters->count() : $course->total_chapters;
                                                     @endphp
