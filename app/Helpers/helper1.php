@@ -497,43 +497,22 @@ if (!function_exists('permissionCheck')) {
 
                 if (isModuleActive('OrgInstructorPolicy')) {
                     if (auth()->user()->role_id == 2) {
-                        $roles = app('policy_permission_list');
+                        $roles = app()->bound('policy_permission_list') ? app('policy_permission_list') : collect();
                         $role = $roles->where('id', auth()->user()->policy_id)->first();
-                        /*
-                                                    $allowRoutes = [
-                                                        'dashboard',
-                                                        'quiz',
-                            //                            'quiz.test-list',
-                            //                            'quiz.add-test',
-                            //                            'quiz.edit-test',
-                            //                            'quiz.delete-test',
-                                                        'quiz.mark-test',
-                                                        'quiz.supervisor',
-                                                        'quiz.supervisor.extraTime',
-                                                        'quiz.supervisor.warning',
-                                                        'quiz.supervisor.continueDoTest',
-                                                        'quiz.supervisor.comment',
-                                                        'set-quiz.mark-register',
-                                                        'quizReTest'
-                                                    ];
-                                                    if (in_array($route_name, $allowRoutes)) {
-                                                        return true;
-                                                    }*/
-
                     } else {
-                        $roles = app('permission_list');
+                        $roles = app()->bound('permission_list') ? app('permission_list') : \Modules\RolePermission\Entities\Role::with('permissions')->get();
                         $role = $roles->where('id', auth()->user()->role_id)->first();
 
                     }
-                    if ($role != null && $role->permissions->contains('route', $route_name)) {
+                    if ($role != null && $role->permissions && $role->permissions->contains('route', $route_name)) {
                         return TRUE;
                     } else {
                         return FALSE;
                     }
                 } else {
-                    $roles = app('permission_list');
+                    $roles = app()->bound('permission_list') ? app('permission_list') : \Modules\RolePermission\Entities\Role::with('permissions')->get();
                     $role = $roles->where('id', auth()->user()->role_id)->first();
-                    if ($role != null && $role->permissions->contains('route', $route_name)) {
+                    if ($role != null && $role->permissions && $role->permissions->contains('route', $route_name)) {
                         return TRUE;
                     } else {
                         return FALSE;

@@ -19,29 +19,29 @@ class RoutePermissionCheck
                     $route_name_array = explode('|', $route_name);
                     foreach ($route_name_array as $key => $route_name) {
                         if (isModuleActive('OrgInstructorPolicy') && $user->role_id != 3) {
-                            $roles = app('policy_permission_list');
+                            $roles = app()->bound('policy_permission_list') ? app('policy_permission_list') : collect();
                             $role = $roles->where('id', $user->policy_id)->first();
 
                         } else {
-                            $roles = app('permission_list');
+                            $roles = app()->bound('permission_list') ? app('permission_list') : \Modules\RolePermission\Entities\Role::with('permissions')->get();
                             $role = $roles->where('id', $user->role_id)->first();
                         }
 
-                        if ($role != null && $role->permissions->contains('route', $route_name)) {
+                        if ($role != null && $role->permissions && $role->permissions->contains('route', $route_name)) {
                             return $next($request);
                         }
                     }
                     abort('403');
                 } else {
                     if (isModuleActive('OrgInstructorPolicy') && $user->role_id != 3) {
-                        $roles = app('policy_permission_list');
+                        $roles = app()->bound('policy_permission_list') ? app('policy_permission_list') : collect();
                         $role = $roles->where('id', $user->policy_id)->first();
                     } else {
-                        $roles = app('permission_list');
+                        $roles = app()->bound('permission_list') ? app('permission_list') : \Modules\RolePermission\Entities\Role::with('permissions')->get();
                         $role = $roles->where('id', $user->role_id)->first();
                     }
 
-                    if ($role != null && $role->permissions->contains('route', $route_name)) {
+                    if ($role != null && $role->permissions && $role->permissions->contains('route', $route_name)) {
                         return $next($request);
                     } else {
                         abort('403');

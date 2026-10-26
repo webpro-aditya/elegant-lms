@@ -47,6 +47,21 @@ class AppServiceProvider extends ServiceProvider
                 return Valuestore::make((base_path() . '/general_settings.json'));
             });
         }
+
+        $this->app->singleton('permission_list', function () {
+            $domain = function_exists('SaasDomain') ? SaasDomain() : 'main';
+            return Cache::rememberForever('PermissionList_' . $domain, function () {
+                try {
+                    return \Modules\RolePermission\Entities\Role::with('permissions')->get();
+                } catch (Exception $e) {
+                    return collect();
+                }
+            });
+        });
+
+        $this->app->singleton('policy_permission_list', function () {
+            return collect();
+        });
     }
 
     public function boot()
