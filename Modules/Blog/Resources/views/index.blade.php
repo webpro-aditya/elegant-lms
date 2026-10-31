@@ -275,5 +275,29 @@
 
     @endif
         let datatable = $('.Crm_table_active_blog').DataTable(dataTableOptions);
+
+        $(document).on('change', '.status_enable_disable', function () {
+            let id = $(this).val();
+            let status = this.checked ? 1 : 0;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('blogs.changeStatus') }}",
+                data: {
+                    id: id,
+                    status: status,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.success);
+                    } else if (response.error) {
+                        toastr.error(response.error);
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("{{ __('common.Something went wrong') }}");
+                }
+            });
+        });
     </script>
 @endpush

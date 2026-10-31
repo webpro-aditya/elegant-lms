@@ -110,7 +110,7 @@ class BlogController extends Controller
             $blog->tags = $request->tags;
             $blog->user_id = Auth::id();
 
-            if (Settings('blog_auto_approval') == 1) {
+            if (Settings('blog_auto_approval') == 1 || (Auth::check() && Auth::user()->role_id == 1)) {
                 $status = 1;
             } else {
                 $status = 0;
@@ -134,6 +134,10 @@ class BlogController extends Controller
             getBlogBonus($blog);
 
             checkGamification('each_blog_post', 'blogs');
+
+            if (function_exists('clearAllLangCache')) {
+                clearAllLangCache('BlogPosList_');
+            }
 
             if (isModuleActive('Org')) {
                 $blog->audience = $request->audience;
@@ -338,5 +342,24 @@ class BlogController extends Controller
 
         Toastr::success(trans('common.Operation successful'), trans('common.Success'));
         return back();
+    }
+
+    public function changeStatus(Request $request)
+    {
+        if (demoCheck()) {
+            return response()->json(['error' => trans('common.For the demo version, you cannot change this')]);
+        }
+        $blog = Blog::findOrFail($request->id);
+        $blog->status = $blog->status == 1 ? 0 : 1;
+        $blog->save();
+
+        if (function_exists('clearAllLangCache')) {
+            clearAllLangCache('BlogPosList_');
+        }
+
+        return response()->json([
+            'success' => trans('common.Operation successful'),
+            'status' => $blog->status
+        ]);
     }
 }

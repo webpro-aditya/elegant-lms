@@ -5,7 +5,7 @@
 
             <div class="input-group  theme_search_field4 w-100 mb_20 style2">
                 <div class="input-group-prepend">
-                    <button class="btn" type="button"><i class="ti-search"></i></button>
+                    <button class="btn" type="submit"><i class="ti-search"></i></button>
                 </div>
                 <input type="text" name="query" value="{{request('query')}}" class="form-control search"
                        placeholder="{{__('common.Search')}}…">

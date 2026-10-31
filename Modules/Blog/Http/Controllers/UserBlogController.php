@@ -73,7 +73,7 @@ class UserBlogController extends Controller
             $blog->user_id = Auth::id();
             $blog->institute_id = Auth::user()->institute_id;
 
-            $blog->status = Settings('blog_auto_approval') == 1? 1 : 0;
+            $blog->status = (Settings('blog_auto_approval') == 1 || (Auth::check() && Auth::user()->role_id == 1)) ? 1 : 0;
 
 
             $blog->authored_date = !empty($request->publish_date) ? Carbon::createFromFormat('Y-m-d', $request->publish_date)->format('m/d/Y') : date('m/d/y');

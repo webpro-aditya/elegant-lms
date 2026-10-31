@@ -18,20 +18,19 @@ class BlogPageSection extends Component
 
         if (request('category')) {
             $categories = explode(',', request('category'));
-            foreach ($categories as $key => $cat) {
+            $categoryIds = [];
+            foreach ($categories as $cat) {
                 $category = BlogCategory::find($cat);
 
                 if ($category) {
                     $ids = $category->getAllChildIds($category);
-                    $ids[count($ids)] = $cat;
-                    if ($key == 0) {
-                        $query->whereIn('category_id', $ids);
-                    } else {
-                        $query->orWhereIn('category_id', $ids);
-                    }
+                    $ids[] = (int)$cat;
+                    $categoryIds = array_merge($categoryIds, $ids);
                 }
             }
-
+            if (!empty($categoryIds)) {
+                $query->whereIn('category_id', array_unique($categoryIds));
+            }
         }
 
         if (isModuleActive('Org')) {
@@ -81,10 +80,10 @@ class BlogPageSection extends Component
             });
         }
 
-        if (!Auth::check()) {
-            $query->whereNull('institute_id');
-        }
-        $query->where('authored_date_time', '<=', date('Y-m-d H:i:s'));
+        $query->where(function ($q) {
+            $q->whereNull('authored_date_time')
+              ->orWhere('authored_date_time', '<=', \Carbon\Carbon::now()->addMinutes(5));
+        });
         $blogs = $query->orderBy('id', 'desc')->paginate(10);
         return view(theme('components.blog-page-section'), compact('blogs'));
     }

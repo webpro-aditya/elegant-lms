@@ -10,7 +10,7 @@
                                 @if(isset($blogs))
                                     @foreach($blogs as $blog)
                                         <div class="col-lg-4">
-                                            <div class="single_blog" data-category="{{$blog->category->title}}">
+                                            <div class="single_blog" data-category="{{@$blog->category->title}}">
                                                 <a href="{{route('blogDetails',[$blog->slug])}}">
                                                     <div class="thumb">
 

@@ -10,6 +10,7 @@ Route::prefix('manage')->middleware(['auth'])->group(function () {
     Route::get('blogs/edit/{id}', 'BlogController@edit')->name('blogs.edit')->middleware('RoutePermissionCheck:blogs.update');
     Route::post('blogs/update', 'BlogController@update')->name('blogs.update')->middleware('RoutePermissionCheck:blogs.update');
     Route::post('blogs/destroy', 'BlogController@destroy')->name('blogs.destroy')->middleware('RoutePermissionCheck:blogs.destroy');
+    Route::post('blogs/change-status', 'BlogController@changeStatus')->name('blogs.changeStatus')->middleware('RoutePermissionCheck:blogs.changeStatus');
 
     Route::get('blog-category', 'BlogCategoryController@index')->name('blog-category.index')->middleware('RoutePermissionCheck:blog-category.index');
     Route::post('blog-category', 'BlogCategoryController@store')->name('blog-category.store')->middleware('RoutePermissionCheck:blog-category.store');

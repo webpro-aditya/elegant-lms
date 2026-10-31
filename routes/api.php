@@ -169,20 +169,22 @@ Route::group([
         Route::delete('/blog-comments/{id}', 'BlogController@blogCommentDelete');
 
         //affiliate
-        Route::group([
-            'prefix' => 'affiliate',
-        ], function () {
-            Route::get('/statistics', 'AffiliateController@statistics');
-            Route::get('/links', 'AffiliateController@links');
-            Route::get('/commissions', 'AffiliateController@commissions');
-            Route::get('/withdraws', 'AffiliateController@withdraws');
-            Route::post('/add-link', 'AffiliateController@addLink');
-            Route::post('/add-paypal', 'AffiliateController@addPaypal');
-            Route::get('/get-paypal', 'AffiliateController@getPaypal');
-            Route::get('/get-list', 'AffiliateController@getList');
-            Route::post('/balance-transfer', 'AffiliateController@balanceTransfer');
-            Route::post('/withdraw-request', 'AffiliateController@withdrawRequest');
-        });
+        if (isModuleActive('Affiliate')) {
+            Route::group([
+                'prefix' => 'affiliate',
+            ], function () {
+                Route::get('/statistics', 'AffiliateController@statistics');
+                Route::get('/links', 'AffiliateController@links');
+                Route::get('/commissions', 'AffiliateController@commissions');
+                Route::get('/withdraws', 'AffiliateController@withdraws');
+                Route::post('/add-link', 'AffiliateController@addLink');
+                Route::post('/add-paypal', 'AffiliateController@addPaypal');
+                Route::get('/get-paypal', 'AffiliateController@getPaypal');
+                Route::get('/get-list', 'AffiliateController@getList');
+                Route::post('/balance-transfer', 'AffiliateController@balanceTransfer');
+                Route::post('/withdraw-request', 'AffiliateController@withdrawRequest');
+            });
+        }
 
 
 
