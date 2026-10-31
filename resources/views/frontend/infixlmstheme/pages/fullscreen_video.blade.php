@@ -29,6 +29,9 @@
         #fab-root {
             max-width: 50px;
         }
+        #fab-root.active {
+            max-width: 280px;
+        }
 
         @media (max-width: 767.98px) {
             .contact_btn {
@@ -125,8 +128,8 @@
             color: white !important;
         }
 
-        /* Hover-triggered dropdown (desktop) */
-        @media (min-width: 768px) {
+        /* Hover-triggered dropdown (large desktop) */
+        @media (min-width: 1201px) {
             .header__common_btn.dropdown .dropdown-menu {
                 display: block;
                 opacity: 0;
@@ -404,7 +407,7 @@
         opacity: 0;
     }
 
-    @media (max-width: 767px) {
+    @media (max-width: 1200px) {
         .pdftoolbar-toggle-wrapper {
             display: flex;
         }
@@ -414,7 +417,7 @@
     }
     
     /* DESKTOP FIX */
-    @media (min-width: 768px) {
+    @media (min-width: 1201px) {
         .course_fullview_wrapper {
             flex-direction: column;
         }
@@ -1836,15 +1839,15 @@ if ($assign->questionBank->shuffle==1){
             max-height: 180px !important;
         }
 
-        @media (max-width:767px) {
+        @media (max-width: 1200px) {
             .pdftoolbar-slide-container:not(.pdftoolbar-hidden) {
                 max-height: 230px !important;
             }
 
             #pdfOuterContainer {
                 height: calc(100vh - 170px);
-                width: 100vw !important;
-                max-width: 100vw !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 overflow-x: hidden !important; /* Prevent sideways scrolling */
                 box-sizing: border-box;
             }
@@ -1868,7 +1871,7 @@ if ($assign->questionBank->shuffle==1){
             }
         }
 
-        @media (min-width:768px) {
+        @media (min-width: 1201px) {
             .pdftoolbar-slide-container {
                 max-height: none !important;
                 opacity: 1 !important;
@@ -1886,7 +1889,7 @@ if ($assign->questionBank->shuffle==1){
             overscroll-behavior: contain;
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 1200px) {
             .pdfviewer,
             .pdfjs-viewer {
                 touch-action: none;
@@ -1956,7 +1959,7 @@ if ($assign->questionBank->shuffle==1){
             border-bottom-color: #3c7cff;
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 1200px) {
             .pdf-mobile-tabs {
                 display: flex;
             }
@@ -1982,6 +1985,36 @@ if ($assign->questionBank->shuffle==1){
             }
             .pdf-toolbar-group.active-group {
                 display: flex !important;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1200px) {
+            .pdf-tab-btn {
+                font-size: 13px;
+                padding: 10px 0;
+            }
+            .pdf-tab-btn i {
+                font-size: 16px;
+            }
+            .pdf-toolbar-group {
+                justify-content: center;
+                padding: 10px 20px !important;
+                gap: 12px;
+            }
+            .pdf-toolbar-input {
+                width: 200px;
+                font-size: 14px;
+                padding: 4px 10px;
+            }
+            .pdf-toolbar-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 15px;
+            }
+            #pdfCommentModeBtn, #pdfPenModeBtn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
             }
         }
 
@@ -2180,7 +2213,7 @@ if ($assign->questionBank->shuffle==1){
             
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    if (window.innerWidth >= 768) return; // Only active on mobile
+                    if (window.innerWidth > 1200) return; // Only active on mobile & tablet
                     
                     // Remove active from all tabs
                     tabs.forEach(t => t.classList.remove('active'));
@@ -2355,7 +2388,7 @@ if ($assign->questionBank->shuffle==1){
                 }
                 if (!containerWidth) return;
 
-                const horizontalPadding = window.innerWidth < 768 ? 16 : 32;
+                const horizontalPadding = window.innerWidth <= 1200 ? 16 : 32;
                 const targetWidth = Math.max(100, containerWidth - horizontalPadding);
                 const fitScale = targetWidth / vp.width;
 
@@ -2377,7 +2410,7 @@ if ($assign->questionBank->shuffle==1){
                     triggerVisible();
                 });
 
-                if (window.innerWidth < 768) {
+                if (window.innerWidth <= 1200) {
                     setTimeout(async () => {
                         await fitPdfToWidthOnLoad();
                         triggerVisible();
@@ -3380,25 +3413,9 @@ if ($assign->questionBank->shuffle==1){
             });
 
             (function () {
-                const tBtn = document.getElementById('pdftoolbarToggleBtn');
                 const sEl = document.getElementById('pdftoolbarSlideContainer');
-
                 if (!sEl) return;
-
-                if (window.innerWidth < 768) {
-                    sEl.style.maxHeight = '0';
-                    sEl.style.opacity = '0';
-
-                    if (tBtn) {
-                        tBtn.addEventListener('click', function () {
-                            const hidden = sEl.style.maxHeight === '0px' || sEl.style.maxHeight === '0';
-                            sEl.style.maxHeight = hidden ? '180px' : '0';
-                            sEl.style.opacity = hidden ? '1' : '0';
-                            tBtn.querySelector('i').style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
-                            tBtn.setAttribute('aria-label', hidden ? 'Hide PDF Toolbar' : 'Show PDF Toolbar');
-                        });
-                    }
-                } else {
+                if (window.innerWidth > 1200) {
                     sEl.style.maxHeight = 'none';
                     sEl.style.opacity = '1';
                 }
@@ -3408,7 +3425,7 @@ if ($assign->questionBank->shuffle==1){
             window.addEventListener('resize', () => {
                 clearTimeout(resizeFitTimer);
                 resizeFitTimer = setTimeout(async () => {
-                    if (window.innerWidth < 768) {
+                    if (window.innerWidth <= 1200) {
                         await fitPdfToWidthOnLoad();
                         triggerVisible();
                     } else {
@@ -4011,8 +4028,9 @@ if ($assign->questionBank->shuffle==1){
         (function () {
             var toggleBtn = document.getElementById('pdftoolbarToggleBtn');
             var slideContainer = document.getElementById('pdftoolbarSlideContainer');
-            if (toggleBtn && slideContainer && window.innerWidth < 768) {
+            if (toggleBtn && slideContainer) {
                 toggleBtn.addEventListener('click', function () {
+                    if (window.innerWidth > 1200) return;
                     var isHidden = slideContainer.classList.toggle('pdftoolbar-hidden');
                     toggleBtn.classList.toggle('collapsed', isHidden);
                     toggleBtn.setAttribute(
@@ -4024,7 +4042,7 @@ if ($assign->questionBank->shuffle==1){
         })();
 
         // =========================================
-        // SCROLL HIDE/SHOW TOOLBAR (MOBILE ONLY)
+        // SCROLL HIDE/SHOW TOOLBAR (MOBILE & TABLET)
         // =========================================
         let lastScrollTop = 0;
         const toolbar = document.querySelector('.pdftoolbar');
@@ -4034,8 +4052,8 @@ if ($assign->questionBank->shuffle==1){
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const slideContainer = document.getElementById('pdftoolbarSlideContainer');
 
-            // Only apply scroll-hide on mobile AND only when toolbar is visible
-            if (window.innerWidth < 768 && slideContainer && !slideContainer.classList.contains('pdftoolbar-hidden')) {
+            // Only apply scroll-hide on mobile/tablet AND only when toolbar is visible
+            if (window.innerWidth <= 1200 && slideContainer && !slideContainer.classList.contains('pdftoolbar-hidden')) {
                 if (scrollTop > lastScrollTop) {
                     toolbar.style.transform = 'translateY(100%)';
                 } else {
@@ -4214,7 +4232,7 @@ if ($assign->questionBank->shuffle==1){
     @include(theme('partials.fullscreen_video._scorm_script'))
 
     <script>
-        /* Mobile fallback: click-to-toggle for ellipsis dropdown */
+        /* Mobile & Tablet fallback: click-to-toggle for ellipsis dropdown */
         (function () {
             var btn = document.querySelector('.js-hover-dropdown-toggle');
             if (!btn) return;
@@ -4222,14 +4240,14 @@ if ($assign->questionBank->shuffle==1){
             if (!menu) return;
 
             btn.addEventListener('click', function (e) {
-                if (window.innerWidth >= 768) return; // hover handles desktop
+                if (window.innerWidth > 1200) return; // hover handles desktop
                 e.stopPropagation();
                 var isOpen = menu.classList.contains('show');
                 menu.classList.toggle('show', !isOpen);
             });
 
             document.addEventListener('click', function () {
-                if (window.innerWidth < 768) menu.classList.remove('show');
+                if (window.innerWidth <= 1200) menu.classList.remove('show');
             });
         })();
 

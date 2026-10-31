@@ -22,7 +22,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-        z-index: 500;
+        z-index: 9998;
     }
 
     /* SUB BUTTON CONTAINER */
@@ -223,7 +223,7 @@
         inset: 0;
         background: rgba(0, 0, 0, 0);
         pointer-events: none;
-        z-index: 590;
+        z-index: 9999;
         transition: background 0.3s ease;
     }
 
@@ -240,9 +240,10 @@
         left: 0;
         top: 0;
         bottom: 0;
-        width: 260px;
+        width: 280px;
+        max-width: 85vw;
         background: #fff;
-        z-index: 1000;
+        z-index: 10000;
 
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -376,10 +377,27 @@
         }
     }
 
-    /* HIDE ON DESKTOP */
-    @media only screen and (min-width: 767px) {
+    /* TABLET & MOBILE ENHANCEMENTS */
+    @media (min-width: 768px) {
+        #chapters-menu {
+            width: 340px;
+        }
+        .sub-btn {
+            width: 240px;
+        }
+    }
+
+    /* ALWAYS SHOW ON MOBILE & TABLET (<= 1366px or touch screens) */
+    @media (max-width: 1366px), (pointer: coarse) {
         #fab-root {
-            display: none;
+            display: flex !important;
+        }
+    }
+
+    /* HIDE ONLY ON LARGE DESKTOP WITH FINE POINTER (> 1366px) */
+    @media only screen and (min-width: 1367px) and (hover: hover) and (pointer: fine) {
+        #fab-root {
+            display: none !important;
         }
     }
 </style>
@@ -572,8 +590,8 @@
             });
         });
 
-        // --- FIRST LOAD AUTO-OPEN ON MOBILE ---
-        if (window.innerWidth <= 768) {
+        // --- FIRST LOAD AUTO-OPEN ON MOBILE & TABLET ---
+        if (window.innerWidth <= 1366 || window.matchMedia('(pointer: coarse)').matches) {
             const courseKey = 'course_opened_' + '{{ $course->id ?? "default" }}';
             if (!sessionStorage.getItem(courseKey)) {
                 chapMenu.classList.add('open');
