@@ -2,41 +2,324 @@
 <link rel="stylesheet" href="{{assetPath('frontend/infixlmstheme/css/homepageV7/header-v7.css')}}">
 
 <style>
-    .heading-category-dropdown ul {
-        max-height: calc(100vh - 100px);
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-left: 0;
-        padding-right: 0;
-        width: max-content;
-        min-width: 250px;
-    }
+    /* ==========================================================
+       PREMIUM CATEGORY DROPDOWN & MENU STYLING
+       ========================================================== */
 
-    .heading-category-dropdown ul li {
+    /* 1. Category Trigger */
+    .heading-category {
         position: relative;
-        margin-top: 4px;
-        margin-bottom: 4px;
+        cursor: pointer;
+        user-select: none;
     }
 
-    .heading-category-dropdown ul li a {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .heading-category-inner {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 14px 8px 12px !important;
+        border-radius: 10px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .heading-category:hover .heading-category-inner,
+    .heading-category.is-open .heading-category-inner {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .heading-category-inner svg {
+        flex-shrink: 0;
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .heading-category-inner span {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
+        padding-left: 0 !important;
+        letter-spacing: -0.2px;
+    }
+
+    .cate-chevron {
+        font-size: 11px !important;
+        color: #64748b !important;
+        margin-left: 4px;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease !important;
+    }
+
+    .heading-category:hover .cate-chevron,
+    .heading-category.is-open .cate-chevron {
+        transform: rotate(180deg) !important;
+        color: var(--system_primary_gredient1, #1e40af) !important;
+    }
+
+    /* 2. Dropdown Container */
+    .heading-category-dropdown {
+        position: absolute !important;
+        top: 100% !important;
+        margin-top: 10px !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        transition: none !important;
+    }
+
+    /* Remove legacy triangle arrow */
+    .heading-category-dropdown::before {
+        display: none !important;
+    }
+
+    /* 3. Main Dropdown Card */
+    .heading-category-dropdown > ul,
+    .heading-category-dropdown .cate-main-list {
+        min-width: 320px !important;
+        max-width: 380px !important;
+        max-height: calc(100vh - 120px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        list-style: none !important;
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15),
+                    0 8px 16px -6px rgba(15, 23, 42, 0.08),
+                    0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+        transition: none !important;
+    }
+
+    /* Slim sleek scrollbars */
+    .heading-category-dropdown ul::-webkit-scrollbar {
+        width: 5px;
+    }
+    .heading-category-dropdown ul::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .heading-category-dropdown ul::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 999px;
+    }
+    .heading-category-dropdown ul::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+    }
+
+    /* 4. Category Items */
+    .heading-category-dropdown ul li {
+        display: block !important;
+        position: relative !important;
+        margin: 2px 0 !important;
+        padding: 0 !important;
+    }
+
+    .heading-category-dropdown > ul > li > a {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        line-height: 1.4 !important;
+        text-decoration: none !important;
+        position: relative;
+        left: 0 !important;
+        transition: all 0.16s ease-in-out !important;
+        box-shadow: none !important;
+    }
+
+    .heading-category-dropdown > ul > li > a span,
+    .heading-category-dropdown > ul > li > a .cate-name {
+        flex: 1;
         white-space: nowrap;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: all 0.2s ease-in-out;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 12px;
+        letter-spacing: -0.15px;
     }
 
-    .heading-category-dropdown ul li a:hover {
-        background-color: #f8f9fa;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        color: var(--system_primery_color);
+    .heading-category-dropdown > ul > li > a i,
+    .heading-category-dropdown > ul > li > a .cate-arrow {
+        font-size: 11.5px !important;
+        color: #94a3b8 !important;
+        flex-shrink: 0;
+        transition: transform 0.2s ease, color 0.2s ease !important;
     }
 
-    .heading-category-dropdown ul li ul {
-        position: fixed;
+    /* Hover & Active Parent States */
+    .heading-category-dropdown > ul > li:hover > a,
+    .heading-category-dropdown > ul > li.is-active-parent > a {
+        background-color: #f1f5f9 !important;
+        color: var(--system_primary_gredient1, #1e40af) !important;
+        font-weight: 600 !important;
+    }
+
+    .heading-category-dropdown > ul > li:hover > a i,
+    .heading-category-dropdown > ul > li:hover > a .cate-arrow,
+    .heading-category-dropdown > ul > li.is-active-parent > a i,
+    .heading-category-dropdown > ul > li.is-active-parent > a .cate-arrow {
+        color: var(--system_primary_gredient1, #1e40af) !important;
+        transform: translateX(3px) !important;
+    }
+
+    /* 5. Submenu Flyout Card */
+    .heading-category-dropdown ul li ul,
+    .heading-category-dropdown .cate-sub-list,
+    .heading-category-dropdown ul li:hover > ul {
+        position: fixed !important;
+        top: 0;
+        left: 0;
         right: auto !important;
+        min-width: 320px !important;
+        max-width: 480px !important;
+        width: max-content !important;
+        max-height: calc(100vh - 100px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        margin-top: 0 !important;
+        list-style: none !important;
+        box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.18),
+                    0 8px 20px -6px rgba(15, 23, 42, 0.09),
+                    0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+        z-index: 99999 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
+
+    /* Invisible hover bridge */
+    .heading-category-dropdown ul li ul::before,
+    .heading-category-dropdown .cate-sub-list::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -14px;
+        width: 18px;
+        background: transparent;
+    }
+
+    /* Submenu Header Item */
+    .submenu-header-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 8px 14px 10px 14px !important;
+        margin-bottom: 6px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    .submenu-header-title {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.6px !important;
+        color: #64748b !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        padding-right: 8px !important;
+    }
+
+    .submenu-header-badge {
+        font-size: 10.5px !important;
+        font-weight: 600 !important;
+        padding: 2px 7px !important;
+        border-radius: 10px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Submenu Course Items */
+    .heading-category-dropdown ul li ul li,
+    .heading-category-dropdown .cate-sub-list .sub-item {
+        margin: 2px 0 !important;
+        display: block !important;
+    }
+
+    .heading-category-dropdown ul li ul li > a,
+    .heading-category-dropdown .cate-sub-list .sub-item > a {
+        display: block !important;
+        width: 100% !important;
+        padding: 9px 14px !important;
+        border-radius: 9px !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        line-height: 1.45 !important;
+        text-decoration: none !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        transition: all 0.16s ease !important;
+        box-shadow: none !important;
+    }
+
+    .heading-category-dropdown ul li ul li > a:hover,
+    .heading-category-dropdown .cate-sub-list .sub-item > a:hover {
+        background-color: #f1f5f9 !important;
+        color: var(--system_primary_gredient1, #1e40af) !important;
+        padding-left: 18px !important;
+        font-weight: 600 !important;
+    }
+
+    /* RTL Support */
+    html[dir=rtl] .heading-category-dropdown {
+        left: auto !important;
+        right: 0 !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown ul li ul,
+    html[dir=rtl] .heading-category-dropdown .cate-sub-list,
+    html[dir=rtl] .heading-category-dropdown ul li:hover > ul {
+        left: auto !important;
+        right: auto !important;
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown > ul > li > a i,
+    html[dir=rtl] .heading-category-dropdown > ul > li > a .cate-arrow {
+        transform: scaleX(-1) !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown > ul > li:hover > a i,
+    html[dir=rtl] .heading-category-dropdown > ul > li.is-active-parent > a i {
+        transform: scaleX(-1) translateX(3px) !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown ul li ul::before {
+        left: auto !important;
+        right: -14px !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown ul li ul li > a,
+    html[dir=rtl] .heading-category-dropdown .cate-sub-list .sub-item > a {
+        text-align: right !important;
+    }
+
+    html[dir=rtl] .heading-category-dropdown ul li ul li > a:hover,
+    html[dir=rtl] .heading-category-dropdown .cate-sub-list .sub-item > a:hover {
+        padding-left: 14px !important;
+        padding-right: 18px !important;
     }
 
     .mobile-search .heading-search-box {
@@ -207,30 +490,35 @@
                                     </svg>
 
                                     <span>{{__('courses.Category')}}</span>
+                                    <i class="ti ti-angle-down cate-chevron"></i>
                                 </div>
                                 <div class="heading-category-dropdown" id="cateDropDown">
-                                    <ul>
+                                    <ul class="cate-main-list">
                                         @if(isset($categories))
                                             @foreach($categories as $category)
-                                                <li>
-                                                    <a href="{{route('courses')}}?category_id[]={{$category->id}}">
-                                                        <span>{{$category->name}}</span>
+                                                <li class="cate-item {{ isset($category->activeSubcategories) && count($category->activeSubcategories)!=0 ? 'has-sub' : '' }}">
+                                                    <a href="{{route('courses')}}?category_id[]={{$category->id}}" class="cate-link" title="{{$category->name}}">
+                                                        <span class="cate-name">{{$category->name}}</span>
                                                         @if(isset($category->activeSubcategories))
                                                             @if(count($category->activeSubcategories)!=0)
-                                                                <i class="ti ti-angle-right"></i>
+                                                                <i class="ti ti-angle-right cate-arrow"></i>
                                                             @endif
                                                         @endif
                                                     </a>
                                                     @if(isset($category->activeSubcategories))
                                                         @if(count($category->activeSubcategories)!=0)
-                                                            <ul>
-                                                                @if(isset($category->activeSubcategories))
-                                                                    @foreach( $category->activeSubcategories as $subcategory)
-                                                                        <li>
-                                                                            <a href="{{route('courses')}}?category_id[]={{$subcategory->id}}">{{$subcategory->name}}</a>
-                                                                        </li>
-                                                                    @endforeach
-                                                                @endif
+                                                            <ul class="cate-sub-list">
+                                                                <li class="submenu-header-item">
+                                                                    <span class="submenu-header-title">{{$category->name}}</span>
+                                                                    <span class="submenu-header-badge">{{ count($category->activeSubcategories) }}</span>
+                                                                </li>
+                                                                @foreach( $category->activeSubcategories as $subcategory)
+                                                                    <li class="sub-item">
+                                                                        <a href="{{route('courses')}}?category_id[]={{$subcategory->id}}" class="sub-link" title="{{$subcategory->name}}">
+                                                                            {{$subcategory->name}}
+                                                                        </a>
+                                                                    </li>
+                                                                @endforeach
                                                             </ul>
                                                         @endif
                                                     @endif
@@ -759,67 +1047,101 @@
 <script>
     (function () {
         'use strict';
-        jQuery(document).ready(function () {
-            $('.heading-category').hover(
-                function() {
-                    $('#cateDropDown').stop(true, true).fadeIn('fast');
-                    $('#showCateDrop').find('i').removeClass('ti-angle-down').addClass('ti-angle-up');
+        jQuery(document).ready(function ($) {
+            const $cateWrapper = $('.heading-category');
+            const $cateDrop = $('#cateDropDown');
+            let hideMenuTimer;
+
+            $cateWrapper.hover(
+                function () {
+                    clearTimeout(hideMenuTimer);
+                    $cateWrapper.addClass('is-open');
+                    $cateDrop.stop(true, true).fadeIn(150);
                 },
-                function() {
-                    $('#cateDropDown').stop(true, true).fadeOut('fast');
-                    $('#showCateDrop').find('i').addClass('ti-angle-down').removeClass('ti-angle-up');
+                function () {
+                    hideMenuTimer = setTimeout(function () {
+                        $cateWrapper.removeClass('is-open');
+                        $cateDrop.stop(true, true).fadeOut(150, function () {
+                            $(".heading-category-dropdown ul li ul").hide();
+                            $(".heading-category-dropdown ul li").removeClass("is-active-parent");
+                        });
+                    }, 120);
                 }
             );
-        })
-    }());
 
-    $(document).ready(function () {
-        // Initially hide all submenus
-        $(".heading-category-dropdown ul li ul").hide();
+            // Initially hide all submenus
+            $(".heading-category-dropdown ul li ul").hide();
 
-        $(".heading-category-dropdown ul li").hover(
-            function () {
-                const parentOffset = $(this).offset();
-                const parentHeight = $(this).outerHeight();
-                const parentWidth = $(this).outerWidth();
-                const submenuWidth = $(this).find("ul").outerWidth(); // Get submenu width
-                const scrollTop = $(window).scrollTop(); // Get the current scroll position
-                const isRtl = $("html").attr("dir") === "rtl"; // Check if the document is in RTL
+            // Hover on TOP-LEVEL category items ONLY
+            $(".heading-category-dropdown > ul > li").hover(
+                function () {
+                    const $item = $(this);
+                    const $sub = $item.children("ul");
 
-                // Display the submenu and position it correctly
-                const submenu = $(this).find("ul");
+                    // Clear any other active sibling
+                    $item.siblings().removeClass("is-active-parent");
+                    $item.siblings().children("ul").hide();
 
-                submenu.css({
-                    display: "block",
-                    top: parentOffset.top - scrollTop, // Adjust the top position based on scroll
-                    left: isRtl
-                        ? parentOffset.left - submenuWidth  // For RTL, position to the left of parent
-                        : parentOffset.left + parentWidth, // For LTR, position to the right of parent
-                });
+                    if (!$sub.length) {
+                        return;
+                    }
 
-                // Ensure submenu doesn't go out of bounds on the page (e.g., for RTL when menu is near left edge)
-                if (isRtl) {
-                    const rightEdge = $(window).width() - (parentOffset.left - submenuWidth);
-                    if (rightEdge < submenuWidth) {
-                        submenu.css({
-                            left: parentOffset.left + parentWidth, // Switch to right if there's no space
-                        });
+                    $item.addClass("is-active-parent");
+
+                    const offset = $item.offset();
+                    const itemWidth = $item.outerWidth();
+                    const scrollTop = $(window).scrollTop();
+                    const isRtl = $("html").attr("dir") === "rtl";
+                    const winHeight = $(window).height();
+                    const winWidth = $(window).width();
+
+                    // Measure submenu dimensions without showing it yet and with zero transition
+                    $sub.css({
+                        display: "block",
+                        visibility: "hidden",
+                        transition: "none"
+                    });
+                    const subHeight = $sub.outerHeight();
+                    const subWidth = $sub.outerWidth();
+
+                    // Align top, clamped to viewport bottom
+                    let topPos = offset.top - scrollTop;
+                    if (topPos + subHeight > winHeight - 16) {
+                        topPos = Math.max(16, winHeight - subHeight - 16);
+                    }
+
+                    // Align left with 4px overlap to ensure cursor never drops hover
+                    let leftPos = isRtl
+                        ? offset.left - subWidth + 4
+                        : offset.left + itemWidth - 4;
+
+                    // Bounds check
+                    if (!isRtl && (leftPos + subWidth > winWidth - 16)) {
+                        leftPos = offset.left - subWidth + 4;
+                    } else if (isRtl && leftPos < 16) {
+                        leftPos = offset.left + itemWidth - 4;
+                    }
+
+                    // Position instantly at calculated coordinates
+                    $sub.css({
+                        top: Math.round(topPos) + "px",
+                        left: Math.round(leftPos) + "px",
+                        visibility: "visible",
+                        zIndex: 99999,
+                        transition: "none"
+                    });
+                },
+                function () {
+                    const $item = $(this);
+                    const $sub = $item.children("ul");
+                    $item.removeClass("is-active-parent");
+                    if ($sub.length) {
+                        $sub.hide();
                     }
                 }
-            },
-            function () {
-                // Hide the submenu when not hovered
-                const $submenu = $(this).find("ul");
-                if ($submenu.length) {
-                    $submenu.css({
-                        display: "none",
-                        top: 0,
-                        left: 0,
-                    });
-                }
-            }
-        );
-    });
+            );
+        });
+    }());
 
     function updateHeaderHeight() {
         let headerHeight = $(".heading").outerHeight();

@@ -64,9 +64,11 @@ class FrontendHomeController extends Controller
 
             }
             if (hasDynamicPage()) {
-                $row = FrontPage::where('slug', '/')->first();
-                $details = dynamicContentAppend($row->details);
-                return view('aorapagebuilder::pages.show', compact('row', 'details'));
+                $row = FrontPage::where('slug', '/')->first() ?? FrontPage::where('homepage', 1)->first();
+                if ($row) {
+                    $details = dynamicContentAppend($row->details);
+                    return view('aorapagebuilder::pages.show', compact('row', 'details'));
+                }
             } else {
                 if (function_exists('SaasDomain')) {
                     $domain = SaasDomain();
