@@ -3,18 +3,18 @@
 namespace Modules\QuestionPool\Http\Controllers;
 
 use App\LessonComplete;
+use Brian2694\Toastr\Facades\Toastr;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\CourseSetting\Entities\Course;
 use Modules\CourseSetting\Entities\CourseEnrolled;
 use Modules\CourseSetting\Entities\Lesson;
 use Modules\QuestionPool\Entities\PracticeQuiz;
 use Modules\QuestionPool\Entities\PracticeQuizDetail;
 use Modules\QuestionPool\Entities\QuestionPoolQuestion;
-use Brian2694\Toastr\Facades\Toastr;
-use Exception;
-use Illuminate\Support\Facades\DB;
 
 class PracticeQuizController extends Controller
 {
@@ -24,9 +24,10 @@ class PracticeQuizController extends Controller
         try {
             $user = Auth::user();
             $lesson = Lesson::findOrFail($lessonId);
-            
-            // Verify enrollment
-            $isEnrolled = CourseEnrolled::where('user_id', $user->id)->where('course_id', $lesson->course_id)->exists();
+
+            // Verify enrollment (allow admins as well)
+            $isEnrolled = (int)$user->role_id === 1
+                || CourseEnrolled::where('user_id', $user->id)->where('course_id', $lesson->course_id)->exists();
             if (!$isEnrolled) {
                 Toastr::error('You must be enrolled in this course to take a practice quiz', 'Error');
                 return back();
@@ -38,11 +39,11 @@ class PracticeQuizController extends Controller
             }
 
             $query = QuestionPoolQuestion::active()->where('course_id', $lesson->course_id)->where('type', '!=', 'F');
-            
+
             // Multi-select support: read comma-separated IDs from lesson
             $chapterIds = $lesson->practice_quiz_chapter_ids ? array_filter(explode(',', $lesson->practice_quiz_chapter_ids)) : [];
             $lessonIds = $lesson->practice_quiz_lesson_ids ? array_filter(explode(',', $lesson->practice_quiz_lesson_ids)) : [];
-            
+
             // Backward compat: fall back to old single-value fields
             if (empty($lessonIds) && $lesson->practice_quiz_lesson_id) {
                 $lessonIds = [$lesson->practice_quiz_lesson_id];
@@ -65,6 +66,7 @@ class PracticeQuizController extends Controller
             $request_count = min($lesson->practice_quiz_question_count ?? 10, $available_count);
 
             if ($request_count < 1) {
+                DB::rollBack();
                 Toastr::error('No questions available for this practice quiz', 'Error');
                 return back();
             }
@@ -108,47 +110,63 @@ class PracticeQuizController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            // Verify enrollment
-            $isEnrolled = CourseEnrolled::where('user_id', $user->id)->where('course_id', $courseId)->exists();
+
+            // Verify enrollment (allow admins as well)
+            $isEnrolled = (int)$user->role_id === 1
+                || CourseEnrolled::where('user_id', $user->id)->where('course_id', $courseId)->exists();
             if (!$isEnrolled) {
                 Toastr::error('You must be enrolled in this course to take a practice quiz', 'Error');
                 return back();
             }
 
             $course = Course::with('chapters.lessons')->findOrFail($courseId);
-            
+
             $preselectScope = 'course';
             $preselectChapterIds = [];
             $preselectLessonIds = [];
             $preselectQuestionCount = 10;
-            
+
             if ($request->has('quiz_lesson_id')) {
                 $lesson = Lesson::find($request->quiz_lesson_id);
                 if ($lesson) {
                     $preselectChapterIds = $lesson->practice_quiz_chapter_ids ? array_filter(explode(',', $lesson->practice_quiz_chapter_ids)) : [];
                     $preselectLessonIds = $lesson->practice_quiz_lesson_ids ? array_filter(explode(',', $lesson->practice_quiz_lesson_ids)) : [];
-                    
+
                     if (empty($preselectLessonIds) && $lesson->practice_quiz_lesson_id) {
                         $preselectLessonIds = [$lesson->practice_quiz_lesson_id];
                     }
                     if (empty($preselectChapterIds) && $lesson->chapter_id) {
                         $preselectChapterIds = [$lesson->chapter_id];
                     }
-                    
+
                     if (!empty($preselectLessonIds)) {
                         $preselectScope = 'lesson';
                     } elseif (!empty($preselectChapterIds)) {
                         $preselectScope = 'chapter';
                     }
-                    
+
                     if ($lesson->practice_quiz_question_count) {
                         $preselectQuestionCount = $lesson->practice_quiz_question_count;
                     }
                 }
             }
-            
-            return view('questionpool::student.setup', compact('course', 'preselectScope', 'preselectChapterIds', 'preselectLessonIds', 'preselectQuestionCount'));
+
+            $history = PracticeQuiz::with('chapter', 'lesson')
+                ->where('user_id', $user->id)
+                ->where('course_id', $courseId)
+                ->where('status', 1)
+                ->latest()
+                ->take(10)
+                ->get();
+
+            return view('questionpool::student.setup', compact(
+                'course',
+                'preselectScope',
+                'preselectChapterIds',
+                'preselectLessonIds',
+                'preselectQuestionCount',
+                'history'
+            ));
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return back();
@@ -159,7 +177,7 @@ class PracticeQuizController extends Controller
     {
         try {
             $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
-            
+
             // Multi-select support
             $lessonIds = $request->lesson_ids ?? ($request->lesson_id ? [$request->lesson_id] : []);
             $chapterIds = $request->chapter_ids ?? ($request->chapter_id ? [$request->chapter_id] : []);
@@ -191,9 +209,9 @@ class PracticeQuizController extends Controller
         DB::beginTransaction();
         try {
             $user = Auth::user();
-            
+
             $query = QuestionPoolQuestion::active()->where('course_id', $request->course_id)->where('type', '!=', 'F');
-            
+
             // Multi-select support
             $chapterIds = $request->chapter_ids ?? ($request->chapter_id ? [$request->chapter_id] : []);
             $lessonIds = $request->lesson_ids ?? ($request->lesson_id ? [$request->lesson_id] : []);
@@ -208,6 +226,7 @@ class PracticeQuizController extends Controller
             $request_count = min($request->question_count, $available_count);
 
             if ($request_count < 1) {
+                DB::rollBack();
                 Toastr::error('No questions available for this selection', 'Error');
                 return back();
             }
@@ -250,7 +269,9 @@ class PracticeQuizController extends Controller
     {
         try {
             $user = Auth::user();
-            $quiz = PracticeQuiz::with('details.question.options')->where('user_id', $user->id)->findOrFail($id);
+            $quiz = PracticeQuiz::with('details.question.options', 'course', 'chapter', 'lesson')
+                ->where('user_id', $user->id)
+                ->findOrFail($id);
 
             if ($quiz->status == 1) {
                 return redirect()->route('practice-quiz.result', $quiz->id);
@@ -281,12 +302,15 @@ class PracticeQuizController extends Controller
             foreach ($quiz->details as $detail) {
                 $question = $detail->question;
                 $given_answer = $request->input('answer_' . $detail->id);
-                $is_correct = 0;
+                if (is_array($given_answer)) {
+                    $given_answer = $given_answer[0] ?? null;
+                }
+                $is_correct = null;
                 $marks = 0;
 
                 if ($given_answer !== null && $given_answer !== '') {
+                    $is_correct = 0;
                     if ($question->type == 'M') {
-                        // $given_answer is option_id
                         $option = $question->options->where('id', $given_answer)->first();
                         if ($option && $option->status == 1) {
                             $is_correct = 1;
@@ -296,7 +320,6 @@ class PracticeQuizController extends Controller
                             $is_correct = 1;
                         }
                     } elseif ($question->type == 'F') {
-                        // Basic match, could be improved with case-insensitive / word matching
                         if (strtolower(trim($given_answer)) == strtolower(trim($question->suitable_words))) {
                             $is_correct = 1;
                         }
@@ -311,7 +334,7 @@ class PracticeQuizController extends Controller
                     }
                 }
 
-                $detail->given_answer = $given_answer;
+                $detail->given_answer = ($given_answer !== null && $given_answer !== '') ? $given_answer : null;
                 $detail->is_correct = $is_correct;
                 $detail->marks_obtained = $marks;
                 $detail->save();
@@ -323,7 +346,7 @@ class PracticeQuizController extends Controller
             $quiz->status = 1; // completed
             $quiz->completed_at = now();
             $quiz->time_taken = $quiz->completed_at->diffInSeconds($quiz->started_at);
-            
+
             // Check pass condition (50%)
             $percentage = ($quiz->total_marks > 0) ? round(($obtained_marks / $quiz->total_marks) * 100, 2) : 0;
             $quiz->pass = $percentage >= 50 ? 1 : 0;
@@ -361,22 +384,45 @@ class PracticeQuizController extends Controller
             $quiz = PracticeQuiz::with('details.question.options', 'course', 'chapter', 'lesson')
                 ->where('user_id', $user->id)
                 ->findOrFail($id);
-            
+
             // Count attempts
             $query = PracticeQuiz::where('user_id', $user->id)
-                                ->where('course_id', $quiz->course_id)
-                                ->where('scope', $quiz->scope)
-                                ->where('id', '<=', $quiz->id);
-            
+                ->where('course_id', $quiz->course_id)
+                ->where('scope', $quiz->scope)
+                ->where('id', '<=', $quiz->id);
+
             if ($quiz->scope == 'lesson') {
                 $query->where('lesson_id', $quiz->lesson_id);
             } elseif ($quiz->scope == 'chapter') {
                 $query->where('chapter_id', $quiz->chapter_id);
             }
-            
+
             $attempt_number = $query->count();
 
-            return view('questionpool::student.result', compact('quiz', 'attempt_number'));
+            $preResult = PracticeQuiz::with('chapter', 'lesson')
+                ->where('user_id', $user->id)
+                ->where('course_id', $quiz->course_id)
+                ->where('status', 1)
+                ->latest()
+                ->take(10)
+                ->get();
+
+            return view('questionpool::student.result', compact('quiz', 'attempt_number', 'preResult'));
+        } catch (Exception $e) {
+            Toastr::error($e->getMessage(), 'Error');
+            return back();
+        }
+    }
+
+    public function answerSheet($id)
+    {
+        try {
+            $user = Auth::user();
+            $quiz = PracticeQuiz::with('details.question.options', 'course', 'chapter', 'lesson')
+                ->where('user_id', $user->id)
+                ->findOrFail($id);
+
+            return view('questionpool::student.answer_sheet', compact('quiz'));
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return back();
@@ -387,8 +433,7 @@ class PracticeQuizController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            // Base query for history
+
             $query = PracticeQuiz::with('course', 'chapter', 'lesson')
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc');
@@ -414,11 +459,10 @@ class PracticeQuizController extends Controller
 
             $quizzes = $query->get();
 
-            // Get unique options from user's history for select dropdowns
             $allHistory = PracticeQuiz::with('course', 'chapter', 'lesson')
                 ->where('user_id', $user->id)
                 ->get();
-            
+
             $courses = $allHistory->pluck('course')->filter()->unique('id');
             $chapters = $allHistory->pluck('chapter')->filter()->unique('id');
             $lessons = $allHistory->pluck('lesson')->filter()->unique('id');
@@ -428,7 +472,16 @@ class PracticeQuizController extends Controller
             $lesson_id = $request->lesson_id ?? '';
             $filter_status = $request->status ?? '';
 
-            return view('questionpool::student.history', compact('quizzes', 'courses', 'chapters', 'lessons', 'course_id', 'chapter_id', 'lesson_id', 'filter_status'));
+            return view('questionpool::student.history', compact(
+                'quizzes',
+                'courses',
+                'chapters',
+                'lessons',
+                'course_id',
+                'chapter_id',
+                'lesson_id',
+                'filter_status'
+            ));
         } catch (Exception $e) {
             Toastr::error($e->getMessage(), 'Error');
             return back();

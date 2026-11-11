@@ -2,152 +2,251 @@
 @section('title')Practice Quiz Result @endsection
 @section('mainContent')
 <style>
-    @media (max-width: 768px) {
-        .dashboard_white_box.p-4 { padding: 15px !important; }
-        .section__title3 h3 { font-size: 1.5rem !important; }
-        .score-grid .col-6 { padding-left: 10px; padding-right: 10px; }
-        .score-grid .p-3 { padding: 10px !important; }
-        .score-grid h4 { font-size: 1.1rem; }
-        .score-grid h2 { font-size: 1.5rem; }
+    .pq-result-container {
+        padding: 25px 0 40px;
     }
-    .svg-icon-sm { width: 18px; height: 18px; display: inline-block; vertical-align: text-bottom; margin-right: 4px; }
+    .quiz_score_wrapper .quiz_test_body h3.success {
+        font-size: 40px;
+        line-height: 1.25;
+        margin-bottom: 12px;
+    }
+    .quiz_score_wrapper .quiz_test_body h3.failed {
+        font-size: 36px;
+        line-height: 1.25;
+        margin-bottom: 12px;
+    }
+    .quiz_score_wrapper .quiz_test_body p.subtitle {
+        font-size: 24px;
+        line-height: 1.5;
+        margin-bottom: 36px;
+    }
+    .quiz_score_wrapper .quiz_test_body .score_view_wrapper .single_score_view ul {
+        margin-bottom: 36px;
+    }
+    .quiz_score_wrapper .quiz_test_body .sumit_skip_btns {
+        margin-top: 36px;
+    }
+    .pq-group-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+    .pq-group-tag {
+        background: #f1f5f9;
+        color: #1f2b40;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+    }
+    #historyDiv {
+        scroll-margin-top: 90px;
+    }
+    @media (max-width: 767px) {
+        .quiz_score_wrapper .quiz_test_body h3.success,
+        .quiz_score_wrapper .quiz_test_body h3.failed {
+            font-size: 26px;
+        }
+        .quiz_score_wrapper .quiz_test_body p.subtitle {
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+        .quiz_secondary_btn, .quiz_primary_btn {
+            height: 48px;
+            padding: 0 22px;
+            font-size: 16px;
+        }
+    }
 </style>
-<div class="main_content_iner main_content_padding">
-    <div class="dashboard_lg_card">
-        <div class="container-fluid no-gutters">
-            <div class="row">
-                <div class="col-12">
-                    <div class="section__title3 margin_50 text-center">
-                        <h3>Practice Quiz Result</h3>
-                        <p>Attempt #{{ $attempt_number }} for 
-                            @if($quiz->scope == 'lesson') Lesson: <strong>{{ $quiz->lesson->name ?? '' }}</strong>
-                            @elseif($quiz->scope == 'chapter') Chapter: <strong>{{ $quiz->chapter->name ?? '' }}</strong>
-                            @else Course: <strong>{{ $quiz->course->title ?? '' }}</strong>
-                            @endif
+
+@php
+    $unattempted = $quiz->unattempted_count;
+@endphp
+
+<div class="main_content_iner main_content_padding pq-result-container">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-xl-11">
+                <div class="quiz_score_wrapper w-100 mb_30">
+                    <div class="quiz_test_header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h3>{{ __('student.Your Exam Score') }}</h3>
+                        <span class="text-white" style="font-size: 15px; font-weight: 600;">
+                            Practice Quiz &bull; Attempt #{{ $attempt_number }}
+                        </span>
+                    </div>
+
+                    <div class="quiz_test_body">
+                        @if ($quiz->pass == 1)
+                            <h3 class="success">{{ __('student.Congratulations!') }}</h3>
+                        @else
+                            <h3 class="failed">
+                                <span>{{ __('frontend.You have failed') }}.</span> {{ __('frontend.Wishing you luck the next time') }}
+                            </h3>
+                        @endif
+
+                        <p class="subtitle">
+                            {{ __('frontend.You have completed') }} {{ $quiz->course->title ?? 'Practice Quiz' }}
                         </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row justify-content-center mb-5">
-                <div class="col-lg-8">
-                    <div class="dashboard_white_box p-4 text-center {{ $quiz->pass == 1 ? 'border-success' : 'border-danger' }}" style="border: 2px solid;">
-                        <h2 class="{{ $quiz->pass == 1 ? 'text-success' : 'text-danger' }} mb-3">
-                            {{ $quiz->pass == 1 ? 'PASSED!' : 'FAILED' }}
-                        </h2>
-                        
-                        <div class="row score-grid">
-                            <div class="col-6 col-md-3 mb-3 mb-md-0">
-                                <div class="p-3 bg-light rounded h-100">
-                                    <h4 class="text-secondary">Score</h4>
-                                    <h2 class="text-primary">{{ $quiz->percentage }}%</h2>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3 mb-3 mb-md-0">
-                                <div class="p-3 bg-light rounded h-100">
-                                    <h4 class="text-secondary">Marks</h4>
-                                    <h2 class="text-info">{{ $quiz->obtained_marks }} / {{ $quiz->total_marks }}</h2>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="p-3 bg-light rounded h-100">
-                                    <h4 class="text-secondary">Correct</h4>
-                                    <h2 class="text-success">{{ $quiz->correct_answers }}</h2>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="p-3 bg-light rounded h-100">
-                                    <h4 class="text-secondary">Wrong</h4>
-                                    <h2 class="text-danger">{{ $quiz->wrong_answers }}</h2>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="mt-4">
-                            <a href="{{ route('practice-quiz.setup', $quiz->course_id) }}" class="theme_btn mr-2 mb-2">Take Another Quiz</a>
-                            <a href="{{ url('my-practice-quizzes') }}" class="theme_btn_outline mb-2">View History</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-12">
-                    <h4 class="mb-4 border-bottom pb-2">Detailed Review</h4>
-                    
-                    @foreach($quiz->details as $index => $detail)
-                    <div class="dashboard_white_box p-4 mb-4 {{ $detail->is_correct ? 'border-left-success' : 'border-left-danger' }}" style="border-left: 5px solid {{ $detail->is_correct ? '#28a745' : '#dc3545' }};">
-                        <div class="d-flex justify-content-between mb-3">
-                            <h5 class="text-secondary">Question {{ $index + 1 }}</h5>
-                            @if($detail->is_correct)
-                                <span class="badge badge-success px-3 py-2"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> Correct (+{{ $detail->marks_obtained }})</span>
-                            @else
-                                <span class="badge badge-danger px-3 py-2"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> Wrong (0)</span>
-                            @endif
-                        </div>
-                        
-                        <div class="question_body text-dark h5 mb-4">
-                            {!! $detail->question->question !!}
-                        </div>
-                        
-                        @if($detail->question->image)
-                            <img src="{{ asset($detail->question->image) }}" class="img-fluid rounded mb-4 max-w-100" alt="Question Image">
+                        @if($quiz->scope_label)
+                            <div class="pq-group-tags">
+                                <span class="pq-group-tag">{{ $quiz->scope_label }}</span>
+                            </div>
                         @endif
 
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="p-3 bg-light rounded h-100">
-                                    <strong class="d-block mb-2 text-secondary">Your Answer:</strong>
-                                    @if($detail->question->type == 'M')
-                                        @php
-                                            $given_option = $detail->question->options->where('id', $detail->given_answer)->first();
-                                        @endphp
-                                        <p class="mb-0 {{ $detail->is_correct ? 'text-success' : 'text-danger' }}">
-                                            {{ $given_option ? $given_option->title : 'No answer provided' }}
-                                        </p>
-                                    @else
-                                        <p class="mb-0 {{ $detail->is_correct ? 'text-success' : 'text-danger' }}">
-                                            {{ $detail->given_answer ?: 'No answer provided' }}
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6 mt-3 mt-md-0">
-                                <div class="p-3 bg-success-light rounded h-100" style="background-color: #e8f5e9;">
-                                    <strong class="d-block mb-2 text-success">Correct Answer:</strong>
-                                    @if($detail->question->type == 'M')
-                                        @php
-                                            $correct_option = $detail->question->options->where('status', 1)->first();
-                                        @endphp
-                                        <p class="mb-0 text-success">
-                                            {{ $correct_option ? $correct_option->title : '' }}
-                                        </p>
-                                    @elseif($detail->question->type == 'T')
-                                        <p class="mb-0 text-success">{{ $detail->question->true_false == 'T' ? 'True' : 'False' }}</p>
-                                    @elseif($detail->question->type == 'F')
-                                        <p class="mb-0 text-success">{{ $detail->question->suitable_words }}</p>
-                                    @endif
+                            <div class="col-xl-12">
+                                <div class="score_view_wrapper">
+                                    <div class="single_score_view">
+                                        <ul class="quiz_exam_score_details">
+                                            <li class="correct">
+                                                <label class="primary_checkbox2 d-flex">
+                                                    <input checked type="checkbox" disabled>
+                                                    <div class="icon">
+                                                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M1.61719 9.18847L5.78764 13.4892C7.75009 7.85194 9.38446 5.37824 13.0859 2.02051" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="label_name">{{ $quiz->correct_answers }} {{ __('student.Correct Answer') }}</span>
+                                                </label>
+                                            </li>
+
+                                            <li class="wrong">
+                                                <label class="primary_checkbox2 error_ans d-flex">
+                                                    <input checked type="checkbox" disabled>
+                                                    <div class="icon">
+                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M1.75781 10.2427L10.2431 1.75739" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            <path d="M10.2431 10.2426L1.75781 1.75732" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="label_name">{{ $quiz->wrong_answers }} {{ __('student.Wrong Answer') }}</span>
+                                                </label>
+                                            </li>
+
+                                            <li class="unattempted">
+                                                <label class="primary_checkbox2 warning_ans d-flex">
+                                                    <input checked type="checkbox" disabled>
+                                                    <div class="icon" style="background: #6c757d; border-color: #6c757d;">
+                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M2 6H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="label_name">{{ $unattempted }} {{ __('student.Unattempted') }}</span>
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="single_score_view d-flex">
+                                        <div>
+                                            <div>
+                                                <p>
+                                                    {{ __('student.Exam Score') }}: {{ $quiz->obtained_marks }} Out of {{ $quiz->total_marks }}
+                                                    ({{ $quiz->percentage }}%)
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p>
+                                                    {{ __('frontend.Result') }}:
+                                                    <span class="{{ $quiz->pass == 1 ? 'text-success fw-bold' : 'text-danger fw-bold' }}">
+                                                        {{ $quiz->pass == 1 ? __('frontend.Passed') : __('frontend.Failed') }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        @if(!empty(strip_tags($detail->question->explanation)))
-                        <div class="mt-4 p-3 bg-info-light rounded" style="background-color: #e3f2fd;">
-                            <strong class="d-block mb-2 text-info"><svg class="svg-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Explanation:</strong>
-                            <div class="text-dark">
-                                {!! $detail->question->explanation !!}
-                            </div>
+
+                        <div class="sumit_skip_btns d-flex gap-3 align-items-center flex-wrap">
+                            <a href="{{ $quiz->course ? courseDetailsUrl($quiz->course->id, $quiz->course->type, $quiz->course->slug) : route('practice-quiz.history') }}"
+                               class="quiz_secondary_btn border-0 d-inline-flex align-items-center gap-2">
+                                <i class="ti-arrow-left"></i> {{ __('common.Back') }}
+                            </a>
+
+                            <a href="{{ route('practice-quiz.setup', $quiz->course_id) }}"
+                               class="quiz_primary_btn border-0 d-inline-flex align-items-center">
+                                Take Another Quiz
+                            </a>
+
+                            @if(isset($preResult) && count($preResult) > 0)
+                                <button type="button"
+                                        class="theme_line_btn showHistoryBtn quiz_secondary_btn border-0">
+                                    {{ __('frontend.View History') }}
+                                </button>
+                            @endif
+
+                            <a href="{{ route('practice-quiz.answer-sheet', $quiz->id) }}"
+                               class="font_1 font_16 f_w_600 theme_text3 quiz_secondary_btn d-inline-flex align-items-center">
+                                {{ __('student.See Answer Sheet') }}
+                            </a>
                         </div>
+
+                        @if(isset($preResult) && count($preResult) > 0)
+                            <div id="historyDiv" class="pt-5" style="display: none;">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('common.Date') }}</th>
+                                                <th>{{ __('quiz.Attempted') }}</th>
+                                                <th>{{ __('quiz.Not Attempted') }}</th>
+                                                <th>{{ __('quiz.Marks') }}</th>
+                                                <th>{{ __('quiz.Percentage') }}</th>
+                                                <th>{{ __('common.Rating') }}</th>
+                                                <th>{{ __('common.Details') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($preResult as $pre)
+                                                @php
+                                                    $attemptedCount = (int)$pre->correct_answers + (int)$pre->wrong_answers;
+                                                    $unattemptedRow = max(0, (int)$pre->total_questions - $attemptedCount);
+                                                @endphp
+                                                <tr>
+                                                    <td>{{ $pre->created_at->format('d M Y, h:i A') }}</td>
+                                                    <td>{{ $attemptedCount }}</td>
+                                                    <td>{{ $unattemptedRow }}</td>
+                                                    <td>{{ $pre->obtained_marks }}/{{ $pre->total_marks }}</td>
+                                                    <td>{{ $pre->percentage }}%</td>
+                                                    <td class="{{ $pre->pass == 1 ? 'text-success fw-bold' : 'text-danger fw-bold' }}">
+                                                        {{ $pre->pass == 1 ? __('frontend.Passed') : __('frontend.Failed') }}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('practice-quiz.answer-sheet', $pre->id) }}"
+                                                           class="theme_btn small_btn2 text-white">
+                                                            {{ __('student.See Answer Sheet') }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         @endif
-                        
                     </div>
-                    @endforeach
-                    
                 </div>
             </div>
-            
         </div>
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    $(document).ready(function () {
+        $('.showHistoryBtn').on('click', function () {
+            $('#historyDiv').slideToggle(250, function () {
+                if ($(this).is(':visible')) {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    });
+</script>
+@endpush

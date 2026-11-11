@@ -47,4 +47,31 @@ class PracticeQuiz extends Model
         }
         return 0;
     }
+
+    public function getScopeLabelAttribute()
+    {
+        if ($this->scope == 'lesson') {
+            $ids = $this->lesson_ids ? array_filter(explode(',', $this->lesson_ids)) : [];
+            if (count($ids) > 1) {
+                $names = Lesson::whereIn('id', $ids)->pluck('name')->implode(', ');
+                return 'Lessons: ' . ($names ?: '-');
+            }
+            return 'Lesson: ' . ($this->lesson->name ?? '-');
+        }
+        if ($this->scope == 'chapter') {
+            $ids = $this->chapter_ids ? array_filter(explode(',', $this->chapter_ids)) : [];
+            if (count($ids) > 1) {
+                $names = Chapter::whereIn('id', $ids)->pluck('name')->implode(', ');
+                return 'Chapters: ' . ($names ?: '-');
+            }
+            return 'Chapter: ' . ($this->chapter->name ?? '-');
+        }
+        return 'Entire Course';
+    }
+
+    public function getUnattemptedCountAttribute()
+    {
+        $attempted = (int)$this->correct_answers + (int)$this->wrong_answers;
+        return max(0, (int)$this->total_questions - $attempted);
+    }
 }

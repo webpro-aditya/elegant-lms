@@ -563,7 +563,7 @@
                                             </div>
                                             <div class="pl-20 text-end ms-3 d-flex align-items-center flex-row">
                                                 @if(Route::has('practice-quiz.setup') && class_exists('\Modules\QuestionPool\Entities\QuestionPoolQuestion') && \Modules\QuestionPool\Entities\QuestionPoolQuestion::where('course_id', $course->id)->exists())
-                                                    <a href="{{ route('practice-quiz.setup', $course->id) }}" class="text-nowrap mx-3" style="background-color: #1B75BB; color: #fff; border: none; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 10px rgba(27, 117, 187, 0.2); transition: all 0.3s ease; font-size: 14px; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" target="_blank" title="Practice Quiz">
+                                                    <a href="{{ route('practice-quiz.setup', $course->id) }}" class="text-nowrap mx-3" style="background: var(--system_primery_color); background-size: 200% auto; color: #fff; border: none; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; font-size: 14px; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" target="_blank" title="Practice Quiz">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                                         Practice Quiz
                                                     </a>
@@ -656,7 +656,7 @@
 
     @include(theme('snippets.floating-menu'))
 
-    <div class="course_fullview_wrapper {{$lesson->is_quiz == 1 ? '' : 'video'}} {{$lesson->host == 'Editor' ? 'flex-column justify-content-start p-4' : ''}}">
+    <div class="course_fullview_wrapper {{($lesson->is_quiz == 1 || $lesson->is_practice_quiz == 1) ? '' : 'video'}} {{$lesson->host == 'Editor' ? 'flex-column justify-content-start p-4' : ''}}">
         @if ($lesson->is_quiz == 1)
             @if (count($result) != 0)
                 <div class="quiz_score_wrapper w-100 mt_70">
@@ -1098,12 +1098,70 @@ if ($assign->questionBank->shuffle==1){
             @endif
             
         @elseif($lesson->is_practice_quiz == 1)
-            <div class="d-flex justify-content-center align-items-center h-100 w-100 flex-column" style="min-height: 400px; background: #000;">
-                <h4 class="mb-4 text-white">{{ $lesson->name }}</h4>
-                <p class="text-white mb-4">{{ __('Practice Quiz') }}</p>
-                <a href="{{ route('practice-quiz.setup', ['courseId' => $course->id, 'quiz_lesson_id' => $lesson->id]) }}" class="theme_btn" target="_blank">
-                    {{ __('Start Practice Quiz') }} <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+            @php
+                $pqChapterIds = $lesson->practice_quiz_chapter_ids ? array_filter(explode(',', $lesson->practice_quiz_chapter_ids)) : ($lesson->chapter_id ? [$lesson->chapter_id] : []);
+                $pqLessonIds = $lesson->practice_quiz_lesson_ids ? array_filter(explode(',', $lesson->practice_quiz_lesson_ids)) : ($lesson->practice_quiz_lesson_id ? [$lesson->practice_quiz_lesson_id] : []);
+                $pqScopeLabel = !empty($pqLessonIds)
+                    ? \Modules\CourseSetting\Entities\Lesson::whereIn('id', $pqLessonIds)->pluck('name')->implode(', ')
+                    : (!empty($pqChapterIds)
+                        ? \Modules\CourseSetting\Entities\Chapter::whereIn('id', $pqChapterIds)->pluck('name')->implode(', ')
+                        : $course->title);
+                $pqQuery = class_exists('\Modules\QuestionPool\Entities\QuestionPoolQuestion')
+                    ? \Modules\QuestionPool\Entities\QuestionPoolQuestion::active()->where('course_id', $course->id)->where('type', '!=', 'F')
+                    : null;
+                if ($pqQuery) {
+                    if (!empty($pqLessonIds)) {
+                        $pqQuery->whereIn('lesson_id', $pqLessonIds);
+                    } elseif (!empty($pqChapterIds)) {
+                        $pqQuery->whereIn('chapter_id', $pqChapterIds);
+                    }
+                    $pqAvailableCount = $pqQuery->count();
+                } else {
+                    $pqAvailableCount = 0;
+                }
+                $pqCount = min((int)($lesson->practice_quiz_question_count ?? 10), $pqAvailableCount);
+            @endphp
+            <div class="quiz_questions_wrapper w-100 ms-lg-5 me-lg-5">
+                <div class="quiz_test_header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="quiz_header_left">
+                        <h3>{{ $lesson->name }}</h3>
+                    </div>
+                    <div class="quiz_header_right">
+                        <span class="question_time">
+                            <span>Practice Quiz</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="quiz_test_body">
+                    <div class="quiz_test_wrapper border-0 shadow-none">
+                        <div class="quiz_test_body p-0">
+                            <ul class="quiz_test_info mb-4">
+                                <li style="grid-template-columns: 150px auto;">
+                                    <span>Scope <span>:</span></span>
+                                    <strong>{{ $pqScopeLabel ?: $course->title }}</strong>
+                                </li>
+                                <li style="grid-template-columns: 150px auto;">
+                                    <span>{{ __('frontend.Questions') }} <span>:</span></span>
+                                    <strong>{{ $pqCount }} {{ __('frontend.Question') }}. ({{ $pqAvailableCount }} in Question Pool)</strong>
+                                </li>
+                                <li class="nowrap" style="grid-template-columns: 150px auto;">
+                                    <span>{{ __('frontend.Duration') }} <span>:</span></span>
+                                    <strong>{{ MinuteFormat($pqCount) }}</strong>
+                                </li>
+                            </ul>
+                            <div class="sumit_skip_btns d-flex align-items-center flex-wrap gap-3">
+                                @if($pqCount > 0)
+                                    <a href="{{ route('practice-quiz.start-lesson', $lesson->id) }}" class="quiz_primary_btn" target="_blank">
+                                        {{ __('frontend.Start Quiz') }}
+                                    </a>
+                                @endif
+                                <a href="{{ route('practice-quiz.setup', ['courseId' => $course->id, 'quiz_lesson_id' => $lesson->id]) }}" class="quiz_secondary_btn" target="_blank">
+                                    Customize Quiz
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         @elseif($lesson->is_assignment == 1)

@@ -32,5 +32,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/practice-quiz/attempt/{id}', [PracticeQuizController::class, 'attempt'])->name('practice-quiz.attempt');
     Route::post('/practice-quiz/submit', [PracticeQuizController::class, 'submit'])->name('practice-quiz.submit');
     Route::get('/practice-quiz/result/{id}', [PracticeQuizController::class, 'result'])->name('practice-quiz.result');
+    Route::get('/practice-quiz/answer-sheet/{id}', [PracticeQuizController::class, 'answerSheet'])->name('practice-quiz.answer-sheet');
     Route::get('/my-practice-quizzes', [PracticeQuizController::class, 'history'])->name('practice-quiz.history');
 });

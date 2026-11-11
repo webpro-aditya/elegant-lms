@@ -1,20 +1,34 @@
 @extends('frontend.infixlmstheme.layouts.dashboard_master')
 @section('title')My Practice Quizzes @endsection
 @section('mainContent')
-<div class="main_content_iner main_content_padding">
-    <div class="dashboard_lg_card">
-        <div class="container-fluid no-gutters">
-            <div class="row">
-                <div class="col-12">
-                    <div class="section__title3 margin_50">
+<style>
+    .pq-history-container {
+        padding: 25px 0 40px;
+    }
+    #quizFilterForm .select2-container .select2-selection--single {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+    }
+    #quizFilterForm .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    #quizFilterForm .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px;
+    }
+</style>
+
+<div class="main_content_iner main_content_padding pq-history-container">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-xl-11">
+                <div class="quiz_test_wrapper mb_30">
+                    <div class="quiz_test_header d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h3>My Practice Quizzes History</h3>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="dashboard_white_box p-4">
-                        
+
+                    <div class="quiz_test_body">
                         <div class="mb-4">
                             <form action="{{ route('practice-quiz.history') }}" method="GET" id="quizFilterForm">
                                 <div class="row align-items-center">
@@ -50,72 +64,67 @@
                                             <option value="in_progress" {{ $filter_status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                                         </select>
                                     </div>
-                                    <div class="col-lg-auto col-md-12 col-sm-12 mb-2 d-flex align-items-center" style="gap: 15px;">
-                                        <button class="theme_btn" type="submit" id="filterBtn" style="border-radius: 5px; padding: 10px 28px; white-space: nowrap;">Filter</button>
-                                        <a href="#" id="resetBtn" style="color: #222; font-weight: 600; text-decoration: none; white-space: nowrap;">Reset</a>
+                                    <div class="col-lg-auto col-md-12 col-sm-12 mb-2 d-flex align-items-center" style="gap: 12px;">
+                                        <button class="theme_btn" type="submit" id="filterBtn" style="border-radius: 4px; padding: 10px 26px; white-space: nowrap;">Filter</button>
+                                        <a href="#" id="resetBtn" style="color: #1f2b40; font-weight: 600; text-decoration: none; white-space: nowrap;">Reset</a>
                                     </div>
                                 </div>
                             </form>
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="thead-light">
+                            <table class="table custom_table3 table-bordered table-hover">
+                                <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Course</th>
+                                        <th>{{ __('common.Date') }}</th>
+                                        <th>{{ __('courses.Course') }}</th>
                                         <th>Scope</th>
-                                        <th>Score</th>
-                                        <th>Result</th>
-                                        <th>Action</th>
+                                        <th>{{ __('quiz.Marks') }}</th>
+                                        <th>{{ __('common.Result') }}</th>
+                                        <th>{{ __('common.Action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($quizzes as $quiz)
-                                    <tr>
-                                        <td>{{ $quiz->created_at->format('d M Y, h:i A') }}</td>
-                                        <td>{{ $quiz->course->title ?? '-' }}</td>
-                                        <td>
-                                            @if($quiz->scope == 'lesson')
-                                                Lesson: {{ $quiz->lesson->name ?? '-' }}
-                                            @elseif($quiz->scope == 'chapter')
-                                                Chapter: {{ $quiz->chapter->name ?? '-' }}
-                                            @else
-                                                Entire Course
-                                            @endif
-                                        </td>
-                                        <td style="color: #333;">
-                                            @if($quiz->status == 1)
-                                                <strong style="color: #333;">{{ $quiz->percentage }}%</strong> ({{ $quiz->obtained_marks }}/{{ $quiz->total_marks }})
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($quiz->status == 1)
-                                                @if($quiz->pass == 1)
-                                                    <span class="badge px-2 py-1" style="background-color: #28a745; color: #fff;">PASSED</span>
+                                        <tr>
+                                            <td>{{ $quiz->created_at->format('d M Y, h:i A') }}</td>
+                                            <td>{{ $quiz->course->title ?? '-' }}</td>
+                                            <td>{{ $quiz->scope_label }}</td>
+                                            <td style="color: #1f2b40;">
+                                                @if($quiz->status == 1)
+                                                    <strong>{{ $quiz->percentage }}%</strong> ({{ $quiz->obtained_marks }}/{{ $quiz->total_marks }})
                                                 @else
-                                                    <span class="badge px-2 py-1" style="background-color: #dc3545; color: #fff;">FAILED</span>
+                                                    -
                                                 @endif
-                                            @else
-                                                <span class="badge px-2 py-1" style="background-color: #ffc107; color: #333;">IN PROGRESS</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($quiz->status == 1)
-                                                <a href="{{ route('practice-quiz.result', $quiz->id) }}" class="btn btn-sm btn-info text-white">View Result</a>
-                                            @else
-                                                <a href="{{ route('practice-quiz.attempt', $quiz->id) }}" class="btn btn-sm btn-primary text-white">Resume</a>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td>
+                                                @if($quiz->status == 1)
+                                                    @if($quiz->pass == 1)
+                                                        <span class="badge px-2 py-1" style="background-color: #28a745; color: #fff;">{{ __('frontend.Passed') }}</span>
+                                                    @else
+                                                        <span class="badge px-2 py-1" style="background-color: #dc3545; color: #fff;">{{ __('frontend.Failed') }}</span>
+                                                    @endif
+                                                @else
+                                                    <span class="badge px-2 py-1" style="background-color: #ffc107; color: #333;">IN PROGRESS</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($quiz->status == 1)
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <a href="{{ route('practice-quiz.result', $quiz->id) }}" class="btn btn-sm text-white" style="background: #1f2b40;">View Score</a>
+                                                        <a href="{{ route('practice-quiz.answer-sheet', $quiz->id) }}" class="theme_btn small_btn2 text-white">{{ __('student.See Answer Sheet') }}</a>
+                                                    </div>
+                                                @else
+                                                    <a href="{{ route('practice-quiz.attempt', $quiz->id) }}" class="theme_btn small_btn2 text-white">Resume</a>
+                                                @endif
+                                            </td>
+                                        </tr>
                                     @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <p class="text-muted mb-0">No practice quizzes taken yet.</p>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <p class="text-muted mb-0">No practice quizzes taken yet.</p>
+                                            </td>
+                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -126,32 +135,19 @@
         </div>
     </div>
 </div>
-<style>
-    #quizFilterForm .select2-container .select2-selection--single {
-        height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 8px;
-    }
-    #quizFilterForm .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px;
-    }
-    #quizFilterForm .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 40px;
-    }
-</style>
+
 <link href="{{assetPath('frontend/infixlmstheme/css/select2.min.css')}}{{assetVersion()}}" rel="stylesheet"/>
 <script src="{{assetPath('frontend/infixlmstheme/js/select2.min.js')}}{{assetVersion()}}"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if($.fn.select2) {
+    document.addEventListener("DOMContentLoaded", function () {
+        if ($.fn.select2) {
             $('#course_id').select2({ width: '100%', placeholder: 'Select Course', allowClear: true });
             $('#chapter_id').select2({ width: '100%', placeholder: 'Select Chapter', allowClear: true });
             $('#lesson_id').select2({ width: '100%', placeholder: 'Select Lesson', allowClear: true });
             $('#status').select2({ width: '100%', placeholder: 'Select Status', allowClear: true });
         }
 
-        $('#quizFilterForm').on('submit', function(e) {
+        $('#quizFilterForm').on('submit', function (e) {
             e.preventDefault();
             var form = $(this);
             var btn = $('#filterBtn');
@@ -163,20 +159,20 @@
                 url: form.attr('action'),
                 type: 'GET',
                 data: form.serialize(),
-                success: function(response) {
+                success: function (response) {
                     var tableHtml = $(response).find('.table-responsive').html();
                     $('.table-responsive').html(tableHtml);
                     btn.text(originalText);
                     btn.prop('disabled', false);
                 },
-                error: function() {
+                error: function () {
                     btn.text(originalText);
                     btn.prop('disabled', false);
                 }
             });
         });
-        
-        $('#resetBtn').on('click', function(e) {
+
+        $('#resetBtn').on('click', function (e) {
             e.preventDefault();
             $('#course_id').val('').trigger('change');
             $('#chapter_id').val('').trigger('change');
