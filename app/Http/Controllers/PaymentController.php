@@ -569,6 +569,26 @@ class PaymentController extends Controller
                         }
                     }
 
+                    //payment confirm
+                    if ($checkout_info->purchase_price > 0 && !$certificate && !$invoice) {
+                        $notificationTemplate = 'Payment_Done';
+                        $notificationTemplateData = [
+                            'name' => $user->name,
+                            'amount' => $checkout_info->purchase_price,
+                            'txn_id' => $checkout_info->tracking,
+                            'payment_date' => showDate(Carbon::now()),
+                        ];
+                        if ($gateWayName) {
+                            $checkout_info->payment_method = $gateWayName;
+                        }
+                        $checkout_info->status = 1;
+                        $checkout_info->save();
+
+                        $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
+
+                        $this->sendNotification($notificationTemplate, $user, $notificationTemplateData, [], $invoiceAttachment);
+                    }
+
                     return true;
                 } else {
                     Toastr::error(trans('frontend.Something Went Wrong'), trans('common.Error'));
@@ -662,20 +682,6 @@ class PaymentController extends Controller
 
     public function defaultPayment($checkout_info, $user, $discount, $cart, $carts, $courseType, $gateWayName = null, $installment_purchase_id = null)
     {
-
-        //payment confirm
-        if ($checkout_info->purchase_price > 0) {
-            $notificationTemplate = 'Payment_Done';
-            $notificationTemplateData = [
-                'name' => $user->name,
-                'amount' => $checkout_info->purchase_price,
-                'txn_id' => $checkout_info->tracking,
-                'payment_date' => showDate(Carbon::now()),
-            ];
-
-            $this->sendNotification($notificationTemplate, $user, $notificationTemplateData);
-
-        }
 
         if ($cart->course_id != 0) {
             $courseType->single = 1;
@@ -855,6 +861,12 @@ class PaymentController extends Controller
                 }
             }
 
+            if ($gateWayName) {
+                $checkout_info->payment_method = $gateWayName;
+            }
+            $checkout_info->status = 1;
+            $checkout_info->save();
+
             $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
@@ -981,6 +993,12 @@ class PaymentController extends Controller
             $payout->reveune = $reveune;
             $payout->status = 0;
             $payout->save();
+
+            if ($gateWayName) {
+                $checkout_info->payment_method = $gateWayName;
+            }
+            $checkout_info->status = 1;
+            $checkout_info->save();
 
             $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
@@ -1852,6 +1870,12 @@ class PaymentController extends Controller
             }
 
 
+            if ($gateWayName) {
+                $checkout_info->payment_method = $gateWayName;
+            }
+            $checkout_info->status = 1;
+            $checkout_info->save();
+
             $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
@@ -1998,6 +2022,12 @@ class PaymentController extends Controller
                 $interface = App::make(InvoiceRepositoryInterface::class);
                 $interface->sendInvoice($checkout_info->user->id, null, $checkout_info);
             }
+            if ($gateWayName) {
+                $checkout_info->payment_method = $gateWayName;
+            }
+            $checkout_info->status = 1;
+            $checkout_info->save();
+
             $invoiceAttachment = $this->generateInvoiceAttachment($checkout_info);
             $this->sendNotification('Course_Enroll_Payment', $checkout_info->user, [
                 'time' => \Illuminate\Support\Carbon::now()->translatedFormat('d-M-Y ,s:i A'),
